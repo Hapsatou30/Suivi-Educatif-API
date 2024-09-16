@@ -13,6 +13,12 @@ return new class extends Migration
     {
         Schema::create('notes', function (Blueprint $table) {
             $table->id();
+            $table->float('notes');
+            $table->string('commentaire');
+            $table->foreignId('evaluation_id')->constrained('evaluations')->onDelete('cascade');
+            $table->foreignId('eleve_id')->constrained('eleves')->onDelete('cascade');
+            $table->foreignId('bulletin_id')->constrained('bulletins')->onDelete('cascade');
+            $table->softDeletes();
             $table->timestamps();
         });
     }

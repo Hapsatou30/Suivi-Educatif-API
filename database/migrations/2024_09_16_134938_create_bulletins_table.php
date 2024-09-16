@@ -13,6 +13,10 @@ return new class extends Migration
     {
         Schema::create('bulletins', function (Blueprint $table) {
             $table->id();
+            $table->enum('periode',['1_semestre','2_semestre']);
+            $table->float('moyenne');
+            $table->string('commentaire');
+            $table->softDeletes();
             $table->timestamps();
         });
     }

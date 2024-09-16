@@ -13,6 +13,10 @@ return new class extends Migration
     {
         Schema::create('annee_scolaires', function (Blueprint $table) {
             $table->id();
+            $table->string('annee_debut');
+            $table->string('annee_fin');
+            $table->enum('etat', ['En_cours', 'Fermée']);
+            $table->softDeletes();
             $table->timestamps();
         });
     }

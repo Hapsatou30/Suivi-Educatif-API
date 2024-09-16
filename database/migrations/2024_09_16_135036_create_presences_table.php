@@ -13,6 +13,13 @@ return new class extends Migration
     {
         Schema::create('presences', function (Blueprint $table) {
             $table->id();
+            $table->date('date_presence');
+            $table->enum('status', ['present', 'absent'])->default('present');
+            $table->string('motif');
+            $table->string('justification');
+            $table->foreignId('classe_eleve_id')->constrained('classe_eleves')->onDelete('cascade');
+            $table->foreignId('classe_prof_id')->constrained('classe_profs')->onDelete('cascade');
+            $table->softDeletes();
             $table->timestamps();
         });
     }

@@ -13,6 +13,9 @@ return new class extends Migration
     {
         Schema::create('prof_matieres', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('professeur_id')->constrained('professeurs')->onDelete('cascade');
+            $table->foreignId('matiere_id')->constrained('matieres')->onDelete('cascade');
+            $table->softDeletes();
             $table->timestamps();
         });
     }

@@ -13,6 +13,12 @@ return new class extends Migration
     {
         Schema::create('cahier_textes', function (Blueprint $table) {
             $table->id();
+            $table->string('titre');
+            $table->text('resume');
+            $table->date('date');
+            $table->string('ressource');
+            $table->foreignId('classe_prof_id')->constrained('classe_profs')->onDelete('cascade');
+            $table->softDeletes();
             $table->timestamps();
         });
     }

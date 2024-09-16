@@ -13,6 +13,12 @@ return new class extends Migration
     {
         Schema::create('evaluations', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('classe_prof_id')->constrained('classe_profs')->onDelete('cascade');
+            $table->string('nom');
+            $table->date('date');
+            $table->time('heure');
+            $table->integer('duree');
+            $table->enum('type_evaluation', ['Devoir', 'Examen']);
             $table->timestamps();
         });
     }
