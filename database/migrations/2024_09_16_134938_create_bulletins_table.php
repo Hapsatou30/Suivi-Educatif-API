@@ -14,8 +14,9 @@ return new class extends Migration
         Schema::create('bulletins', function (Blueprint $table) {
             $table->id();
             $table->enum('periode',['1_semestre','2_semestre']);
-            $table->float('moyenne');
+            $table->float('moyenne', 4, 2);
             $table->string('commentaire');
+            $table->foreignId('classe_eleve_id')->constrained('classe_eleves')->onDelete('cascade');
             $table->softDeletes();
             $table->timestamps();
         });

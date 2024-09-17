@@ -15,8 +15,9 @@ return new class extends Migration
             $table->id();
             $table->string('nom');
             $table ->string('prenom');
-            $table->string('telephone');
+            $table->string('telephone')->unique();
             $table->string('adresse');
+            $table->string('photo')->nullable();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->softDeletes();
             $table->timestamps();

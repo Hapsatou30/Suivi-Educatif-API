@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('nom');
             $table->date('date');
             $table->time('heure');
-            $table->integer('duree');
+            $table->integer('duree'); // Durée en minutes
             $table->enum('type_evaluation', ['Devoir', 'Examen']);
             $table->timestamps();
         });

@@ -30,4 +30,10 @@ class ClasseEleve extends Model
         return $this->hasMany(Presence::class);
     }
 
+    //relation avec bulletin
+    public function bulletins()
+    {
+        return $this->hasMany(Bulletin::class);
+    }
+
 }

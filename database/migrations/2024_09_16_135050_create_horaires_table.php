@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('horaires', function (Blueprint $table) {
             $table->id();
             $table->string('jour');
-            $table->string('heure_debut');
-            $table->string('heure_fin');
+            $table->time('heure_debut');
+            $table->time('heure_fin');
             $table->foreignId('classe_prof_id')->constrained('classe_profs')->onDelete('cascade');
             $table->timestamps();
         });

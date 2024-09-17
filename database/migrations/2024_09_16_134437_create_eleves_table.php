@@ -13,11 +13,11 @@ return new class extends Migration
     {
         Schema::create('eleves', function (Blueprint $table) {
             $table->id();
-            $table->string('matricule');
+            $table->string('matricule')->unique();
             $table->string('nom');
             $table->string('prenom');
             $table->date('date_naissance');
-            $table->string('telephone');
+            $table->string('telephone')->unique();
             $table->string('photo')->nullable();
             $table->enum('genre', ['Feminin', 'Masculin']);
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');

@@ -18,4 +18,10 @@ class Bulletin extends Model
     {
         return $this->hasMany(Note::class);
     }
+
+    //relation avec clase_eleve
+    public function eleve()
+    {
+        return $this->belongsTo(ClasseEleve::class);
+    }
 }
