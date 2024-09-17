@@ -35,7 +35,31 @@ class ApiController extends Controller
                 "access_token" => $token,
                 "token_type" => "bearer",
                 "user" => auth()->user(),
-                "expires_in" => env("JwT_TTL") * 30  . 'seconds'
+                "expires_in" => env("JwT_TTL") * 60  . 'seconds'
+            ]);
+        }
+
+    //methode pour la déconnexion
+
+        public function logout()
+        {
+            // Supprimer le jeton d'authentification
+            auth()->logout();
+            // Renvoyer une réponse avec un message de succès
+            return response()->json(['message' => 'Déconnexion réussie']);
+        }
+
+        //methode pour rafraichir
+        public function refresh()
+        {
+            // Renouveler le jeton d'authentification
+            $token = auth()->refresh();
+            // Renvoyer le nouveau jeton d'authentification
+            return response()->json([
+                "access_token" => $token,
+                "token_type" => "bearer",
+                "user" => auth()->user(),
+                "expires_in" => env("JWT_TTL") * 60  .'seconds'
             ]);
         }
     
