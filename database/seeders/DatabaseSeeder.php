@@ -28,7 +28,15 @@ class DatabaseSeeder extends Seeder
             ClasseEleveSeeder::class,
             MatiereSeeder::class,
             NoteSeeder::class,
-            
+            BulletinSeeder::class,
+            CahierTexteSeeder::class,
+            EvaluationsSeeder::class,
+            HoraireSeeder::class,
+            PresenceSeeder::class,
+
+
+          
+
 
         ]);
     }
