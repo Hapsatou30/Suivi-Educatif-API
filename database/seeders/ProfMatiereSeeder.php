@@ -11,23 +11,31 @@ use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 class ProfMatiereSeeder extends Seeder
 {
     /**
-     * Run the database seeds.
+     * Exécute les seeds pour lier les professeurs aux matières qu'ils enseignent.
      */
     public function run(): void
     {
-        // Récupérer les professeurs et les matières
+        // Récupérer tous les professeurs
         $professeurs = Professeur::all();
+        
+        // Récupérer toutes les matières disponibles
         $matieres = Matiere::all();
 
-        // Associer chaque professeur à une matière
+        // Parcourir chaque professeur
         foreach ($professeurs as $professeur) {
-            // Sélectionner une matière aléatoirement
-            $matiere = $matieres->random();
+            // Choisir un nombre aléatoire de matières qu'un professeur peut enseigner (par exemple entre 1 et 3)
+            $nombreMatieres = rand(1, 3);
 
-            ProfMatiere::create([
-                'professeur_id' => $professeur->id,
-                'matiere_id'    => $matiere->id,
-            ]);
+            // Sélectionner aléatoirement un ensemble de matières pour ce professeur
+            $matieresEnseignees = $matieres->random($nombreMatieres);
+
+            // Associer le professeur aux matières sélectionnées
+            foreach ($matieresEnseignees as $matiere) {
+                ProfMatiere::create([
+                    'professeur_id' => $professeur->id,
+                    'matiere_id'    => $matiere->id,
+                ]);
+            }
         }
     }
 }
