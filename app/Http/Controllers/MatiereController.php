@@ -9,27 +9,29 @@ use App\Models\Matiere;
 class MatiereController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     *methode pour afficher la liste des matieres
      */
     public function index()
     {
-        //
+        $matieres = Matiere::all();
+        return response()->json ([
+           'message' => 'Liste des matieres',
+           'données' => $matieres,
+           'status' => 200
+        ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
 
-    /**
-     * Store a newly created resource in storage.
-     */
+     //methode pour créer une matiere
     public function store(StoreMatiereRequest $request)
     {
-        //
+        //creer une matiere
+        $matiere = Matiere::create($request->all());
+        return response()->json ([
+           'message' => 'Matiere créée avec succès',
+           'données' => $matiere,
+           'status' => 201
+        ]);
     }
 
     /**
@@ -37,30 +39,39 @@ class MatiereController extends Controller
      */
     public function show(Matiere $matiere)
     {
-        //
+        //voir les details pour une matiere
+        return response()->json ([
+           'message' => 'Détails de la matière',
+           'données' => $matiere,
+           'status' => 200
+        ]);
     }
 
+   
     /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Matiere $matiere)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
+     * methode pour modifier les informations d'une matiere
      */
     public function update(UpdateMatiereRequest $request, Matiere $matiere)
     {
-        //
+        //modifier les informations d'une matiere
+        $matiere->update($request->all());
+        return response()->json ([
+           'message' => 'Matiere modifiée avec succès',
+           'données' => $matiere,
+           'status' => 200
+        ]);
     }
 
     /**
-     * Remove the specified resource from storage.
+     * methode pour supprimer une matiere
      */
     public function destroy(Matiere $matiere)
     {
-        //
+        //supprimer une matiere
+        $matiere->delete();
+        return response()->json ([
+           'message' => 'Matiere supprimée avec succès',
+           'status' => 200
+        ]);
     }
 }
