@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\ApiController;
 use App\Http\Controllers\MatiereController;
+use App\Http\Controllers\ProfesseurController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -23,10 +24,14 @@ Route::middleware(['auth:api'])->group(function () {
 
 
 
-//route pour les matières
+
 Route::group ([ "middleware" => ["auth"] ],  function(){
 
+    //route pour les matières
     Route::apiResource('matieres', MatiereController::class);
+
+    //route pour les professeurs
+    Route::apiResource('professeurs', ProfesseurController::class);
 });
 
 
