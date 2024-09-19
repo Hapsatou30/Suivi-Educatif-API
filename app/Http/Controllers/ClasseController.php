@@ -9,58 +9,107 @@ use App\Models\Classe;
 class ClasseController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Methode pour afficher la liste des classes
      */
     public function index()
     {
-        //
+        //liste des classe
+        $classes = Classe::all();
+        return response()->json([
+           'message' => 'Liste des classes',
+           'données' => $classes,
+           'status' => 200
+        ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
+   
 
     /**
-     * Store a newly created resource in storage.
+     * Methode pour ajouter une classe
      */
     public function store(StoreClasseRequest $request)
     {
-        //
+        //ajouter une classe
+        $classe = Classe::create($request->all());
+        return response()->json([
+           'message' => 'Classe créée avec succès',
+           'données' => $classe,
+           'status' => 201
+        ]);
+    }
+
+    /**Detail d'une classe
+     */
+    public function show($id)
+    {
+        //verification de la classe
+        $classe = Classe::find($id);
+        if (!$classe) {
+            return response()->json([
+               'message' => 'Classe introuvable',
+               'status' => 404
+            ]);
+        }
+        return response()->json([
+           'message' => 'Détail de la classe',
+           'données' => $classe,
+           'status' => 200
+        ]);
     }
 
     /**
-     * Display the specified resource.
+     * Methode pour modification
      */
-    public function show(Classe $classe)
+    public function update(UpdateClasseRequest $request, $id)
     {
-        //
+        //verification de la classe
+        $classe = Classe::find($id);
+        if (!$classe) {
+            return response()->json([
+               'message' => 'Classe introuvable',
+               'status' => 404
+            ]);
+        }
+        // modifier les informations de la classe
+        $classe->update($request->all());
+        return response()->json([
+           'message' => 'Classe modifiée avec succès',
+           'données' => $classe,
+           'status' => 200
+        ]);
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Methode pour supprimer une classe
      */
-    public function edit(Classe $classe)
+    public function destroy($id)
     {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateClasseRequest $request, Classe $classe)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Classe $classe)
-    {
-        //
+        // Récupérer classe, y compris les enregistrements supprimés (soft deleted)
+        $classe = Classe::withTrashed()->find($id);
+    
+        // Vérifier si classe existe, sinon retourner une réponse 404
+        if (!$classe) {
+            return response()->json([
+                'message' => "classe avec ID $id n'existe pas.",
+                'status' => 404
+            ], 404);
+        }
+    
+        // Vérifier si classe est déjà supprimée via soft delete
+        if ($classe->trashed()) {
+            return response()->json([
+                'message' => "classe avec ID $id a déjà été supprimée.",
+                'status' => 400
+            ], 400);
+        }
+    
+        // Supprimer classe (utilise soft delete)
+        $classe->delete();
+    
+        // Retourner une réponse JSON indiquant que la suppression a été effectuée avec succès
+        return response()->json([
+            'message' => 'Classe supprimée avec succès',
+            'status' => 200
+        ]);
     }
 }
