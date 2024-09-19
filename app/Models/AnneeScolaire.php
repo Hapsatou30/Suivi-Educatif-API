@@ -13,6 +13,9 @@ class AnneeScolaire extends Model
     // Permet l'assignation en masse de tous les attributs du modèle.
     protected $guarded = [];
 
+    // Assurez-vous qu'il n'y a pas d'attributs masqués
+    protected $hidden = [];
+
     //relation avec classe
     public function classes()
     {
