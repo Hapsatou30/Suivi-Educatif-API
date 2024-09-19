@@ -11,6 +11,7 @@ use App\Http\Controllers\ClasseProfController;
 use App\Http\Controllers\ProfesseurController;
 use App\Http\Controllers\AnneeClasseController;
 use App\Http\Controllers\ClasseEleveController;
+use App\Http\Controllers\ProfMatiereController;
 use App\Http\Controllers\AnneeScolaireController;
 
 Route::get('/user', function (Request $request) {
@@ -39,6 +40,9 @@ Route::group ([ "middleware" => ["auth"] ],  function(){
 
     //route pour les professeurs
     Route::apiResource('professeurs', ProfesseurController::class);
+
+    //route pour les professeur-matiere
+    Route::apiResource('professeur-matieres', ProfMatiereController::class);
 
     //route pour les années scolaires
     Route::apiResource('annees-scolaires', AnneeScolaireController::class);
