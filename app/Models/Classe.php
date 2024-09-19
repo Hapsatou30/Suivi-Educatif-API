@@ -15,7 +15,7 @@ class Classe extends Model
     //relation avec annee scolaire
     public function annees()
     {
-        return $this->belongsToMany(AnneeScolaire::class, 'annee_classes')
+        return $this->belongsToMany(AnneeScolaire::class, 'annee_classes', 'classe_id', 'annee_id')
         ->withPivot('id','annee_id', 'classe_id')
         ->withTimestamps();
     }
