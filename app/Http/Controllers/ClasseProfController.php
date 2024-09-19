@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ClasseProf;
 use App\Models\AnneeClasse;
+use App\Models\ProfMatiere;
 use App\Models\AnneeScolaire;
 use App\Http\Requests\StoreClasseProfRequest;
 use App\Http\Requests\UpdateClasseProfRequest;
@@ -72,10 +73,55 @@ return response()->json($data);
     /**
      * Display the specified resource.
      */
-    public function show(ClasseProf $classeProf)
-    {
-        //
+    public function show($id)
+    {   
+        // Trouver la ClasseProf par son ID
+        $classeProf = ClasseProf::with(['profMatiere.professeur', 'profMatiere.matiere', 'anneeClasse.classe'])
+                                 ->find($id);
+        //Vérifier si classe prof existe
+        if (!$classeProf) {
+            return response()->json(['error' => 'ClasseProf non trouvée'], 404);
+        }
+    
+        // Préparer le professeur
+        $profMatiere = $classeProf->profMatiere;
+        if (!$profMatiere) {
+            return response()->json(['error' => 'ProfMatiere non trouvée pour cette ClasseProf'], 404);
+        }
+    
+        $professeur = $profMatiere->professeur;
+        if (!$professeur) {
+            return response()->json(['error' => 'Professeur non trouvé pour cette ProfMatiere'], 404);
+        }
+    
+        // Récupérer toutes les matières et classes du professeur
+        $profMatieres = ProfMatiere::with(['matiere', 'anneeClasses.classe'])
+                                    ->where('professeur_id', $professeur->id)
+                                    ->get();
+    
+        // Construire la réponse
+        $classesEtMatieres = [];
+        foreach ($profMatieres as $pm) {
+            foreach ($pm->anneeClasses as $anneeClasse) {
+                $classesEtMatieres[] = [
+                    'nom_classe' => $anneeClasse->classe->nom,
+                    'matiere' => $pm->matiere->nom,
+                    'annee' => $anneeClasse->annee->annee_debut . ' - ' . $anneeClasse->annee->annee_fin,
+                ];
+            }
+        }
+    
+        $response = [
+            'professeur' => [
+                'nom' => $professeur->nom,
+                'prenom' => $professeur->prenom,
+            ],
+            'classes_matieres' => $classesEtMatieres,
+        ];
+    
+        return response()->json($response);
     }
+    
 
     
     /**
