@@ -24,19 +24,21 @@ class AnneeClasse extends Model
         return $this->belongsTo(Classe::class);
     }
 
+    
+
+    //relation avec prof_matiere
+    public function profMatieres()
+    {
+        return $this->belongsToMany(ProfMatiere::class, 'classe_profs','annee_classe_id', 'prof_mat_id')
+        ->withPivot('id', 'annee_classe_id', 'prof_mat_id')
+        ->withTimestamps();
+    }
+
     //relation avec eleves
     public function eleves()
     {
         return $this->belongsToMany(Eleve::class, 'classe_eleves')
         ->withPivot('id', 'annee_classe_id', 'eleve_id')
-        ->withTimestamps();
-    }
-
-    //relation avec prof_matiere
-    public function profMatieres()
-    {
-        return $this->belongsToMany(ProfMatiere::class, 'classe_profs')
-        ->withPivot('id', 'annee_classe_id', 'prof_mat_id')
         ->withTimestamps();
     }
 }

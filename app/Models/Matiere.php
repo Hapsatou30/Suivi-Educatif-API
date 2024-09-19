@@ -20,4 +20,10 @@ class Matiere extends Model
         ->withPivot('id','professeur_id', 'matiere_id')
         ->withTimestamps();
     }
+
+     // Relation avec ProfMatiere
+     public function profMatieres()
+     {
+         return $this->hasMany(ProfMatiere::class);
+     }
 }
