@@ -112,18 +112,47 @@ class CahierTexteController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * Methode pour  modifier le cahier texte
      */
-    public function update(UpdateCahierTexteRequest $request, CahierTexte $cahierTexte)
+    public function update(UpdateCahierTexteRequest $request, $id)
     {
-        //
+        // Récupérer le cahier de texte par son ID
+        $cahierTexte = CahierTexte::find($id);
+    
+        // Vérifier si le cahier de texte existe
+        if (!$cahierTexte) {
+            return response()->json([
+                'message' => 'Cahier de texte non trouvé.',
+                'status' => 404
+            ]);
+        }
+    
+       
+    
+        // Récupérer les données validées
+        $data = $request->validated();
+    
+        // Mettre à jour le cahier de texte avec les nouvelles données
+        $cahierTexte->update($data);
+    
+        return response()->json([
+            'message' => 'Cahier de texte modifié avec succès.',
+            'données' => $cahierTexte,
+            'status' => 200
+        ]);
     }
+    
 
     /**
-     * Remove the specified resource from storage.
+     * Methode pour supprimer les cahiers de texte
      */
-    public function destroy(CahierTexte $cahierTexte)
+    public function destroy($id)
     {
-        //
+        //supprimer les cahiers de texte
+        CahierTexte::destroy($id);
+        return response()->json([
+           'message' => 'Cahier de texte supprimé avec succès.',
+           'status' => 200
+        ]);
     }
 }
