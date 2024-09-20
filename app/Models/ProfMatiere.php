@@ -26,7 +26,7 @@ class ProfMatiere extends Model
     //relation avec annee_class
     public function anneeClasses()
     {
-        return $this->belongsToMany(AnneeClasse::class, 'classe_profs')
+        return $this->belongsToMany(AnneeClasse::class, 'classe_profs','annee_classe_id',  'prof_mat_id')
         ->withPivot('id','annee_classe_id',  'prof_mat_id')
         ->withTimestamps();
     }

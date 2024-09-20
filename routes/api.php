@@ -53,15 +53,14 @@ Route::group ([ "middleware" => ["auth"] ],  function(){
     //route pour les années-classes
     Route::apiResource('annees-classes', AnneeClasseController::class);
 
+    //route pour les classes-professeurs
+    Route::apiResource('classes-professeurs', ClasseProfController::class);
 
     //route pour les élèves
     Route::apiResource('eleves', EleveController::class);
 
     //route pour les parents
     Route::apiResource('parents', ParentsController::class);
-
-    //route pour les classes-professeurs
-    Route::apiResource('classes-professeurs', ClasseProfController::class);
 
     //route pour les classes-élèves
     Route::apiResource('classes-eleves', ClasseEleveController::class);

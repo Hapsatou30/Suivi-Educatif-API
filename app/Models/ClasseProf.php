@@ -22,9 +22,10 @@ class ClasseProf extends Model
     //relation avec prof_matiere
     public function profMatiere()
     {
-        return $this->belongsTo(ProfMatiere::class);
+        return $this->belongsTo(ProfMatiere::class,'prof_mat_id');
     }
-
+    
+    
     //relation avec évaluation
     public function evaluations()
     {
