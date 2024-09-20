@@ -13,6 +13,7 @@ use App\Http\Controllers\AnneeClasseController;
 use App\Http\Controllers\ClasseEleveController;
 use App\Http\Controllers\ProfMatiereController;
 use App\Http\Controllers\AnneeScolaireController;
+use App\Http\Controllers\CahierTexteController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -65,6 +66,8 @@ Route::group ([ "middleware" => ["auth"] ],  function(){
     //route pour les classes-élèves
     Route::apiResource('classes-eleves', ClasseEleveController::class);
 
+    //routes pour les cahiers de texte
+   Route::apiResource('cahiers_texte', CahierTexteController::class);
    
 
     //route

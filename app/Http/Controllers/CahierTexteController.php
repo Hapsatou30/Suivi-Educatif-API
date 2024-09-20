@@ -16,20 +16,20 @@ class CahierTexteController extends Controller
         //
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
+   
 
     /**
-     * Store a newly created resource in storage.
+     * Methode pour ajouter un cahier de texte
      */
     public function store(StoreCahierTexteRequest $request)
     {
-        //
+        //ajouter un cahier de texte
+        $cahierTexte = CahierTexte::create($request->all());
+        return response()->json([
+           'message' => 'Cahier de texte créé avec succès',
+           'données' => $cahierTexte,
+           'status' => 201
+        ]);
     }
 
     /**
