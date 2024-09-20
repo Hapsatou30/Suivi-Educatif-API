@@ -68,6 +68,8 @@ Route::group ([ "middleware" => ["auth"] ],  function(){
 
     //routes pour les cahiers de texte
    Route::apiResource('cahiers_texte', CahierTexteController::class);
+   Route::get('cahiers-texte/classe/{classeId}', [CahierTexteController::class, 'show']);
+
    
 
     //route
