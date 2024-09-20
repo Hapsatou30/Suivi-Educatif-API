@@ -5,16 +5,17 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\EleveController;
 use App\Http\Controllers\ClasseController;
 use App\Http\Controllers\Api\ApiController;
+use App\Http\Controllers\HoraireController;
 use App\Http\Controllers\MatiereController;
 use App\Http\Controllers\ParentsController;
 use App\Http\Controllers\ClasseProfController;
 use App\Http\Controllers\ProfesseurController;
 use App\Http\Controllers\AnneeClasseController;
+use App\Http\Controllers\CahierTexteController;
 use App\Http\Controllers\ClasseEleveController;
+use App\Http\Controllers\EvaluationsController;
 use App\Http\Controllers\ProfMatiereController;
 use App\Http\Controllers\AnneeScolaireController;
-use App\Http\Controllers\CahierTexteController;
-use App\Http\Controllers\EvaluationsController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -74,7 +75,14 @@ Route::group ([ "middleware" => ["auth"] ],  function(){
    //route pour les évaluations
    Route::apiResource('evaluations', EvaluationsController::class);
 
-   
+   //routes pour les horaires
+   Route::apiResource('horaires', HoraireController::class);
+ 
+   //horaire d'une classe
+   Route::get('annee_classe/{anneeClasseId}/horaires', [HoraireController::class, 'horaireClasse']);
+
+   //horaires pour un prof
+   Route::get('professeur/{professeurId}/horaires', [HoraireController::class, 'horaireProf']);
 
 });
 

@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Horaire extends Model
 {
-    use HasFactory,SoftDeletes;
+    use HasFactory;
 
     // Permet l'assignation en masse de tous les attributs du modèle.
     protected $guarded = [];
