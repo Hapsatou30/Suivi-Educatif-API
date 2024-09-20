@@ -14,6 +14,7 @@ use App\Http\Controllers\ClasseEleveController;
 use App\Http\Controllers\ProfMatiereController;
 use App\Http\Controllers\AnneeScolaireController;
 use App\Http\Controllers\CahierTexteController;
+use App\Http\Controllers\EvaluationsController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -70,9 +71,11 @@ Route::group ([ "middleware" => ["auth"] ],  function(){
    Route::apiResource('cahiers_texte', CahierTexteController::class);
    Route::get('cahiers-texte/classe/{classeId}', [CahierTexteController::class, 'show']);
 
+   //route pour les évaluations
+   Route::apiResource('evaluations', EvaluationsController::class);
+
    
 
-    //route
 });
 
 
