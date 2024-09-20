@@ -9,37 +9,100 @@ use App\Models\CahierTexte;
 class CahierTexteController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Methode pour afficher les contenu du cahier de texte
      */
     public function index()
     {
-        //
+        // Récupérer les cahiers de texte avec les relations
+        $cahiersTexte = CahierTexte::with([
+            'classeProf.profMatiere.professeur',    // Récupérer les informations du professeur
+            'classeProf.profMatiere.matiere', // Récupérer les informations de la matière
+            'classeProf.anneeClasse.classe',  // Récupérer les informations de la classe
+            'classeProf.anneeClasse.annee'    // Récupérer les informations de l'année
+        ])->get();
+    
+        // Transformer les données pour les rendre plus lisibles
+        $result = $cahiersTexte->map(function ($cahier) {
+            return [
+                'titre' => $cahier->titre,
+                'resume' => $cahier->resume,
+                'date' => $cahier->date,
+                'professeur' => $cahier->classeProf->profMatiere->professeur->prenom,
+                'matiere' => $cahier->classeProf->profMatiere->matiere->nom,
+                'classe' => $cahier->classeProf->anneeClasse->classe->nom,
+                'annee' => $cahier->classeProf->anneeClasse->annee->annee_debut . ' - ' . $cahier->classeProf->anneeClasse->annee->annee_fin
+            ];
+        });
+    
+        return response()->json([
+            'message' => 'Liste des cahiers de texte',
+            'données' => $result,
+            'status' => 200
+        ]);
     }
+    
+   
 
     /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
+     * Methode pour ajouter un cahier de texte
      */
     public function store(StoreCahierTexteRequest $request)
     {
-        //
+        //ajouter un cahier de texte
+        $cahierTexte = CahierTexte::create($request->all());
+        return response()->json([
+           'message' => 'Cahier de texte créé avec succès',
+           'données' => $cahierTexte,
+           'status' => 201
+        ]);
     }
 
     /**
-     * Display the specified resource.
+     * Metode pour voir le cahier de texte pour une classe
      */
-    public function show(CahierTexte $cahierTexte)
-    {
-        //
+    public function show($classeId)
+{
+    // Récupérer les cahiers de texte associés à cette classe via la relation classeProf
+    $cahiersTexte = CahierTexte::whereHas('classeProf', function ($query) use ($classeId) {
+        $query->whereHas('anneeClasse', function ($q) use ($classeId) {
+            $q->where('classe_id', $classeId);
+        });
+    })
+    ->with([
+        'classeProf.profMatiere.professeur',    // Récupérer les informations du professeur
+        'classeProf.profMatiere.matiere', // Récupérer les informations de la matière
+        'classeProf.anneeClasse.classe',  // Récupérer les informations de la classe
+        'classeProf.anneeClasse.annee'    // Récupérer les informations de l'année
+    ])
+    ->get();
+
+    // Vérifier si des cahiers de texte existent pour cette classe
+    if ($cahiersTexte->isEmpty()) {
+        return response()->json([
+            'message' => 'Aucun cahier de texte trouvé pour cette classe.',
+            'status' => 404
+        ]);
     }
 
+    // Transformer les données pour les rendre plus lisibles
+    $result = $cahiersTexte->map(function ($cahier) {
+        return [
+            'titre' => $cahier->titre,
+            'resume' => $cahier->resume,
+            'date' => $cahier->date,
+            'professeur' => $cahier->classeProf->profMatiere->professeur->prenom,
+            'matiere' => $cahier->classeProf->profMatiere->matiere->nom,
+            'classe' => $cahier->classeProf->anneeClasse->classe->nom,
+            'annee' => $cahier->classeProf->anneeClasse->annee->annee_debut . ' - ' . $cahier->classeProf->anneeClasse->annee->annee_fin
+        ];
+    });
+
+    return response()->json([
+        'message' => 'Cahiers de texte pour la classe spécifiée',
+        'données' => $result,
+        'status' => 200
+    ]);
+}
     /**
      * Show the form for editing the specified resource.
      */
@@ -49,18 +112,47 @@ class CahierTexteController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * Methode pour  modifier le cahier texte
      */
-    public function update(UpdateCahierTexteRequest $request, CahierTexte $cahierTexte)
+    public function update(UpdateCahierTexteRequest $request, $id)
     {
-        //
+        // Récupérer le cahier de texte par son ID
+        $cahierTexte = CahierTexte::find($id);
+    
+        // Vérifier si le cahier de texte existe
+        if (!$cahierTexte) {
+            return response()->json([
+                'message' => 'Cahier de texte non trouvé.',
+                'status' => 404
+            ]);
+        }
+    
+       
+    
+        // Récupérer les données validées
+        $data = $request->validated();
+    
+        // Mettre à jour le cahier de texte avec les nouvelles données
+        $cahierTexte->update($data);
+    
+        return response()->json([
+            'message' => 'Cahier de texte modifié avec succès.',
+            'données' => $cahierTexte,
+            'status' => 200
+        ]);
     }
+    
 
     /**
-     * Remove the specified resource from storage.
+     * Methode pour supprimer les cahiers de texte
      */
-    public function destroy(CahierTexte $cahierTexte)
+    public function destroy($id)
     {
-        //
+        //supprimer les cahiers de texte
+        CahierTexte::destroy($id);
+        return response()->json([
+           'message' => 'Cahier de texte supprimé avec succès.',
+           'status' => 200
+        ]);
     }
 }

@@ -13,9 +13,10 @@ class CahierTexte extends Model
     // Permet l'assignation en masse de tous les attributs du modèle.
     protected $guarded = [];
 
-    //relation avec prof_matiere
-    public function profMatiere()
+    // CahierTexte.php
+    public function classeProf()
     {
-        return $this->belongsTo(ProfMatiere::class);
+        return $this->belongsTo(ClasseProf::class);
     }
+
 }
