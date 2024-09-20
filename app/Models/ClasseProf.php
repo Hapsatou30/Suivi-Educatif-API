@@ -16,7 +16,7 @@ class ClasseProf extends Model
     //relation avec annee_classe
     public function anneeClasse()
     {
-        return $this->belongsTo(AnneeClasse::class);
+        return $this->belongsTo(AnneeClasse::class,'annee_classe_id');
     }
 
     //relation avec prof_matiere

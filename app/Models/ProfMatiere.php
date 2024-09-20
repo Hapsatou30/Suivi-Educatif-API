@@ -14,13 +14,13 @@ class ProfMatiere extends Model
     //relation avec professeurs
     public function professeur()
     {
-        return $this->belongsTo(Professeur::class);
+        return $this->belongsTo(Professeur::class,'professeur_id');
     }
 
     //relation avec matieres
     public function matiere()
     {
-        return $this->belongsTo(Matiere::class);
+        return $this->belongsTo(Matiere::class,'matiere_id');
     }
 
     //relation avec annee_class

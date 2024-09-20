@@ -9,13 +9,38 @@ use App\Models\CahierTexte;
 class CahierTexteController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Methode pour afficher les contenu du cahier de texte
      */
     public function index()
     {
-        //
+        // Récupérer les cahiers de texte avec les relations
+        $cahiersTexte = CahierTexte::with([
+            'classeProf.profMatiere.professeur',    // Récupérer les informations du professeur
+            'classeProf.profMatiere.matiere', // Récupérer les informations de la matière
+            'classeProf.anneeClasse.classe',  // Récupérer les informations de la classe
+            'classeProf.anneeClasse.annee'    // Récupérer les informations de l'année
+        ])->get();
+    
+        // Transformer les données pour les rendre plus lisibles
+        $result = $cahiersTexte->map(function ($cahier) {
+            return [
+                'titre' => $cahier->titre,
+                'resume' => $cahier->resume,
+                'date' => $cahier->date,
+                'professeur' => $cahier->classeProf->profMatiere->professeur->prenom,
+                'matiere' => $cahier->classeProf->profMatiere->matiere->nom,
+                'classe' => $cahier->classeProf->anneeClasse->classe->nom,
+                'annee' => $cahier->classeProf->anneeClasse->annee->annee_debut . ' - ' . $cahier->classeProf->anneeClasse->annee->annee_fin
+            ];
+        });
+    
+        return response()->json([
+            'message' => 'Liste des cahiers de texte',
+            'données' => $result,
+            'status' => 200
+        ]);
     }
-
+    
    
 
     /**
