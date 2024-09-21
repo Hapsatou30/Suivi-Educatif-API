@@ -32,28 +32,28 @@ class AnneeScolaireController extends Controller
         //je dois ajouter un contraint 
         //on ne peut pas avoir deux année scolaire en cours
 
-        // $anneeScolaireEnCours = AnneeScolaire::where('etat', 'En_cours')->first();
-        // if($anneeScolaireEnCours) {
-        //     return response()->json([
-        //        'message' => 'Il existe déjà une année scolaire en cours.',
-        //        'status' => 409
-        //     ]);
-        // }
+        $anneeScolaireEnCours = AnneeScolaire::where('etat', 'En_cours')->first();
+        if($anneeScolaireEnCours) {
+            return response()->json([
+               'message' => 'Il existe déjà une année scolaire en cours.',
+               'status' => 409
+            ]);
+        }
 
         // //créer une nouvelle année scolaire
-        // $annee = AnneeScolaire::create($request->all());
-        // return response()->json([
-        //    'message' => 'Année scolaire créée avec succès',
-        //    'données' => $annee,
-        //    'status' => 201
-        // ]);
-        //Ajouter une année scolaire
         $annee = AnneeScolaire::create($request->all());
         return response()->json([
            'message' => 'Année scolaire créée avec succès',
            'données' => $annee,
            'status' => 201
         ]);
+        // //Ajouter une année scolaire
+        // $annee = AnneeScolaire::create($request->all());
+        // return response()->json([
+        //    'message' => 'Année scolaire créée avec succès',
+        //    'données' => $annee,
+        //    'status' => 201
+        // ]);
     }
 
     /**
@@ -95,6 +95,14 @@ class AnneeScolaireController extends Controller
             ], 404);
         }
     
+        $anneeScolaireEnCours = AnneeScolaire::where('etat', 'En_cours')->first();
+        if($anneeScolaireEnCours) {
+            return response()->json([
+               'message' => 'Il existe déjà une année scolaire en cours.',
+               'status' => 409
+            ]);
+        }
+
         // Mise à jour des informations de l'année scolaire
         $anneeScolaire->update($request->all());
     

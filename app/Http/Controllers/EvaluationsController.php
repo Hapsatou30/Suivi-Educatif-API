@@ -9,8 +9,44 @@ use App\Models\Evaluations;
 class EvaluationsController extends Controller
 {
     /**
- * Liste des évaluations par classe
+ * Liste des évaluations du jour 
  */
+public function evaluationsJour()
+{
+    // Récupérer la date du jour
+    $dateDuJour = now()->toDateString(); 
+
+    // Récupérer les évaluations pour la date du jour 
+    $evaluations = Evaluations::with(['classeProf.profMatiere.professeur', 'classeProf.anneeClasse.classe'])
+                                ->whereDate('date', $dateDuJour) 
+                                ->get();
+    // Vérifier s'il y a des évaluations pour aujourd'hui
+    if ($evaluations->isEmpty()) {
+        return response()->json([
+            'message' => "Il n'y a pas d'évaluations prévues pour aujourd'hui.",
+            'status' => 200
+        ]);
+    }
+    // Transformer les données pour afficher les informations souhaitées
+    $resultat = $evaluations->map(function ($evaluation) {
+        return [
+            'matiere' => $evaluation->classeProf->profMatiere->matiere->nom,
+            'Professeur' => $evaluation->classeProf->profMatiere->professeur->prenom. ' - ' .$evaluation->classeProf->profMatiere->professeur->nom,
+            'type' => $evaluation->type_evaluation,
+            'date' => $evaluation->date, 
+            'classe' => $evaluation->classeProf->anneeClasse->classe->nom,
+            'duree' => $evaluation->duree
+        ];
+    });
+
+    return response()->json([
+        'message' => 'Liste des évaluations du jour',
+        'données' => $resultat,
+        'status' => 200
+    ]);
+}
+
+               
    /**
  * Liste des évaluations par classe
  */

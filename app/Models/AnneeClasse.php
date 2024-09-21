@@ -24,15 +24,6 @@ class AnneeClasse extends Model
         return $this->belongsTo(Classe::class);
     }
 
-      //relation avec eleves
-      public function eleves()
-      {
-          return $this->belongsToMany(Eleve::class, 'classe_eleves')
-          ->withPivot('id', 'annee_classe_id', 'eleve_id')
-          ->withTimestamps();
-      }
-    
-
     //relation avec prof_matiere
     public function profMatieres()
     {
@@ -41,5 +32,12 @@ class AnneeClasse extends Model
         ->withTimestamps();
     }
 
+    //relation avec eleves
+    public function eleves()
+    {
+        return $this->belongsToMany(Eleve::class, 'classe_eleves')
+        ->withPivot('id', 'annee_classe_id', 'eleve_id')
+        ->withTimestamps();
+    }
   
 }

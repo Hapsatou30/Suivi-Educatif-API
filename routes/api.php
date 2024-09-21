@@ -93,6 +93,27 @@ Route::group ([ "middleware" => ["auth"] ],  function(){
 
    //route pour les notes
    Route::apiResource('notes', NoteController::class);
+
+   //route pour le total d'élèves
+   Route::get('total-eleves', [EleveController::class, 'totalEleves']);
+
+   //route pour le total de professeurs
+   Route::get('total-professeurs', [ProfesseurController::class, 'totalProfesseurs']);
+
+   //route pour le nombre de classes ouvertes
+   Route::get('nombre-classes', [AnneeClasseController::class, 'nombreClasseOuverte']);
+
+   //route pour les evaluations du jour
+   Route::get('evaluations-jour', [EvaluationsController::class, 'evaluationsJour']);
+
+   //route pour les profMat
+   Route::get('prof-matieres',[ ProfMatiereController::class,'profMat']);
+
+   //route pour voir la liste des matieres et classe pour un prof
+   Route::get('professeur/{id}/classes-matieres', [ClasseProfController::class, 'showProfMatiereClasse']);
+
+
+ 
 });
 
 

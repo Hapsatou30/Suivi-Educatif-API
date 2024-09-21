@@ -10,18 +10,48 @@ use App\Http\Requests\UpdateProfesseurRequest;
 
 class ProfesseurController extends Controller
 {
+
+    //nombre total de professeur
+    public function totalProfesseurs()
+    {
+
+        // Compter le nombre total de prof 
+        $totalProsseur = Professeur::count();
+    
+        // Structurer la réponse en JSON
+        return response()->json([
+            'message' => 'Total d\'élèves pour l\'année en cours.',
+            'total' => $totalProsseur,
+            'status' => 200
+        ]);
+    }
     /**
      * Afficher la liste des professeurs
      */
     public function index()
-    {
-        $professeurs = Professeur:: all();
-        return response()->json ([
-           'message' => 'Liste des professeurs',
-           'données' => $professeurs,
-           'status' => 200
-        ]);
-    }
+{
+    // Récupérer tous les professeurs avec leurs emails (s'ils sont dans une relation avec 'users' par exemple)
+    $professeurs = Professeur::with('user')->get(); // Suppose que la relation 'user' existe dans le modèle Professeur
+
+    // Transformer les données pour inclure les emails
+    $resultat = $professeurs->map(function ($professeur) {
+        return [
+            'id' => $professeur->id,
+            'nom' => $professeur->nom,
+            'prenom' => $professeur->prenom,
+            'telephone' => $professeur->telephone,
+            'matricule' => $professeur->matricule,
+            'email' => $professeur->user->email, 
+        ];
+    });
+
+    return response()->json([
+        'message' => 'Liste des professeurs',
+        'données' => $resultat,
+        'status' => 200
+    ]);
+}
+
 
    
 
