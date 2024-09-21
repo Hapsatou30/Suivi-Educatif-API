@@ -16,14 +16,18 @@ class StoreEleveRequest extends FormRequest
     public function rules(): array
     {
         return [
-            // 'nom' => 'required|string|max:255',
-            // 'prenom' => 'required|string|max:255',
-            // 'date_naissance' => 'required|date|before:today|before_or_equal:' . now()->subYears(5)->toDateString(),
-            // 'telephone' => 'required|string|unique:eleves,telephone|regex:/^[0-9]{10}$/',
-            // 'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048', 
-            // 'genre' => 'required|in:Masculin,Feminin',
-            // 'user_id' => 'required|exists:users,id',
-            // 'parent_id' => 'required|exists:parents,id',
+            'nom' => 'required|string|max:255',
+            'prenom' => 'required|string|max:255',
+            'date_naissance' => 'required|date|before:today|before_or_equal:' . now()->subYears(5)->toDateString(),
+            'telephone' => 'required|string|unique:eleves,telephone|regex:/^[0-9]{10}$/',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'genre' => 'required|in:Masculin,Feminin',
+            'email' => 'required|email|unique:users,email', 
+            'parent_telephone' => 'required|string|regex:/^[0-9]{10}$/', 
+            'parent_nom' => 'required|string|max:255', 
+            'parent_prenom' => 'required|string|max:255', 
+            'parent_email' => 'required|email',
+            'parent_adresse' => 'required|string|max:255', 
         ];
     }
 
@@ -45,10 +49,15 @@ class StoreEleveRequest extends FormRequest
             'photo.max' => 'La taille maximale de l\'image est de 2 Mo.',
             'genre.required' => 'Le genre est obligatoire.',
             'genre.in' => 'Le genre doit être "Masculin" ou "Feminin".',
-            'user_id.required' => 'L\'identifiant de l\'utilisateur est obligatoire.',
-            'user_id.exists' => 'L\'utilisateur spécifié n\'existe pas.',
-            'parent_id.required' => 'L\'identifiant du parent est obligatoire.',
-            'parent_id.exists' => 'Le parent spécifié n\'existe pas.',
+            'email.required' => 'L\'email est obligatoire.',
+            'email.unique' => 'Cet email est déjà utilisé.',
+            'parent_telephone.required' => 'Le numéro de téléphone du parent est obligatoire.',
+            'parent_telephone.regex' => 'Le numéro de téléphone du parent doit comporter 10 chiffres.',
+            'parent_nom.required' => 'Le nom du parent est obligatoire.',
+            'parent_prenom.required' => 'Le prénom du parent est obligatoire.',
+            'parent_email.required' => 'L\'email du parent est obligatoire.',
+            'parent_email.email' => 'L\'adresse email du parent doit être valide.',
+            'parent_adresse.required' => 'L\'adresse du parent est obligatoire.',
         ];
     }
 }

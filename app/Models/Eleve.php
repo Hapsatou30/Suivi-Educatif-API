@@ -22,7 +22,7 @@ class Eleve extends Model
     //relation avec parents (si un enfant est lié à un seul parent)
     public function parent()
     {
-        return $this->belongsTo(Parents::class);
+        return $this->belongsTo(Parents::class,'parent_id');
     }
 
     //relation avec annee_classes (les classes où l'élève est inscrit)

@@ -22,6 +22,6 @@ class Parents extends Model
     //relation avec eleve (si un parent a plusieurs enfants)
     public function eleves()
     {
-        return $this->hasMany(Eleve::class);
+        return $this->hasMany(Eleve::class,'parent_id');
     }
 }
