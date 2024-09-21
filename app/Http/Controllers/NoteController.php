@@ -29,8 +29,23 @@ class NoteController extends Controller
      */
     public function store(StoreNoteRequest $request)
     {
-        //
+        // Créer une nouvelle note
+        $note = Note::create([
+            'notes' => $request->input('notes'),
+            'commentaire' => $request->input('commentaire'),
+            'evaluation_id' => $request->input('evaluation_id'),
+            'eleve_id' => $request->input('eleve_id'),
+            'bulletin_id' => $request->input('bulletin_id'),
+        ]);
+    
+        // Structurer la réponse en JSON
+        return response()->json([
+            'message' => 'Note ajoutée avec succès.',
+            'données' => $note,
+            'status' => 201
+        ]);
     }
+    
 
     /**
      * Display the specified resource.

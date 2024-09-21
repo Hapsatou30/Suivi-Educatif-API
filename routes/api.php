@@ -2,12 +2,14 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\NoteController;
 use App\Http\Controllers\EleveController;
 use App\Http\Controllers\ClasseController;
 use App\Http\Controllers\Api\ApiController;
 use App\Http\Controllers\HoraireController;
 use App\Http\Controllers\MatiereController;
 use App\Http\Controllers\ParentsController;
+use App\Http\Controllers\PresenceController;
 use App\Http\Controllers\ClasseProfController;
 use App\Http\Controllers\ProfesseurController;
 use App\Http\Controllers\AnneeClasseController;
@@ -16,7 +18,6 @@ use App\Http\Controllers\ClasseEleveController;
 use App\Http\Controllers\EvaluationsController;
 use App\Http\Controllers\ProfMatiereController;
 use App\Http\Controllers\AnneeScolaireController;
-use App\Http\Controllers\PresenceController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -90,7 +91,8 @@ Route::group ([ "middleware" => ["auth"] ],  function(){
 
    Route::get('/classe-eleve/{classeEleveId}/absences', [PresenceController::class, 'getAbsences']);
 
-
+   //route pour les notes
+   Route::apiResource('notes', NoteController::class);
 });
 
 
