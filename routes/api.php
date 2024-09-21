@@ -16,6 +16,7 @@ use App\Http\Controllers\ClasseEleveController;
 use App\Http\Controllers\EvaluationsController;
 use App\Http\Controllers\ProfMatiereController;
 use App\Http\Controllers\AnneeScolaireController;
+use App\Http\Controllers\PresenceController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -83,6 +84,12 @@ Route::group ([ "middleware" => ["auth"] ],  function(){
 
    //horaires pour un prof
    Route::get('professeur/{professeurId}/horaires', [HoraireController::class, 'horaireProf']);
+
+   //routes pour les prensences
+   Route::apiResource('presences' , PresenceController::class);
+
+   Route::get('/classe-eleve/{classeEleveId}/absences', [PresenceController::class, 'getAbsences']);
+
 
 });
 

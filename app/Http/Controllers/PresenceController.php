@@ -16,21 +16,45 @@ class PresenceController extends Controller
         //
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
+   
+    public function getAbsences($classeEleveId)
+{
+    // Récupérer les absences de l'élève spécifié
+    $absences = Presence::where('classe_eleve_id', $classeEleveId)
+        ->where('status', 'absent')
+        ->get();
 
-    /**
-     * Store a newly created resource in storage.
-     */
+    // Structurer la réponse en JSON
+    return response()->json([
+        'message' => 'Liste des absences',
+        'données' => $absences,
+        'status' => 200
+    ]);
+}
+
     public function store(StorePresenceRequest $request)
-    {
-        //
-    }
+{
+    // Récupérer les données validées
+    $validated = $request->validated();
+
+    // Créer une nouvelle présence
+    $presence = Presence::create([
+        'date_presence' => $validated['date_presence'],
+        'status' => $validated['status'],
+        'motif' => $validated['motif'],
+        'justification' => $validated['justification'],
+        'classe_eleve_id' => $validated['classe_eleve_id'],
+        'classe_prof_id' => $validated['classe_prof_id'],
+    ]);
+
+    // Retourner une réponse JSON
+    return response()->json([
+        'message' => 'Présence attribuée avec succès.',
+        'data' => $presence,
+        'status' => 201
+    ]);
+}
+
 
     /**
      * Display the specified resource.

@@ -25,7 +25,10 @@ class ClasseProf extends Model
         return $this->belongsTo(ProfMatiere::class,'prof_mat_id');
     }
     
-    
+    //relation avec presence
+    public function presence(){
+        return $this->hasMany(Presence::class,'classe_prof_id');
+    }
     //relation avec évaluation
     public function evaluations()
     {

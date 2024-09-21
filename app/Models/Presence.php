@@ -16,6 +16,12 @@ class Presence extends Model
     //relation avec classe_eleve
     public function classeEleve()
     {
-        return $this->belongsTo(ClasseEleve::class);
+        return $this->belongsTo(ClasseEleve::class,'classe_eleve_id');
+    }
+
+    //relation avec classe_prof
+    public function classeProf()
+    {
+        return $this->belongsTo(ClasseProf::class,'classe_prof_id');
     }
 }

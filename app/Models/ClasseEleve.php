@@ -27,7 +27,7 @@ class ClasseEleve extends Model
     //relation avec presence
     public function presence()
     {
-        return $this->hasMany(Presence::class);
+        return $this->hasMany(Presence::class,'classe_prof_id');
     }
 
     //relation avec bulletin
