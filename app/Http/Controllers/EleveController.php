@@ -148,34 +148,42 @@ class EleveController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Eleve $eleve)
+    public function show( $id)
     {
-        // // Charger l'élève avec son parent
-        // $eleve->load('parent'); 
+        // Charger l'élève avec son parent
+        $eleve = Eleve::with('parent')->find($id);
+   
+        // Structurer la réponse avec les détails de l'élève et du parent
+        $response = [
+            'message' => 'Détails de l\'élève',
+            'données' => [
+                'eleve' => [
+                    'nom' => $eleve->nom,
+                    'prenom' => $eleve->prenom,
+                    'matricule' => $eleve->matricule,
+                    'date_naissance' => $eleve->date_naissance,
+                    'genre' => $eleve->genre,
+                    'telephone' => $eleve->telephone,
+                    'photo' => $eleve->photo,  
+                ],
+            ],
+            'status' => 200
+        ];
     
-        // // Structurer la réponse avec les détails de l'élève et du parent
-        // return response()->json([
-        //     'message' => 'Détails de l\'élève',
-        //     'données' => [
-        //         'eleve' => [
-        //             'nom' => $eleve->nom,
-        //             'prenom' => $eleve->prenom,
-        //             'matricule' => $eleve->matricule,
-        //             'date_naissance' => $eleve->date_naissance,
-        //             'genre' => $eleve->genre,
-        //             'telephone' => $eleve->telephone,
-        //             'photo' => $eleve->photo,  
-        //         ],
-        //         'parent' => [
-        //             'nom' => $eleve->parent->nom,
-        //             'prenom' => $eleve->parent->prenom,
-        //             'telephone' => $eleve->parent->telephone,
-        //             'adresse' => $eleve->parent->adresse,
-        //             'email' => $eleve->parent->user->email, 
-        //         ]
-        //     ],
-        //     'status' => 200
-        // ]);
+        // Vérifier si le parent existe et l'ajouter à la réponse
+        if ($eleve->parent) {
+            $response['données']['parent'] = [
+                'nom' => $eleve->parent->nom,
+                'prenom' => $eleve->parent->prenom,
+                'telephone' => $eleve->parent->telephone,
+                'adresse' => $eleve->parent->adresse,
+                'email' => $eleve->parent->user->email, 
+            ];
+        } else {
+            $response['données']['parent'] = null; 
+        }
+    
+        return response()->json($response);
     }
     
 

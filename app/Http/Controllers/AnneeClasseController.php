@@ -70,6 +70,39 @@ class AnneeClasseController extends Controller
     ]);
 }
 
+//listes des niveau des classes dans une année
+
+public function niveauClasses($anneeId)
+{
+    // Récupérer l'année scolaire par son ID avec les classes associées
+    $annee = AnneeScolaire::with('classes')->find($anneeId);
+
+    // Vérifier si l'année existe
+    if (!$annee) {
+        return response()->json([
+            'message' => 'Année scolaire non trouvée.',
+            'status' => 404
+        ]);
+    }
+    
+    // Récupérer les niveaux distincts des classes
+    $niveaux = $annee->classes->pluck('niveau')->unique();
+
+    // Vérifier si des niveaux existent
+    if ($niveaux->isEmpty()) {
+        return response()->json([
+            'message' => 'Aucun niveau trouvé pour cette année scolaire.',
+            'status' => 404
+        ]);
+    }
+
+    return response()->json([
+        'message' => 'Liste des niveaux des classes pour l\'année scolaire',
+        'données' => $niveaux,
+        'status' => 200
+    ]);
+}
+
 
   
     /**

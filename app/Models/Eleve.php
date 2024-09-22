@@ -32,4 +32,10 @@ class Eleve extends Model
         ->withPivot('id', 'annee_classe_id', 'eleve_id')
         ->withTimestamps();
     }
+
+    //relation avec notes
+    public function notes()
+    {
+        return $this->hasMany(Note::class);
+    }
 }

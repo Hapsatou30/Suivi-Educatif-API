@@ -24,4 +24,10 @@ class Note extends Model
     {
         return $this->belongsTo(Bulletin::class);
     }
+
+    //relation avec eleves
+    public function eleve()
+    {
+        return $this->belongsTo(Eleve::class);
+    }
 }

@@ -18,6 +18,7 @@ use App\Http\Controllers\ClasseEleveController;
 use App\Http\Controllers\EvaluationsController;
 use App\Http\Controllers\ProfMatiereController;
 use App\Http\Controllers\AnneeScolaireController;
+use App\Models\AnneeClasse;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -72,7 +73,7 @@ Route::group ([ "middleware" => ["auth"] ],  function(){
 
     //routes pour les cahiers de texte
    Route::apiResource('cahiers_texte', CahierTexteController::class);
-   Route::get('cahiers-texte/classe/{classeId}', [CahierTexteController::class, 'show']);
+   Route::get('cahiers-texte/classe/{anneeClasseId}', [CahierTexteController::class, 'show']);
 
    //route pour les évaluations
    Route::apiResource('evaluations', EvaluationsController::class);
@@ -112,8 +113,12 @@ Route::group ([ "middleware" => ["auth"] ],  function(){
    //route pour voir la liste des matieres et classe pour un prof
    Route::get('professeur/{id}/classes-matieres', [ClasseProfController::class, 'showProfMatiereClasse']);
 
+//route pour les niveau classe
+Route::get('annees/{anneeId}/niveaux', [AnneeClasseController::class, 'niveauClasses']);
 
- 
+ //route pour les notes par matieres
+ Route::get('/notes/matiere/{classProfId}', [NoteController::class, 'index']);
+
 });
 
 

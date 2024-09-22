@@ -35,6 +35,7 @@ class ClasseEleveController extends Controller
                         'matricule' => $eleve->matricule,
                         'date_naissance' => $eleve->date_naissance,
                         'telephone' => $eleve->telephone,
+                        'parent' => $eleve->parent->prenom. ' ' . $eleve->parent->nom,
                     ];
                 }),
             ];
