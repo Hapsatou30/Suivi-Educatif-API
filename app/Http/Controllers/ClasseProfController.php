@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ClasseProf;
+use App\Models\Professeur;
 use App\Models\AnneeClasse;
 use App\Models\ProfMatiere;
 use App\Models\AnneeScolaire;
@@ -62,7 +63,38 @@ foreach ($annees as $annee) {
 return response()->json($data);
     }
 
+    /**
+ * Méthode pour récupérer le nombre de classes dans lesquelles un professeur enseigne
+ */
+public function nombreClassesParProf($professeurId)
+{
+    // Vérifier si le professeur existe
+    $professeur = Professeur::find($professeurId);
+
+    if (!$professeur) {
+        return response()->json([
+            'message' => 'Professeur non trouvé.',
+            'status' => 404
+        ]);
+    }
+
+    // Récupérer toutes les classes via les relations 
+    $nombreClasses = $professeur->profMatieres()
+        ->with('anneeClasses.classe') 
+        ->get()
+        ->pluck('anneeClasse.classe.id') // Extraire les IDs des classes
+        ->unique() // Supprimer les doublons
+        ->count(); // Compter le nombre de classes uniques
+
+    return response()->json([
+        'message' => 'Nombre de classes pour le professeur',
+        'données' => $nombreClasses,
+        'status' => 200
+    ]);
+}
+
    
+
  //methode pour attriber des classes au professeur
     public function store(StoreClasseProfRequest $request)
 {
@@ -124,55 +156,40 @@ return response()->json($data);
     /**
      * Display the specified resource.
      */
-    public function show($id)
-    {   
-        // Trouver la ClasseProf par son ID
-        $classeProf = ClasseProf::with(['profMatiere.professeur', 'profMatiere.matiere', 'anneeClasse.classe'])
-                                 ->find($id);
-        //Vérifier si classe prof existe
-        if (!$classeProf) {
-            return response()->json(['error' => 'ClasseProf non trouvée'], 404);
-        }
-    
-        // Préparer le professeur
-        $profMatiere = $classeProf->profMatiere;
-        if (!$profMatiere) {
-            return response()->json(['error' => 'ProfMatiere non trouvée pour cette ClasseProf'], 404);
-        }
-    
-        $professeur = $profMatiere->professeur;
-        if (!$professeur) {
-            return response()->json(['error' => 'Professeur non trouvé pour cette ProfMatiere'], 404);
-        }
-    
-        // Récupérer toutes les matières et classes du professeur
-        $profMatieres = ProfMatiere::with(['matiere', 'anneeClasses.classe'])
-                                    ->where('professeur_id', $professeur->id)
-                                    ->get();
-    
-        // Construire la réponse
-        $classesEtMatieres = [];
-        foreach ($profMatieres as $pm) {
-            foreach ($pm->anneeClasses as $anneeClasse) {
-                $classesEtMatieres[] = [
-                    'nom_classe' => $anneeClasse->classe->nom,
-                    'matiere' => $pm->matiere->nom,
-                    'annee' => $anneeClasse->annee->annee_debut . ' - ' . $anneeClasse->annee->annee_fin,
-                ];
-            }
-        }
-    
-        $response = [
-            'professeur' => [
-                'nom' => $professeur->nom,
-                'prenom' => $professeur->prenom,
-            ],
-            'classes_matieres' => $classesEtMatieres,
-        ];
-    
-        return response()->json($response);
-    }
-    
+//     public function showProfMatiereClasse($professeurId)
+// {
+//     // Récupérer les informations du professeur avec les matières qu'il enseigne et les classes associées
+//     $professeur = Professeur::with(['profMatieres.matiere', 'profMatieres.anneeClasses.classe'])
+//                             ->find($professeurId);
+
+//     // Vérifier si le professeur existe
+//     if (!$professeur) {
+//         return response()->json(['error' => 'Professeur non trouvé'], 404);
+//     }
+
+//     // Préparer la réponse avec les classes et matières associées
+//     $classes_matieres = [];
+//     foreach ($professeur->profMatieres as $profMatiere) {
+//         foreach ($profMatiere->anneeClasses as $anneeClasse) {
+//             $classes_matieres[] = [
+//                 'nom_classe' => $anneeClasse->classe->nom,
+//                 'matiere' => $profMatiere->matiere->nom,
+//                 'annee' => $anneeClasse->annee->annee_debut . ' - ' . $anneeClasse->annee->annee_fin,
+//             ];
+//         }
+//     }
+
+//     // Construire la réponse finale
+//     $response = [
+//         'professeur' => [
+//             'nom' => $professeur->nom,
+//             'prenom' => $professeur->prenom,
+//         ],
+//         'classes_matieres' => $classes_matieres,
+//     ];
+
+//     return response()->json($response);
+// }
 
     
     /**

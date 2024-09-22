@@ -13,10 +13,12 @@ class HoraireController extends Controller
      */
     public function horaireClasse($anneeClasseId)
     {
-        // Récupérer les horaires pour une classe spécifique via l'année de la classe
+        // Récupérer les horaires pour une classe spécifique via l'année de la classe 
         $horaires = Horaire::whereHas('classeProf', function ($query) use ($anneeClasseId) {
             $query->where('annee_classe_id', $anneeClasseId);
-        })->get();
+        })
+        ->with(['classeProf.anneeClasse.classe', 'classeProf.profMatiere.professeur', 'classeProf.profMatiere.matiere'])
+        ->get();
     
         // Vérifier si des horaires existent pour l'année classe donnée
         if ($horaires->isEmpty()) {
@@ -26,9 +28,21 @@ class HoraireController extends Controller
             ]);
         }
     
+        // Préparer les données pour la réponse
+        $data = [];
+        foreach ($horaires as $horaire) {
+            $data[] = [
+                'nom_classe' => $horaire->classeProf->anneeClasse->classe->nom, 
+                'matiere' => $horaire->classeProf->profMatiere->matiere->nom,   
+                'professeur' => $horaire->classeProf->profMatiere->professeur->prenom . ' ' . $horaire->classeProf->profMatiere->professeur->nom,
+                'horaire' => $horaire->heure_debut. ' ' . $horaire->heure_fin
+       
+            ];
+        }
+    
         return response()->json([
             'message' => 'Liste des horaires pour l\'année classe',
-            'données' => $horaires,
+            'données' => $data,
             'status' => 200
         ]);
     }
@@ -62,15 +76,41 @@ class HoraireController extends Controller
      * Methode  ajouter une horaire
      */
     public function store(StoreHoraireRequest $request)
-    {
-        //ajouter une horaire
-        $horaire = Horaire::create($request->all());
-        return response()->json ([
-           'message' => 'Horaire créé avec succès',
-           'données' => $horaire,
-           'status' => 201
-        ]);
+{
+    $classe_prof_id = $request->input('classe_prof_id');
+    $jour = $request->input('jour');  // Le jour de la semaine
+    $heure_debut = $request->input('heure_debut');
+    $heure_fin = $request->input('heure_fin');
+
+    // Vérifier si la classe ou le prof est déjà occupé à cette heure (en fonction de 'classe_prof_id')
+    $conflitHoraire = Horaire::where('classe_prof_id', $classe_prof_id)
+        ->where('jour', $jour)
+        ->where(function($query) use ($heure_debut, $heure_fin) {
+            $query->whereBetween('heure_debut', [$heure_debut, $heure_fin])
+                  ->orWhereBetween('heure_fin', [$heure_debut, $heure_fin])
+                  ->orWhere(function($q) use ($heure_debut, $heure_fin) {
+                      $q->where('heure_debut', '<', $heure_debut)
+                        ->where('heure_fin', '>', $heure_fin);
+                  });
+        })
+        ->exists();
+
+    if ($conflitHoraire) {
+        return response()->json([
+            'error' => 'Cette classe ou ce professeur est déjà occupé à cet horaire',
+        ], 400);
     }
+
+    // Si pas de conflit, on peut créer l'horaire
+    $horaire = Horaire::create($request->all());
+
+    return response()->json([
+        'message' => 'Horaire créé avec succès',
+        'données' => $horaire,
+        'status' => 201
+    ]);
+}
+
 
     /**
      * Display the specified resource.

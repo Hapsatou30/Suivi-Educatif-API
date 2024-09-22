@@ -19,12 +19,12 @@ class StoreProfesseurRequest extends FormRequest
     public function rules(): array
     {
         return [
-            // 'email' => 'required|email|unique:users,email|max:255',
-            // 'nom' => 'required|string|max:255',
-            // 'prenom' => 'required|string|max:255',
-            // 'telephone' => 'required|string|unique:professeurs,telephone|max:15|regex:/^[0-9\-\+]{9,15}$/',
-            // 'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Limite de 2 Mo pour les images
-            // 'user_id' => 'required|exists:users,id',
+            'email' => 'required|email|unique:users,email|max:255',
+            'nom' => 'required|string|max:255',
+            'prenom' => 'required|string|max:255',
+            'telephone' => 'required|string|unique:professeurs,telephone|max:15|regex:/^[0-9\-\+]{9,15}$/',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Limite de 2 Mo pour les images
+            
         ];
     }
 
@@ -54,8 +54,6 @@ class StoreProfesseurRequest extends FormRequest
             'photo.mimes' => 'Les formats autorisés sont jpeg, png, jpg, gif.',
             'photo.max' => 'La photo ne doit pas dépasser 2 Mo.',
 
-            'user_id.required' => 'Le champ utilisateur est obligatoire.',
-            'user_id.exists' => 'L\'utilisateur sélectionné n\'existe pas.',
-        ];
+           ];
     }
 }

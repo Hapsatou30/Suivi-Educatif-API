@@ -10,6 +10,33 @@ use App\Http\Requests\UpdateAnneeClasseRequest;
 
 class AnneeClasseController extends Controller
 {
+
+    //nombre de classe ouverte pour l'annee en cours
+    public function nombreClasseOuverte()
+    {
+        // Récupérer l'année en cours
+        $anneeEnCours = AnneeScolaire::where('etat', 'En_cours')->first();
+    
+        // Vérifier si une année en cours existe
+        if ($anneeEnCours) {
+            // Compter le nombre de classes liées à cette année
+            $nombreClassesOuvertes = AnneeClasse::where('annee_id', $anneeEnCours->id)
+                                                 ->count();
+    
+            // Retourner le nombre de classes
+            return response()->json([
+                'message' => 'Nombre de classes ouvertes pour l\'année en cours',
+                'nombreClasses' => $nombreClassesOuvertes
+            ], 200);
+        }
+    
+        // Si aucune année en cours n'existe
+        return response()->json([
+            'message' => 'Aucune année en cours trouvée',
+            'nombreClasses' => 0
+        ], 404);
+    }
+    
     /**
      *liste les classe par annee
      */
@@ -43,6 +70,39 @@ class AnneeClasseController extends Controller
     ]);
 }
 
+//listes des niveau des classes dans une année
+
+public function niveauClasses($anneeId)
+{
+    // Récupérer l'année scolaire par son ID avec les classes associées
+    $annee = AnneeScolaire::with('classes')->find($anneeId);
+
+    // Vérifier si l'année existe
+    if (!$annee) {
+        return response()->json([
+            'message' => 'Année scolaire non trouvée.',
+            'status' => 404
+        ]);
+    }
+    
+    // Récupérer les niveaux distincts des classes
+    $niveaux = $annee->classes->pluck('niveau')->unique();
+
+    // Vérifier si des niveaux existent
+    if ($niveaux->isEmpty()) {
+        return response()->json([
+            'message' => 'Aucun niveau trouvé pour cette année scolaire.',
+            'status' => 404
+        ]);
+    }
+
+    return response()->json([
+        'message' => 'Liste des niveaux des classes pour l\'année scolaire',
+        'données' => $niveaux,
+        'status' => 200
+    ]);
+}
+
 
   
     /**
@@ -50,47 +110,31 @@ class AnneeClasseController extends Controller
      */
     public function store(StoreAnneeClasseRequest $request)
     {
-        // Récupérer les données
+        // Récupérer les données validées
         $data = $request->validated();
-    
         
         // Vérifier que l'année spécifiée est en cours
         $anneeScolaire = AnneeScolaire::where('id', $data['annee_id'])
-        ->first();
-
-        if (!$anneeScolaire || $anneeScolaire->etat !== 'en_cours') {
-        return response()->json([
-        'message' => 'L\'année spécifiée n\'est pas en cours ou n\'existe pas.',
-        'status' => 404
-        ]);
-        }
-
+            ->first();
     
-        // Vérifiez que les IDs des classes sont bien récupérés
-        Log::info('IDs des classes:', $data['classe_ids']);
-    
-        // Récupérer les classes actuellement associées à l'année scolaire
-        $idClasseActu = $anneeScolaire->classes()->pluck('classes.id')->toArray();
-    
-        // Déterminer les classes à ajouter et à retirer
-        $classeRetirer = array_diff($idClasseActu, $data['classe_ids']);
-        $classeAjouter = array_diff($data['classe_ids'], $idClasseActu);
-    
-        // Supprimer les classes qui ne sont plus sélectionnées
-        if (!empty($classeRetirer)) {
-            $anneeScolaire->classes()->detach($classeRetirer);
+        if (!$anneeScolaire || $anneeScolaire->etat !== 'En_cours') {
+            return response()->json([
+                'message' => 'L\'année spécifiée n\'est pas en cours ou n\'existe pas.',
+                'status' => 404
+            ]);
         }
     
-        // Ajouter les nouvelles classes (si elles ne sont pas déjà associées)
-        if (!empty($classeAjouter)) {
-            $anneeScolaire->classes()->syncWithoutDetaching($classeAjouter);
+        // Ajouter les nouvelles classes sans retirer les anciennes
+        if (!empty($data['classe_ids'])) {
+            $anneeScolaire->classes()->syncWithoutDetaching($data['classe_ids']);
         }
     
         return response()->json([
-            'message' => 'Classes synchronisées avec succès pour l\'année scolaire',
+            'message' => 'Classes ajoutées avec succès pour l\'année scolaire',
             'status' => 200
         ]);
     }
+    
     
 
     /**

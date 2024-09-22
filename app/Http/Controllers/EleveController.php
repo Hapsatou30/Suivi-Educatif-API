@@ -5,11 +5,40 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Eleve;
 use App\Models\Parents;
+use App\Models\AnneeClasse;
 use App\Http\Requests\StoreEleveRequest;
 use App\Http\Requests\UpdateEleveRequest;
 
 class EleveController extends Controller
 {
+
+    //methode pour récuperer le nombre total d'eleve pour l'année en cours 
+    public function totalEleves()
+    {
+        // Récupérer l'année en cours
+        $anneeEnCours = AnneeClasse::whereHas('annee', function ($query) {
+            $query->where('etat', 'En_cours');
+        })->first();
+    
+        if (!$anneeEnCours) {
+            return response()->json([
+                'message' => 'Aucune année en cours trouvée.',
+                'total' => 0,
+                'status' => 404
+            ]);
+        }
+    
+        // Compter le nombre total d'élèves associés à l'année en cours
+        $totalEleves = $anneeEnCours->eleves()->count();
+    
+        // Structurer la réponse en JSON
+        return response()->json([
+            'message' => 'Total d\'élèves pour l\'année en cours.',
+            'total' => $totalEleves,
+            'status' => 200
+        ]);
+    }
+    
     /**
      *Voir la liste des eleves 
      */
@@ -119,34 +148,42 @@ class EleveController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Eleve $eleve)
+    public function show( $id)
     {
-        // // Charger l'élève avec son parent
-        // $eleve->load('parent'); 
+        // Charger l'élève avec son parent
+        $eleve = Eleve::with('parent')->find($id);
+   
+        // Structurer la réponse avec les détails de l'élève et du parent
+        $response = [
+            'message' => 'Détails de l\'élève',
+            'données' => [
+                'eleve' => [
+                    'nom' => $eleve->nom,
+                    'prenom' => $eleve->prenom,
+                    'matricule' => $eleve->matricule,
+                    'date_naissance' => $eleve->date_naissance,
+                    'genre' => $eleve->genre,
+                    'telephone' => $eleve->telephone,
+                    'photo' => $eleve->photo,  
+                ],
+            ],
+            'status' => 200
+        ];
     
-        // // Structurer la réponse avec les détails de l'élève et du parent
-        // return response()->json([
-        //     'message' => 'Détails de l\'élève',
-        //     'données' => [
-        //         'eleve' => [
-        //             'nom' => $eleve->nom,
-        //             'prenom' => $eleve->prenom,
-        //             'matricule' => $eleve->matricule,
-        //             'date_naissance' => $eleve->date_naissance,
-        //             'genre' => $eleve->genre,
-        //             'telephone' => $eleve->telephone,
-        //             'photo' => $eleve->photo,  
-        //         ],
-        //         'parent' => [
-        //             'nom' => $eleve->parent->nom,
-        //             'prenom' => $eleve->parent->prenom,
-        //             'telephone' => $eleve->parent->telephone,
-        //             'adresse' => $eleve->parent->adresse,
-        //             'email' => $eleve->parent->user->email, 
-        //         ]
-        //     ],
-        //     'status' => 200
-        // ]);
+        // Vérifier si le parent existe et l'ajouter à la réponse
+        if ($eleve->parent) {
+            $response['données']['parent'] = [
+                'nom' => $eleve->parent->nom,
+                'prenom' => $eleve->parent->prenom,
+                'telephone' => $eleve->parent->telephone,
+                'adresse' => $eleve->parent->adresse,
+                'email' => $eleve->parent->user->email, 
+            ];
+        } else {
+            $response['données']['parent'] = null; 
+        }
+    
+        return response()->json($response);
     }
     
 

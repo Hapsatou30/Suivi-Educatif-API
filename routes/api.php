@@ -18,6 +18,8 @@ use App\Http\Controllers\ClasseEleveController;
 use App\Http\Controllers\EvaluationsController;
 use App\Http\Controllers\ProfMatiereController;
 use App\Http\Controllers\AnneeScolaireController;
+use App\Models\AnneeClasse;
+use App\Models\ClasseEleve;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -72,7 +74,7 @@ Route::group ([ "middleware" => ["auth"] ],  function(){
 
     //routes pour les cahiers de texte
    Route::apiResource('cahiers_texte', CahierTexteController::class);
-   Route::get('cahiers-texte/classe/{classeId}', [CahierTexteController::class, 'show']);
+   Route::get('cahiers-texte/classe/{anneeClasseId}', [CahierTexteController::class, 'show']);
 
    //route pour les évaluations
    Route::apiResource('evaluations', EvaluationsController::class);
@@ -93,6 +95,50 @@ Route::group ([ "middleware" => ["auth"] ],  function(){
 
    //route pour les notes
    Route::apiResource('notes', NoteController::class);
+
+   //route pour le total d'élèves
+   Route::get('total-eleves', [EleveController::class, 'totalEleves']);
+
+   //route pour le total de professeurs
+   Route::get('total-professeurs', [ProfesseurController::class, 'totalProfesseurs']);
+
+   //route pour le nombre de classes ouvertes
+   Route::get('nombre-classes', [AnneeClasseController::class, 'nombreClasseOuverte']);
+
+   //route pour les evaluations du jour
+   Route::get('evaluations-jour', [EvaluationsController::class, 'evaluationsJour']);
+
+   //route pour les profMat
+   Route::get('prof-matieres',[ ProfMatiereController::class,'profMat']);
+
+   //route pour voir la liste des matieres et classe pour un prof
+   Route::get('professeur/{id}/classes-matieres', [ClasseProfController::class, 'showProfMatiereClasse']);
+
+//route pour les niveau classe
+Route::get('annees/{anneeId}/niveaux', [AnneeClasseController::class, 'niveauClasses']);
+
+ //route pour les notes par matieres
+ Route::get('notes/matiere/{classProfId}', [NoteController::class, 'index']);
+
+ //nombre de matiere pour un prof
+ Route::get('professeur/{id}/nombre-matieres', [MatiereController::class, 'nombreMatieresParProf']);
+
+ //nombre de classes pour un prof
+ Route::get('professeurs/{professeurId}/classes', [ClasseProfController::class, 'nombreClassesParProf']);
+
+//liste des eleves regroupes par parent
+Route::get('api/parents/{parent_id}/eleves', [ClasseEleveController::class, 'elevesParParent']);
+
+//nombre eleves par parent
+Route::get('parents/{parent_id}/nombre-eleves', [ClasseEleveController::class, 'nombreElevesParParent']);
+
+//note pour un eleve
+Route::get('eleves/{eleveId}/notes', [NoteController::class, 'noteEleve']);
+
+//evaluations pour un eleve
+Route::get('eleves/{eleveId}/evaluations', [EvaluationsController::class, 'evaluationsEleve']);
+
+
 });
 
 

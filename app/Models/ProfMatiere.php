@@ -30,4 +30,7 @@ class ProfMatiere extends Model
         ->withPivot('id','annee_classe_id',  'prof_mat_id')
         ->withTimestamps();
     }
+
+
+
 }

@@ -42,6 +42,27 @@ class ProfMatiereController extends Controller
     }
     
     
+    // liste des professeurs et leurs matières
+   // Liste des professeurs et leurs matières
+    public function profMat()
+    {
+        // Récupérer toutes les matières avec leur professeur associé
+        $profMatieres = ProfMatiere::with('matiere', 'professeur')->get();
+        
+        // Transformer les données pour les rendre plus lisibles
+        $resultat = $profMatieres->map(function ($profMatiere) {
+            return [
+                'matiere' => $profMatiere->matiere->nom,
+                'professeur' => $profMatiere->professeur->prenom . ' ' . $profMatiere->professeur->nom,
+            ];
+        });
+        
+        return response()->json([
+            'message' => 'Liste des matières et leurs professeurs',
+            'données' => $resultat,
+            'status' => 200
+        ]);
+    }
 
     
 

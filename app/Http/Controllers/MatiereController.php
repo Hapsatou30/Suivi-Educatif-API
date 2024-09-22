@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Matiere;
+use App\Models\Professeur;
 use App\Http\Requests\StoreMatiereRequest;
 use App\Http\Requests\UpdateMatiereRequest;
-use App\Models\Matiere;
 
 class MatiereController extends Controller
 {
@@ -21,6 +22,30 @@ class MatiereController extends Controller
         ]);
     }
 
+
+    //Nombre de matieres d'un prof
+    // Nombre de matières d'un professeur
+public function nombreMatieresParProf($professeurId)
+{
+    // Vérifier si le professeur existe
+    $professeur = Professeur::find($professeurId);
+    
+    if (!$professeur) {
+        return response()->json([
+            'message' => 'Professeur non trouvé.',
+            'status' => 404
+        ]);
+    }
+
+    // Compter le nombre de matières associées au professeur via la table pivot
+    $nombreMatieres = $professeur->matieres()->count();
+
+    return response()->json([
+        'message' => 'Nombre de matières pour le professeur',
+        'données' => $nombreMatieres,
+        'status' => 200
+    ]);
+}
 
      //methode pour créer une matiere
     public function store(StoreMatiereRequest $request)
