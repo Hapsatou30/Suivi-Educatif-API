@@ -91,7 +91,7 @@ Route::group ([ "middleware" => ["auth"] ],  function(){
    //routes pour les prensences
    Route::apiResource('presences' , PresenceController::class);
 
-   Route::get('/classe-eleve/{classeEleveId}/absences', [PresenceController::class, 'getAbsences']);
+   Route::get('classe-eleve/{classeEleveId}/absences', [PresenceController::class, 'getAbsences']);
 
    //route pour les notes
    Route::apiResource('notes', NoteController::class);
@@ -127,7 +127,7 @@ Route::get('annees/{anneeId}/niveaux', [AnneeClasseController::class, 'niveauCla
  Route::get('professeurs/{professeurId}/classes', [ClasseProfController::class, 'nombreClassesParProf']);
 
 //liste des eleves regroupes par parent
-Route::get('api/parents/{parent_id}/eleves', [ClasseEleveController::class, 'elevesParParent']);
+Route::get('parents/{parent_id}/eleves', [ClasseEleveController::class, 'elevesParParent']);
 
 //nombre eleves par parent
 Route::get('parents/{parent_id}/nombre-eleves', [ClasseEleveController::class, 'nombreElevesParParent']);
