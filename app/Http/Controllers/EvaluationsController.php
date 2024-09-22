@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Note;
+use App\Models\Evaluations;
 use App\Http\Requests\StoreEvaluationsRequest;
 use App\Http\Requests\UpdateEvaluationsRequest;
-use App\Models\Evaluations;
 
 class EvaluationsController extends Controller
 {
@@ -45,6 +46,42 @@ public function evaluationsJour()
         'status' => 200
     ]);
 }
+
+public function evaluationsEleve($eleveId)
+{
+    // Récupérer les évaluations via les notes pour l'élève
+    $notes = Note::with(['evaluation.classeProf.profMatiere.professeur', 'evaluation.classeProf.profMatiere.matiere', 'evaluation.classeProf.anneeClasse.classe'])
+                 ->where('eleve_id', $eleveId)
+                 ->get();
+
+    // Vérifier s'il y a des évaluations pour cet élève
+    if ($notes->isEmpty()) {
+        return response()->json([
+            'message' => "Il n'y a pas d'évaluations pour cet élève.",
+            'status' => 404
+        ]);
+    }
+
+    // Transformer les données pour afficher les informations souhaitées
+    $resultat = $notes->map(function ($note) {
+        return [
+            'matiere' => $note->evaluation->classeProf->profMatiere->matiere->nom,
+            'professeur' => $note->evaluation->classeProf->profMatiere->professeur->prenom . ' ' . $note->evaluation->classeProf->profMatiere->professeur->nom,
+            'type_evaluation' => $note->evaluation->type_evaluation,
+            'date' => $note->evaluation->date, 
+            'classe' => $note->evaluation->classeProf->anneeClasse->classe->nom,
+            'duree' => $note->evaluation->duree,
+        ];
+    });
+
+    // Retourner les données sous forme de JSON
+    return response()->json([
+        'message' => "Évaluations pour l'élève",
+        'evaluations' => $resultat,
+        'status' => 200
+    ]);
+}
+
 
                
    /**

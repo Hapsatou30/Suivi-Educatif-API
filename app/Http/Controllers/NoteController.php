@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Note;
+use App\Models\Eleve;
 use App\Http\Requests\StoreNoteRequest;
 use App\Http\Requests\UpdateNoteRequest;
-use App\Models\Note;
 
 class NoteController extends Controller
 {
@@ -52,6 +53,52 @@ class NoteController extends Controller
         ]);
     }
     
+    //note pour un eleve 
+    public function noteEleve($eleveId)
+    {
+        // Récupérer l'élève avec ses notes, évaluations et matières associées
+        $eleve = Eleve::with(['notes.evaluation.classeProf.profMatiere.matiere'])->find($eleveId);
+    
+        // Vérifier si l'élève existe
+        if (!$eleve) {
+            return response()->json([
+                'message' => 'Élève non trouvé.',
+                'status' => 404
+            ]);
+        }
+    
+        // Vérifier si l'élève a des notes
+        if ($eleve->notes->isEmpty()) {
+            return response()->json([
+                'message' => 'Aucune note trouvée pour cet élève.',
+                'status' => 404
+            ]);
+        }
+    
+        // Préparer la réponse avec les notes de l'élève
+        $result = [];
+        foreach ($eleve->notes as $note) {
+            $matiere = $note->evaluation->classeProf->profMatiere->matiere;
+    
+            $result[] = [
+                'matiere' => $matiere->nom,
+                'note' => $note->notes,
+                'evaluation' => $note->evaluation->type_evaluation,
+                'date' => $note->evaluation->date,
+            ];
+        }
+    
+        // Retourner les notes de l'élève en JSON
+        return response()->json([
+            'message' => 'Notes de l\'élève',
+            'eleve' => [
+                'nom' => $eleve->nom,
+                'prenom' => $eleve->prenom,
+                'notes' => $result,
+            ],
+            'status' => 200
+        ]);
+    }
     
 
     /**

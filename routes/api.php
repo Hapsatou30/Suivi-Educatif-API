@@ -19,6 +19,7 @@ use App\Http\Controllers\EvaluationsController;
 use App\Http\Controllers\ProfMatiereController;
 use App\Http\Controllers\AnneeScolaireController;
 use App\Models\AnneeClasse;
+use App\Models\ClasseEleve;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -117,7 +118,26 @@ Route::group ([ "middleware" => ["auth"] ],  function(){
 Route::get('annees/{anneeId}/niveaux', [AnneeClasseController::class, 'niveauClasses']);
 
  //route pour les notes par matieres
- Route::get('/notes/matiere/{classProfId}', [NoteController::class, 'index']);
+ Route::get('notes/matiere/{classProfId}', [NoteController::class, 'index']);
+
+ //nombre de matiere pour un prof
+ Route::get('professeur/{id}/nombre-matieres', [MatiereController::class, 'nombreMatieresParProf']);
+
+ //nombre de classes pour un prof
+ Route::get('professeurs/{professeurId}/classes', [ClasseProfController::class, 'nombreClassesParProf']);
+
+//liste des eleves regroupes par parent
+Route::get('api/parents/{parent_id}/eleves', [ClasseEleveController::class, 'elevesParParent']);
+
+//nombre eleves par parent
+Route::get('parents/{parent_id}/nombre-eleves', [ClasseEleveController::class, 'nombreElevesParParent']);
+
+//note pour un eleve
+Route::get('eleves/{eleveId}/notes', [NoteController::class, 'noteEleve']);
+
+//evaluations pour un eleve
+Route::get('eleves/{eleveId}/evaluations', [EvaluationsController::class, 'evaluationsEleve']);
+
 
 });
 

@@ -63,7 +63,38 @@ foreach ($annees as $annee) {
 return response()->json($data);
     }
 
+    /**
+ * Méthode pour récupérer le nombre de classes dans lesquelles un professeur enseigne
+ */
+public function nombreClassesParProf($professeurId)
+{
+    // Vérifier si le professeur existe
+    $professeur = Professeur::find($professeurId);
+
+    if (!$professeur) {
+        return response()->json([
+            'message' => 'Professeur non trouvé.',
+            'status' => 404
+        ]);
+    }
+
+    // Récupérer toutes les classes via les relations 
+    $nombreClasses = $professeur->profMatieres()
+        ->with('anneeClasses.classe') 
+        ->get()
+        ->pluck('anneeClasse.classe.id') // Extraire les IDs des classes
+        ->unique() // Supprimer les doublons
+        ->count(); // Compter le nombre de classes uniques
+
+    return response()->json([
+        'message' => 'Nombre de classes pour le professeur',
+        'données' => $nombreClasses,
+        'status' => 200
+    ]);
+}
+
    
+
  //methode pour attriber des classes au professeur
     public function store(StoreClasseProfRequest $request)
 {

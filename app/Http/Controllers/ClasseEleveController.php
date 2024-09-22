@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Parents;
 use App\Models\AnneeClasse;
 use App\Models\ClasseEleve;
 use App\Http\Requests\StoreClasseEleveRequest;
@@ -40,6 +41,81 @@ class ClasseEleveController extends Controller
                 }),
             ];
         }),
+        'status' => 200
+    ]);
+}
+
+//liste des eleves et leur annees classes regroupée par parent
+    /**
+ * Méthode pour récupérer la liste des élèves et leur année de classe regroupée par parent
+ */
+public function elevesParParent($parent_id)
+{
+    // Récupérer le parent
+    $parent = Parents::with('eleves.anneeClasses.classe')->find($parent_id);
+
+    // Vérifier si le parent existe
+    if (!$parent) {
+        return response()->json([
+            'message' => 'Parent non trouvé.',
+            'status' => 404
+        ]);
+    }
+
+    // Vérifier si le parent a des élèves associés
+    if ($parent->eleves->isEmpty()) {
+        return response()->json([
+            'message' => 'Aucun élève trouvé pour ce parent.',
+            'status' => 404
+        ]);
+    }
+
+    // Préparer la liste des élèves avec leurs informations
+    $eleves = $parent->eleves->map(function ($eleve) {
+        return [
+            'nom' => $eleve->nom,
+            'prenom' => $eleve->prenom,
+            'annee_classe' => $eleve->anneeClasses->map(function ($anneeClasse) {
+                return [
+                    'annee' => $anneeClasse->annee->annee_debut . ' - ' . $anneeClasse->annee->annee_fin,
+                    'classe' => $anneeClasse->classe->nom
+                ];
+            })
+        ];
+    });
+
+    return response()->json([
+        'message' => 'Liste des élèves pour le parent spécifié',
+        'données' => $eleves,
+        'status' => 200
+    ]);
+}
+
+//nombre eleve par parent
+public function nombreElevesParParent($parent_id)
+{
+    // Récupérer le parent avec les élèves associés
+    $parent = Parents::with('eleves.anneeClasses')->find($parent_id);
+
+    // Vérifier si le parent existe
+    if (!$parent) {
+        return response()->json([
+            'message' => 'Parent non trouvé.',
+            'status' => 404
+        ]);
+    }
+
+    // Compter le nombre d'élèves associés à ce parent
+    $nombreEleves = $parent->eleves->count();
+
+    // Retourner la réponse en JSON
+    return response()->json([
+        'message' => 'Nombre d\'élèves pour le parent spécifié.',
+        'parent' => [
+            'nom' => $parent->nom,
+            'prenom' => $parent->prenom,
+            'nombre_eleves' => $nombreEleves,
+        ],
         'status' => 200
     ]);
 }
