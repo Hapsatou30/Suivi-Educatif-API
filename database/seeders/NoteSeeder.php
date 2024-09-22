@@ -22,25 +22,23 @@ class NoteSeeder extends Seeder
         // Récupérer tous les élèves
         $eleves = Eleve::all();
 
-        // Récupérer tous les bulletins
-        $bulletins = Bulletin::all();
+       
 
         // Boucle pour insérer des notes
         foreach ($evaluations as $evaluation) {
             foreach ($eleves as $eleve) {
-                foreach ($bulletins as $bulletin) {
                     // Insérer une note pour chaque élève, évaluation et bulletin
                     DB::table('notes')->insert([
                         'notes' => rand(0, 200) / 10, // Note aléatoire entre 0 et 20
                         'commentaire' => 'Commentaire pour l\'élève ' . $eleve->id,
                         'evaluation_id' => $evaluation->id,
                         'eleve_id' => $eleve->id,
-                        'bulletin_id' => $bulletin->id,
+                        'bulletin_id' => null,
                         'created_at' => now(),
                         'updated_at' => now(),
                     ]);
                 }
             }
-        }
+        
     }
 }

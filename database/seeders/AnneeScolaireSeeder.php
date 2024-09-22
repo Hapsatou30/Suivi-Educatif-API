@@ -15,8 +15,8 @@ class AnneeScolaireSeeder extends Seeder
     {
         // Insertion des années scolaires
         $annees = [
-            ['annee_debut' => '2022', 'annee_fin' => '2023', 'etat' => 'Fermée'],
-            ['annee_debut' => '2023', 'annee_fin' => '2024', 'etat' => 'En_cours'],
+            ['annee_debut' => '2023', 'annee_fin' => '2024', 'etat' => 'Fermée'],
+            ['annee_debut' => '2024', 'annee_fin' => '2025', 'etat' => 'En_cours'],
         ];
 
         // Créer les enregistrements dans la table 'annee_scolaires'

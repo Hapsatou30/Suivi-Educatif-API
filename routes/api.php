@@ -34,7 +34,6 @@ Route::middleware(['auth:api'])->group(function () {
     Route::get('logout', [ApiController::class, 'logout']);
     //route pour le rafraichir du token
     Route::get('refresh', [ApiController::class,'refresh']);
-
 });
 
 
@@ -42,61 +41,72 @@ Route::middleware(['auth:api'])->group(function () {
 
 Route::group ([ "middleware" => ["auth"] ],  function(){
 
-    //route pour les matières
-    Route::apiResource('matieres', MatiereController::class);
+    //role admin
+    Route::middleware(['auth', 'role:admin'])->group(function () {
+    //route pour les matieres
+    Route::post('matieres' , [MatiereController::class, 'store']);
+    Route::put('matieres/{matiere}', [MatiereController::class, 'update']);
+    Route::delete('matieres/{matiere}', [MatiereController::class, 'destroy']);
 
     //route pour les professeurs
-    Route::apiResource('professeurs', ProfesseurController::class);
+    Route::get('professeur', [ProfesseurController::class, 'index']);
+    Route::post('professeur', [ProfesseurController::class,'store']);
+    Route::put('professeur/{professeur}', [ProfesseurController::class, 'update']);
+    Route::delete('professeur/{professeur}', [ProfesseurController::class, 'destroy']);
 
-    //route pour les professeur-matiere
-    Route::apiResource('professeur-matieres', ProfMatiereController::class);
+    //route pour les prof matieres
+    Route::post('professeur-matieres', [ProfMatiereController::class,'store']);
+    Route::put('professeur-matieres/{professeur_matiere}', [ProfMatiereController::class,'update']);
+    Route::delete('professeur-matieres/{professeur_matiere}', [ProfMatiereController::class,'destroy']);
 
     //route pour les années scolaires
-    Route::apiResource('annees-scolaires', AnneeScolaireController::class);
+    Route::get('annees-scolaires', [AnneeScolaireController::class,'index']);
+    Route::post('annees-scolaires', [AnneeScolaireController::class,'store']);
+    Route::put('annees-scolaires/{annees_scolaire}', [AnneeScolaireController::class,'update']);
+    Route::delete('annees-scolaires/{annees_scolaire}', [AnneeScolaireController::class,'destroy']);
 
     //route pour les classes
-    Route::apiResource('classes', ClasseController::class);
+    Route::get('classes', [ClasseController::class,'index']);
+    Route::post('classes', [ClasseController::class,'store']);
+    Route::put('classes/{class}', [ClasseController::class,'update']);
+    Route::delete('classes/{class}', [ClasseController::class,'destroy']);
 
     //route pour les années-classes
-    Route::apiResource('annees-classes', AnneeClasseController::class);
+    Route::get('annees-classes', [AnneeClasseController::class,'index']);
+    Route::post('annees-classes', [AnneeClasseController::class,'store']);
+    Route::put('annees-classes/{annees_class}', [AnneeClasseController::class,'update']);
+    Route::delete('annees-classes/{annees_class}', [AnneeClasseController::class,'destroy']);
 
     //route pour les classes-professeurs
-    Route::apiResource('classes-professeurs', ClasseProfController::class);
+    Route::post('classes-professeurs', [ClasseProfController::class,'store']);
+    Route::put('classes-professeurs/{classes_professeur}', [ClasseProfController::class,'update']);
+    Route::delete('classes-professeurs/{classes_professeur}', [ClasseProfController::class,'destroy']);
+
+    //route pour les horaires
+    Route::post('horaires', [HoraireController::class,'store']);
+    Route::put('horaires/{horaire}', [HoraireController::class,'update']);
+    Route::delete('horaires/{horaire}', [HoraireController::class,'destroy']);
 
     //route pour les élèves
-    Route::apiResource('eleves', EleveController::class);
+    Route::post('eleves', [EleveController::class,'store']);
+    Route::put('eleves/{elefe}', [EleveController::class,'update']);
+    Route::delete('eleves/{elefe}', [EleveController::class,'destroy']);
 
     //route pour les parents
-    Route::apiResource('parents', ParentsController::class);
+    Route::get('parents', [ParentsController::class,'index']);
+    Route::post('parents', [ParentsController::class,'store']);
+    Route::put('parents/{parent}', [ParentsController::class,'update']);
+    Route::delete('parents/{parent}', [ParentsController::class,'destroy']);
 
-    //route pour les classes-élèves
-    Route::apiResource('classes-eleves', ClasseEleveController::class);
+    //route pour les classes-eleves
+    Route::post('classes-eleves', [ClasseEleveController::class,'store']);
+    Route::put('classes-eleves/{classes_elefe}', [ClasseEleveController::class,'update']);
+    Route::delete('classes-eleves/{classes_elefe}', [ClasseEleveController::class,'destroy']);
 
-    //routes pour les cahiers de texte
-   Route::apiResource('cahiers_texte', CahierTexteController::class);
-   Route::get('cahiers-texte/classe/{anneeClasseId}', [CahierTexteController::class, 'show']);
+    //route pour les niveau classe
+    Route::get('annees/{anneeId}/niveaux', [AnneeClasseController::class, 'niveauClasses']);
 
-   //route pour les évaluations
-   Route::apiResource('evaluations', EvaluationsController::class);
-
-   //routes pour les horaires
-   Route::apiResource('horaires', HoraireController::class);
- 
-   //horaire d'une classe
-   Route::get('annee_classe/{anneeClasseId}/horaires', [HoraireController::class, 'horaireClasse']);
-
-   //horaires pour un prof
-   Route::get('professeur/{professeurId}/horaires', [HoraireController::class, 'horaireProf']);
-
-   //routes pour les prensences
-   Route::apiResource('presences' , PresenceController::class);
-
-   Route::get('classe-eleve/{classeEleveId}/absences', [PresenceController::class, 'getAbsences']);
-
-   //route pour les notes
-   Route::apiResource('notes', NoteController::class);
-
-   //route pour le total d'élèves
+      //route pour le total d'élèves
    Route::get('total-eleves', [EleveController::class, 'totalEleves']);
 
    //route pour le total de professeurs
@@ -104,6 +114,7 @@ Route::group ([ "middleware" => ["auth"] ],  function(){
 
    //route pour le nombre de classes ouvertes
    Route::get('nombre-classes', [AnneeClasseController::class, 'nombreClasseOuverte']);
+
 
    //route pour les evaluations du jour
    Route::get('evaluations-jour', [EvaluationsController::class, 'evaluationsJour']);
@@ -114,29 +125,163 @@ Route::group ([ "middleware" => ["auth"] ],  function(){
    //route pour voir la liste des matieres et classe pour un prof
    Route::get('professeur/{id}/classes-matieres', [ClasseProfController::class, 'showProfMatiereClasse']);
 
-//route pour les niveau classe
-Route::get('annees/{anneeId}/niveaux', [AnneeClasseController::class, 'niveauClasses']);
 
- //route pour les notes par matieres
+    });
+
+
+    //role professeur
+    Route::middleware(['auth', 'role:professeur'])->group(function () {
+
+        //route pour les evaluations
+        Route::post('evaluations', [EvaluationsController::class,'store']);
+        Route::put('evaluations/{evaluation}', [EvaluationsController::class,'update']);
+        Route::delete('evaluations/{evaluation}', [EvaluationsController::class,'destroy']);
+
+        //route pour le cahier de texte
+        Route::post('cahiers-texte', [CahierTexteController::class,'store']);
+        Route::put('cahiers-texte/{cahiers_texte}', [CahierTexteController::class,'update']);
+        Route::delete('cahiers-texte/{cahiers_texte}', [CahierTexteController::class,'destroy']);
+
+        //route pour les notes
+        Route::post('notes', [NoteController::class,'store']);
+        Route::put('notes/{note}', [NoteController::class,'update']);
+        Route::delete('notes/{note}', [NoteController::class,'destroy']);
+
+        //route pour les presences
+        Route::post('presences', [PresenceController::class,'store']);
+        Route::put('presences/{presence}', [PresenceController::class,'update']);
+        Route::delete('presences/{presence}', [PresenceController::class,'destroy']);
+
+         //nombre de matiere pour un prof
+        Route::get('professeur/{id}/nombre-matieres', [MatiereController::class, 'nombreMatieresParProf']);
+
+        //nombre de classes pour un prof
+        Route::get('professeurs/{professeurId}/classes', [ClasseProfController::class, 'nombreClassesParProf']);
+
+
+    });
+
+    //role parent et eleve
+    Route::middleware(['auth', 'role:parent|eleve'])->group(function () {
+
+        //liste des eleves regroupes par parent
+    Route::get('parents/{parent_id}/eleves', [ClasseEleveController::class, 'elevesParParent']);
+
+    //nombre eleves par parent
+    Route::get('parents/{parent_id}/nombre-eleves', [ClasseEleveController::class, 'nombreElevesParParent']);
+
+    //note pour un eleve
+    Route::get('eleves/{eleveId}/notes', [NoteController::class, 'noteEleve']);
+
+    //evaluations pour un eleve
+    Route::get('eleves/{eleveId}/evaluations', [EvaluationsController::class, 'evaluationsEleve']);
+
+     //route pour les notes par matieres
  Route::get('notes/matiere/{classProfId}', [NoteController::class, 'index']);
 
- //nombre de matiere pour un prof
- Route::get('professeur/{id}/nombre-matieres', [MatiereController::class, 'nombreMatieresParProf']);
+       
+    });
 
- //nombre de classes pour un prof
- Route::get('professeurs/{professeurId}/classes', [ClasseProfController::class, 'nombreClassesParProf']);
 
-//liste des eleves regroupes par parent
-Route::get('parents/{parent_id}/eleves', [ClasseEleveController::class, 'elevesParParent']);
+    //route pour les matières
+    // Route::apiResource('matieres', MatiereController::class);
+    Route::get('matieres' , [MatiereController::class, 'index']);
+   
+    Route::get('matieres/{matiere}', [MatiereController::class, 'show']);
 
-//nombre eleves par parent
-Route::get('parents/{parent_id}/nombre-eleves', [ClasseEleveController::class, 'nombreElevesParParent']);
+    //route pour les professeurs
+    // Route::apiResource('professeurs', ProfesseurController::class);
+   
+    Route::get('professeur/{professeur}', [ProfesseurController::class, 'show']);
 
-//note pour un eleve
-Route::get('eleves/{eleveId}/notes', [NoteController::class, 'noteEleve']);
+    //route pour les professeur-matiere
+    // Route::apiResource('professeur-matieres', ProfMatiereController::class);
+    Route::get('professeur-matieres/{professeur_matiere}', [ProfMatiereController::class,'show']);
+    Route::get('professeur-matieres', [ProfMatiereController::class,'index']);
+   
 
-//evaluations pour un eleve
-Route::get('eleves/{eleveId}/evaluations', [EvaluationsController::class, 'evaluationsEleve']);
+    //route pour les années scolaires
+    // Route::apiResource('annees-scolaires', AnneeScolaireController::class);
+   
+    //route pour les classes
+    // Route::apiResource('classes', ClasseController::class);
+  
+
+    //route pour les années-classes
+    // Route::apiResource('annees-classes', AnneeClasseController::class);
+    Route::get('annees-classes/{annees_class}', [AnneeClasseController::class,'show']);
+   
+
+    //route pour les classes-professeurs
+    // Route::apiResource('classes-professeurs', ClasseProfController::class);
+    Route::get('classes-professeurs/{classes_professeur}', [ClasseProfController::class,'show']);
+    Route::get('classes-professeurs', [ClasseProfController::class,'index']);
+    
+
+
+
+    //route pour les élèves
+    // Route::apiResource('eleves', EleveController::class);
+    Route::get('eleves/{elefe}', [EleveController::class,'show']);
+    Route::get('eleves', [EleveController::class,'index']);
+   
+
+    //route pour les parents
+    // Route::apiResource('parents', ParentsController::class);
+    Route::get('parents/{parent}', [ParentsController::class,'show']);
+  
+
+    //route pour les classes-élèves
+    // Route::apiResource('classes-eleves', ClasseEleveController::class);
+    Route::get('classes-eleves/{classes_elefe}', [ClasseEleveController::class,'show']);
+    Route::get('classes-eleves', [ClasseEleveController::class,'index']);
+;
+
+    //routes pour les cahiers de texte
+//    Route::apiResource('cahiers_texte', CahierTexteController::class);
+   Route::get('cahiers-texte', [CahierTexteController::class,'index']);
+  
+   Route::get('cahiers-texte/classe/{anneeClasseId}', [CahierTexteController::class, 'show']);
+
+   //route pour les évaluations
+//    Route::apiResource('evaluations', EvaluationsController::class);
+   Route::get('evaluations/{evaluation}', [EvaluationsController::class, 'show']);
+   Route::get('evaluations', [EvaluationsController::class, 'index']);
+   
+
+   //routes pour les horaires
+//    Route::apiResource('horaires', HoraireController::class);
+   Route::get('horaires/{horaire}', [HoraireController::class,'show']);
+   Route::get('horaires', [HoraireController::class,'index']);
+
+
+     //route pour les notes
+    //   Route::apiResource('notes', NoteController::class);
+      Route::get('notes/{note}', [NoteController::class,'show']);
+      Route::get('notes', [NoteController::class,'index']);
+      
+
+      //routes pour les prensences
+//    Route::apiResource('presences' , PresenceController::class);
+   Route::get('presences/{presence}', [PresenceController::class,'show']);
+   Route::get('presences', [PresenceController::class,'index']);
+
+ 
+   //horaire d'une classe
+   Route::get('annee_classe/{anneeClasseId}/horaires', [HoraireController::class, 'horaireClasse']);
+
+   //horaires pour un prof
+   Route::get('professeur/{professeurId}/horaires', [HoraireController::class, 'horaireProf']);
+
+   Route::get('classe-eleve/{classeEleveId}/absences', [PresenceController::class, 'getAbsences']);
+
+
+
+ 
+
+
+
+
 
 
 });

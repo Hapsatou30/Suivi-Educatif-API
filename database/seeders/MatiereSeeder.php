@@ -23,11 +23,8 @@ class MatiereSeeder extends Seeder
             ['nom' => 'Biologie', 'description' => 'Étude des organismes vivants', 'coefficient' => 4],
             ['nom' => 'Anglais', 'description' => 'Langue étrangère', 'coefficient' => 3],
             ['nom' => 'Français', 'description' => 'Langue et littérature française', 'coefficient' => 3],
-            ['nom' => 'Économie', 'description' => 'Étude de la production et de la consommation', 'coefficient' => 3],
-            ['nom' => 'Sociologie', 'description' => 'Étude des sociétés humaines', 'coefficient' => 2],
             ['nom' => 'Philosophie', 'description' => 'Étude des grandes questions de l’existence', 'coefficient' => 2],
             ['nom' => 'Informatique', 'description' => 'Science des systèmes informatiques', 'coefficient' => 4],
-            ['nom' => 'Arts Plastiques', 'description' => 'Étude des formes artistiques visuelles', 'coefficient' => 2],
             ['nom' => 'Musique', 'description' => 'Étude des formes musicales', 'coefficient' => 2],
             ['nom' => 'Éducation Physique', 'description' => 'Activités physiques et sportives', 'coefficient' => 3],
         ];
