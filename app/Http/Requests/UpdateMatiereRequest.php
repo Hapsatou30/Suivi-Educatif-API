@@ -16,11 +16,12 @@ class UpdateMatiereRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'nom' => 'sometimes|string|unique:matieres,nom|max:255',
+            'nom' => 'sometimes|string|max:255|unique:matieres,nom,' . $this->matiere->id,
             'description' => 'sometimes|string|max:255',
             'coefficient' => 'sometimes|integer|min:1',
         ];
     }
+    
 
     public function messages(): array
     {

@@ -22,6 +22,7 @@ class ProfMatiereController extends Controller
         // Mapper les résultats pour obtenir les informations nécessaires
         $resultats = $professeurs->map(function ($professeur) {
             return [
+                'id' => $professeur->id,
                 'nom' => $professeur->nom,
                 'prenom' => $professeur->prenom,
                 'matieres' => $professeur->matieres->map(function ($matiere) {
@@ -52,6 +53,7 @@ class ProfMatiereController extends Controller
         // Transformer les données pour les rendre plus lisibles
         $resultat = $profMatieres->map(function ($profMatiere) {
             return [
+                'id' => $profMatiere->id,
                 'matiere' => $profMatiere->matiere->nom,
                 'professeur' => $profMatiere->professeur->prenom . ' ' . $profMatiere->professeur->nom,
             ];

@@ -42,6 +42,7 @@ class EleveController extends Controller
     /**
      *Voir la liste des eleves 
      */
+
     public function index()
 {
     // Récupérer les parents avec leurs élèves
@@ -148,74 +149,127 @@ class EleveController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show( $id)
-    {
-        // Charger l'élève avec son parent
-        $eleve = Eleve::with('parent')->find($id);
-   
-        // Structurer la réponse avec les détails de l'élève et du parent
-        $response = [
-            'message' => 'Détails de l\'élève',
-            'données' => [
-                'eleve' => [
-                    'nom' => $eleve->nom,
-                    'prenom' => $eleve->prenom,
-                    'matricule' => $eleve->matricule,
-                    'date_naissance' => $eleve->date_naissance,
-                    'genre' => $eleve->genre,
-                    'telephone' => $eleve->telephone,
-                    'photo' => $eleve->photo,  
-                ],
-            ],
-            'status' => 200
-        ];
+    /**
+ * Display the specified resource.
+ */
+public function show($id)
+{
+    // Charger l'élève avec son parent
+    $eleve = Eleve::with('parent')->find($id);
     
-        // Vérifier si le parent existe et l'ajouter à la réponse
-        if ($eleve->parent) {
-            $response['données']['parent'] = [
-                'nom' => $eleve->parent->nom,
-                'prenom' => $eleve->parent->prenom,
-                'telephone' => $eleve->parent->telephone,
-                'adresse' => $eleve->parent->adresse,
-                'email' => $eleve->parent->user->email, 
-            ];
-        } else {
-            $response['données']['parent'] = null; 
-        }
-    
-        return response()->json($response);
+    // Vérifier si l'élève existe
+    if (!$eleve) {
+        return response()->json([
+            'message' => 'Élève non trouvé',
+            'status' => 404
+        ]);
     }
-    
+
+    // Structurer la réponse avec les détails de l'élève et du parent
+    $response = [
+        'message' => 'Détails de l\'élève',
+        'données' => [
+            'eleve' => [
+                'id' => $eleve->id,
+                'nom' => $eleve->nom,
+                'prenom' => $eleve->prenom,
+                'matricule' => $eleve->matricule,
+                'date_naissance' => $eleve->date_naissance,
+                'genre' => $eleve->genre,
+                'telephone' => $eleve->telephone,
+                'photo' => $eleve->photo,  
+            ],
+            'parent' => [
+                'nom_parent' => $eleve->parent->nom,
+                'prenom_parent' => $eleve->parent->prenom,
+                'telephone_parent' => $eleve->parent->telephone,
+                'adresse_parent' => $eleve->parent->adresse,
+                'email_parent' => $eleve->parent->user->email, 
+            ]
+        ],
+        'status' => 200
+    ];
+
+    return response()->json($response);
+}
+
+/**
+ * Récupérer la liste de tous les élèves avec leurs parents.
+ */
+public function eleves()
+{
+    // Charger tous les élèves avec leurs parents
+    $eleves = Eleve::with('parent')->get();
+
+    // Structurer la réponse avec les détails de chaque élève et de son parent
+    $response = [
+        'message' => 'Liste des élèves',
+        'données' => $eleves->map(function ($eleve) {
+            return [
+                'id' => $eleve->id,
+                'nom' => $eleve->nom,
+                'prenom' => $eleve->prenom,
+                'matricule' => $eleve->matricule,
+                'date_naissance' => $eleve->date_naissance,
+                'genre' => $eleve->genre,
+                'telephone' => $eleve->telephone,
+                'photo' => $eleve->photo,
+                'email' => $eleve->user->email,
+                'parent' => [
+                    'nom_parent' => $eleve->parent->nom,
+                    'prenom_parent' => $eleve->parent->prenom,
+                    'telephone_parent' => $eleve->parent->telephone,
+                    'adresse_parent' => $eleve->parent->adresse,
+                    'email_parent' => $eleve->parent->user->email,
+                ]
+            ];
+        }),
+        'status' => 200
+    ];
+
+    return response()->json($response);
+}
+ 
 
     /**
      * Update the specified resource in storage.
      */
     public function update(UpdateEleveRequest $request, $id)
-    {
-        // Récupérer l'élève via son ID
-        $eleve = Eleve::findOrFail($id);
-    
-        // Mettre à jour les informations de l'élève
-        // $eleve->update([
-        //     'nom' => $request->nom,
-        //     'prenom' => $request->prenom,
-        //     'telephone' => $request->telephone,
-        //     'photo' => $request->hasFile('photo') ? $request->photo->store('photos') : $eleve->photo,  // Sauvegarder l'image dans le dossier public/photos
-        //     'date_naissance' => $request->date_naissance,
-        //     'genre' => $request->genre,
-        //     'parent_id' => $request->parent_id, // ID du parent associé
-        // ]);
-    
-        // // Rafraîchir les données de l'élève pour renvoyer les informations à jour
-        // $eleve->refresh();
-    
-        // // Retourner la réponse JSON avec les données de l'élève modifié
-        // return response()->json([
-        //     'message' => 'Élève modifié avec succès',
-        //     'données' => $eleve,
-        //     'status' => 200
-        // ]);
-    }
+{
+    // Rechercher l'élève par son ID
+    $eleve = Eleve::findOrFail($id);
+
+    // Mettre à jour les informations de l'élève
+    $eleve->update([
+        'nom' => $request->nom,
+        'prenom' => $request->prenom,
+        'telephone' => $request->telephone,
+        'photo' => $request->hasFile('photo') ? $request->photo->store('photos') : $eleve->photo, // Conserver l'ancienne photo si aucune nouvelle n'est fournie
+        'date_naissance' => $request->date_naissance,
+        'genre' => $request->genre,
+    ]);
+
+    // Mettre à jour les informations du parent
+    $parent = Parents::findOrFail($eleve->parent_id); // On récupère le parent associé à l'élève
+    $parent->update([
+        'nom' => $request->parent_nom,
+        'prenom' => $request->parent_prenom,
+        'adresse' => $request->parent_adresse,
+        'telephone' => $request->parent_telephone,
+        'photo' => $request->hasFile('parent_photo') ? $request->parent_photo->store('photos') : $parent->photo, // Conserver l'ancienne photo si aucune nouvelle n'est fournie
+    ]);
+
+    // Retourner la réponse JSON avec les données de l'élève et du parent mis à jour
+    return response()->json([
+        'message' => 'Élève et parent mis à jour avec succès',
+        'données' => [
+            'eleve' => $eleve,
+            'parent' => $parent
+        ],
+        'status' => 200
+    ]);
+}
+
     
 
     /**

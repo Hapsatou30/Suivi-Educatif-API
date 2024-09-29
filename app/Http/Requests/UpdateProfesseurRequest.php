@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Professeur;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateProfesseurRequest extends FormRequest
@@ -17,15 +18,9 @@ class UpdateProfesseurRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
-            'email' => 'sometimes|email|unique:users,email|max:255',
-            'nom' => 'sometimes|string|max:255',
-            'prenom' => 'sometimes|string|max:255',
-            'telephone' => 'sometimes|string|unique:professeurs,telephone|max:15|regex:/^[0-9\-\+]{9,15}$/',
-            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Limite de 2 Mo pour les images
-            
-        ];
+        return [];
     }
+    
 
     public function messages(): array
     {

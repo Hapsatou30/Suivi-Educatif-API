@@ -49,8 +49,8 @@ Route::group ([ "middleware" => ["auth"] ],  function(){
     Route::delete('matieres/{matiere}', [MatiereController::class, 'destroy']);
 
     //route pour les professeurs
-    Route::get('professeur', [ProfesseurController::class, 'index']);
-    Route::post('professeur', [ProfesseurController::class,'store']);
+    Route::get('professeurs', [ProfesseurController::class, 'index']);
+    Route::post('professeurs', [ProfesseurController::class,'store']);
     Route::put('professeur/{professeur}', [ProfesseurController::class, 'update']);
     Route::delete('professeur/{professeur}', [ProfesseurController::class, 'destroy']);
 
@@ -60,18 +60,21 @@ Route::group ([ "middleware" => ["auth"] ],  function(){
     Route::delete('professeur-matieres/{professeur_matiere}', [ProfMatiereController::class,'destroy']);
 
     //route pour les années scolaires
+    Route::get('annees-scolaires/{annee_scolaires}' , [AnneeScolaireController::class, 'show']);
     Route::get('annees-scolaires', [AnneeScolaireController::class,'index']);
     Route::post('annees-scolaires', [AnneeScolaireController::class,'store']);
     Route::put('annees-scolaires/{annees_scolaire}', [AnneeScolaireController::class,'update']);
     Route::delete('annees-scolaires/{annees_scolaire}', [AnneeScolaireController::class,'destroy']);
 
     //route pour les classes
+    Route::get('classes/{class}' ,[ClasseController::class, 'show']);
     Route::get('classes', [ClasseController::class,'index']);
     Route::post('classes', [ClasseController::class,'store']);
     Route::put('classes/{class}', [ClasseController::class,'update']);
     Route::delete('classes/{class}', [ClasseController::class,'destroy']);
 
     //route pour les années-classes
+    Route::get('annee-classes/{anneeClasse}', [AnneeClasseController::class, 'show']);
     Route::get('annees-classes', [AnneeClasseController::class,'index']);
     Route::post('annees-classes', [AnneeClasseController::class,'store']);
     Route::put('annees-classes/{annees_class}', [AnneeClasseController::class,'update']);
@@ -124,6 +127,9 @@ Route::group ([ "middleware" => ["auth"] ],  function(){
 
    //route pour voir la liste des matieres et classe pour un prof
    Route::get('professeur/{id}/classes-matieres', [ClasseProfController::class, 'showProfMatiereClasse']);
+
+   //route pour la liste de tous les elves
+   Route::get('listeleves', [ EleveController::class, 'eleves']);
 
 
     });

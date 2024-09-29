@@ -28,15 +28,18 @@ class ClasseEleveController extends Controller
         'données' => $anneeClasses->map(function ($anneeClasse) {
             return [
                 'annee' => $anneeClasse->annee->annee_debut . ' - ' . $anneeClasse->annee->annee_fin, // Afficher l'année scolaire
-                'classe' => $anneeClasse->classe->nom, // Nom de la classe
+                'classe' => $anneeClasse->classe->nom, 
+                'id' => $anneeClasse->classe->id,
                 'eleves' => $anneeClasse->eleves->map(function ($eleve) {
                     return [
+                        'id' => $eleve->id,  // Afficher l'ID de l'élève
                         'nom' => $eleve->nom,
                         'prenom' => $eleve->prenom,
                         'matricule' => $eleve->matricule,
                         'date_naissance' => $eleve->date_naissance,
                         'telephone' => $eleve->telephone,
                         'parent' => $eleve->parent->prenom. ' ' . $eleve->parent->nom,
+                        'parent_telephone' => $eleve->parent->telephone
                     ];
                 }),
             ];
@@ -78,7 +81,8 @@ public function elevesParParent($parent_id)
             'annee_classe' => $eleve->anneeClasses->map(function ($anneeClasse) {
                 return [
                     'annee' => $anneeClasse->annee->annee_debut . ' - ' . $anneeClasse->annee->annee_fin,
-                    'classe' => $anneeClasse->classe->nom
+                    'classe' => $anneeClasse->classe->nom,
+                    
                 ];
             })
         ];
@@ -128,7 +132,7 @@ public function nombreElevesParParent($parent_id)
     {
         // Récupérer les données validées
         $validated = $request->validated();
-    
+        
         // Vérifier si l'année associée est "En_cours"
         $anneeClasse = AnneeClasse::find($validated['annee_classe_id']);
         if ($anneeClasse->annee->etat !== 'En_cours') {
@@ -137,19 +141,40 @@ public function nombreElevesParParent($parent_id)
                 'status' => 400
             ], 400);
         }
-    
-        // Créer l'entrée dans la table classe_eleves
-        $classeEleve = ClasseEleve::create([
-            'annee_classe_id' => $validated['annee_classe_id'],
-            'eleve_id' => $validated['eleve_id'],
-        ]);
-    
-        // Retourner une réponse JSON
-        return response()->json([
-            'message' => 'Élève attribué à l\'année classe avec succès',
-            'data' => $classeEleve,
-            'status' => 201
-        ]);
+        
+        // Si 'eleve_id' est un tableau d'IDs
+        if (is_array($validated['eleve_id'])) {
+            $classeEleves = [];
+            
+            // Boucler sur chaque 'eleve_id' et créer une entrée
+            foreach ($validated['eleve_id'] as $eleve_id) {
+                $classeEleves[] = ClasseEleve::create([
+                    'annee_classe_id' => $validated['annee_classe_id'],
+                    'eleve_id' => $eleve_id,
+                ]);
+            }
+            
+            // Retourner une réponse JSON avec les élèves ajoutés
+            return response()->json([
+                'message' => 'Élèves attribués à l\'année classe avec succès',
+                'data' => $classeEleves,
+                'status' => 201
+            ]);
+            
+        } else {
+            // Gérer le cas où 'eleve_id' est une valeur unique
+            $classeEleve = ClasseEleve::create([
+                'annee_classe_id' => $validated['annee_classe_id'],
+                'eleve_id' => $validated['eleve_id'],
+            ]);
+            
+            // Retourner une réponse JSON pour un seul élève
+            return response()->json([
+                'message' => 'Élève attribué à l\'année classe avec succès',
+                'data' => $classeEleve,
+                'status' => 201
+            ]);
+        }
     }
     
 

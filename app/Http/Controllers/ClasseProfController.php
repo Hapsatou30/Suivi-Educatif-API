@@ -6,6 +6,7 @@ use App\Models\ClasseProf;
 use App\Models\Professeur;
 use App\Models\AnneeClasse;
 use App\Models\ProfMatiere;
+use Illuminate\Http\Request;
 use App\Models\AnneeScolaire;
 use Illuminate\Support\Facades\Log;
 use App\Http\Requests\StoreClasseProfRequest;
@@ -13,55 +14,33 @@ use App\Http\Requests\UpdateClasseProfRequest;
 
 class ClasseProfController extends Controller
 {
-    /**
-     * Methode pour afficher les classe des professeurs et les matieres enseignés dans ces classes
-     */
-    public function index()
-    {
-// Récupérer toutes les années scolaires avec leurs classes via la table pivot annee_classes
-$annees = AnneeScolaire::with(['classes.annees', 'classes.anneeClasses.profMatieres.professeur', 'classes.anneeClasses.profMatieres.matiere'])->get();
+   
 
-$data = [];
+public function index(Request $request)
+{
+    // Récupérer l'ID de la classe à partir des paramètres de requête
+    $anneeClasseId = $request->query('annee_classe_id');
 
-// Parcourir chaque année
-foreach ($annees as $annee) {
-    $professeurs = [];
-
-    // Parcourir les classes associées à cette année via la table pivot annee_classe
-    foreach ($annee->classes as $classe) {
-        // Parcourir les relations annee_classes -> prof_matieres pour chaque classe
-        foreach ($classe->anneeClasses as $anneeClasse) {
-            foreach ($anneeClasse->profMatieres as $profMatiere) {
-                $professeurId = $profMatiere->professeur->id;
-
-                // Vérifier si le professeur a déjà été ajouté
-                if (!isset($professeurs[$professeurId])) {
-                    $professeurs[$professeurId] = [
-                        'nom' => $profMatiere->professeur->nom,
-                        'prenom' => $profMatiere->professeur->prenom,
-                        'classes' => [],
-                    ];
-                }
-
-                // Ajouter la classe et la matière enseignée
-                $professeurs[$professeurId]['classes'][] = [
-                    'nom_classe' => $classe->nom,
-                    'matiere' => $profMatiere->matiere->nom,
-                ];
-            }
-        }
+    // Vérifier si l'ID de l'année de classe est fourni
+    if (!$anneeClasseId) {
+        return response()->json([
+            'success' => false,
+            'message' => 'L\'ID de l\'année de classe est requis.'
+        ], 400);
     }
 
-    // Ajouter les données de l'année et des professeurs
-    $data[] = [
-        'annee' => $annee->annee_debut . ' - ' . $annee->annee_fin,
-        'professeurs' => $professeurs,
-    ];
+    // Récupérer les classe_profs avec leurs relations anneeClasse et profMatiere pour l'année de classe donnée
+    $classeProfs = ClasseProf::with(['anneeClasse', 'profMatiere'])
+        ->where('annee_classe_id', $anneeClasseId)
+        ->get();
+
+    // Retourner la liste sous forme de JSON
+    return response()->json([
+        'success' => true,
+        'data' => $classeProfs
+    ], 200);
 }
 
-// Retourner les données sous forme de JSON
-return response()->json($data);
-    }
 
     /**
  * Méthode pour récupérer le nombre de classes dans lesquelles un professeur enseigne

@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Professeur;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreProfesseurRequest;
 use App\Http\Requests\UpdateProfesseurRequest;
@@ -42,6 +44,7 @@ class ProfesseurController extends Controller
             'telephone' => $professeur->telephone,
             'matricule' => $professeur->matricule,
             'email' => $professeur->user->email, 
+            'user_id' => $professeur->user->id, 
         ];
     });
 
@@ -116,17 +119,58 @@ class ProfesseurController extends Controller
     /**
      * ;ethode pour supprimer un professeur
      */
-    public function update(UpdateProfesseurRequest $request, Professeur $professeur)
-    {
-        // Mettre à jour les informations du professeur
-        $professeur->update($request->all());
-        return response()->json([
-           'message' => 'Professeur modifié avec succès',
-           'données' => $professeur,
-           'status' => 200
-        ]);
-    }
-
+   
+     public function update(Request $request, $id)
+     {
+         // Récupérer le professeur par ID
+         $professeur = Professeur::find($id);
+     
+         if (!$professeur) {
+             return response()->json([
+                 'message' => 'Professeur non trouvé',
+                 'status' => 404
+             ]);
+         }
+     
+         // Récupérer l'utilisateur associé au professeur
+         $user = User::find($professeur->user_id);
+     
+         if (!$user) {
+             return response()->json([
+                 'message' => 'Utilisateur non trouvé',
+                 'status' => 404
+             ]);
+         }
+     
+         Log::info('Données envoyées pour la mise à jour:', $request->all());
+     
+         // Mettre à jour les données du professeur
+         $professeur->matricule = $request->matricule;
+         $professeur->nom = $request->nom;
+         $professeur->prenom = $request->prenom;
+         $professeur->telephone = $request->telephone;
+     
+         // Mettre à jour les données de l'utilisateur si elles sont fournies
+         if ($request->has('email')) {
+             $user->email = $request->email;
+         }
+     
+         if ($request->has('password')) {
+             $user->password = bcrypt($request->password); // Utiliser bcrypt pour sécuriser le mot de passe
+         }
+     
+         // Sauvegarder les modifications
+         $professeur->save();
+         $user->save();
+     
+         return response()->json([
+             'message' => 'Professeur et utilisateur modifiés avec succès',
+             'données' => $professeur,
+             'status' => 200
+         ]);
+     }
+     
+    
     /**
      * Supprimer un professeur
      */

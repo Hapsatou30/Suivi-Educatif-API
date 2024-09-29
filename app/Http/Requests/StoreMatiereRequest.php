@@ -38,7 +38,7 @@ class StoreMatiereRequest extends FormRequest
             'description.max' => 'La description ne peut pas dépasser 255 caractères.',
             
             'coefficient.required' => 'Le champ coefficient est obligatoire.',
-            'coefficient.integer' => 'Le coefficient doit être un nombre entier.',
+            'coefficient.numeric' => 'Le coefficient doit être un nombre entier.',
             'coefficient.min' => 'Le coefficient doit être supérieur ou égal à 1.',
         ];
     }

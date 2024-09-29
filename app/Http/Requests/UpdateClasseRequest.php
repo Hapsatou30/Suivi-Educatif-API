@@ -13,14 +13,17 @@ class UpdateClasseRequest extends FormRequest
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
-    public function rules(): array
+    public function rules()
     {
+       
         return [
-            'nom' => 'sometimes|string|unique:classes,nom|max:255',
+            'nom' => 'sometimes|string|max:255' ,
             'niveau' => 'sometimes|string|max:255',
             'capacite' => 'sometimes|integer|min:1',
         ];
     }
+    
+
 
     public function messages(): array
     {

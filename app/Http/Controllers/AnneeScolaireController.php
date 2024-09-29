@@ -29,32 +29,36 @@ class AnneeScolaireController extends Controller
      */
     public function store(StoreAnneeScolaireRequest $request)
     {
-        //je dois ajouter un contraint 
-        //on ne peut pas avoir deux année scolaire en cours
-
+        // Vérifier si une année scolaire en cours existe déjà
         $anneeScolaireEnCours = AnneeScolaire::where('etat', 'En_cours')->first();
-        if($anneeScolaireEnCours) {
+        if ($anneeScolaireEnCours) {
             return response()->json([
-               'message' => 'Il existe déjà une année scolaire en cours.',
-               'status' => 409
+                'message' => 'Il existe déjà une année scolaire en cours.',
+                'status' => 409
             ]);
         }
+    
+        // Vérifier si une année scolaire avec les mêmes dates existe déjà
+        $anneeExistante = AnneeScolaire::where('annee_debut', $request->annee_debut)
+        ->where('annee_fin', $request->annee_fin)
+        ->first();
 
-        // //créer une nouvelle année scolaire
+        if ($anneeExistante) {
+        return response()->json([
+        'message' => 'Une année scolaire avec les mêmes dates existe déjà.',
+        'status' => 409
+        ]);
+        }
+    
+        // Créer une nouvelle année scolaire
         $annee = AnneeScolaire::create($request->all());
         return response()->json([
-           'message' => 'Année scolaire créée avec succès',
-           'données' => $annee,
-           'status' => 201
+            'message' => 'Année scolaire créée avec succès',
+            'données' => $annee,
+            'status' => 201
         ]);
-        // //Ajouter une année scolaire
-        // $annee = AnneeScolaire::create($request->all());
-        // return response()->json([
-        //    'message' => 'Année scolaire créée avec succès',
-        //    'données' => $annee,
-        //    'status' => 201
-        // ]);
     }
+    
 
     /**
      *Methode pour voir les details d'une annéee scolaire créée
@@ -95,13 +99,7 @@ class AnneeScolaireController extends Controller
             ], 404);
         }
     
-        $anneeScolaireEnCours = AnneeScolaire::where('etat', 'En_cours')->first();
-        if($anneeScolaireEnCours) {
-            return response()->json([
-               'message' => 'Il existe déjà une année scolaire en cours.',
-               'status' => 409
-            ]);
-        }
+       
 
         // Mise à jour des informations de l'année scolaire
         $anneeScolaire->update($request->all());

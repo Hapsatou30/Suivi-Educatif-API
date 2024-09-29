@@ -14,18 +14,19 @@ class UpdateHoraireRequest extends FormRequest
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
     public function rules(): array
-    {
-        return [
-            'jour' => [
-                'sometimes',
-                'string',
-                Rule::in(['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi']),
-            ],
-            'heure_debut' => 'sometimes|date_format:H:i|before:heure_fin',
-            'heure_fin' => 'sometimes|date_format:H:i|after:heure_debut',
-            'classe_prof_id' => 'sometimes|exists:classe_profs,id',
-        ];
-    }
+{
+    return [
+        'jour' => [
+            'sometimes',
+            'string',
+            Rule::in(['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi']),
+        ],
+        'heure_debut' => 'sometimes|date_format:H:i:s|before:heure_fin',
+        'heure_fin' => 'sometimes|date_format:H:i:s|after:heure_debut',
+        'classe_prof_id' => 'sometimes|exists:classe_profs,id',
+    ];
+}
+
 
     /**
      * Get the custom messages for validation errors.

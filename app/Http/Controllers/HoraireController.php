@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Horaire;
+use App\Models\ClasseProf;
 use App\Http\Requests\StoreHoraireRequest;
 use App\Http\Requests\UpdateHoraireRequest;
-use App\Models\Horaire;
 
 class HoraireController extends Controller
 {
@@ -13,31 +14,38 @@ class HoraireController extends Controller
      */
     public function horaireClasse($anneeClasseId)
     {
-        // Récupérer les horaires pour une classe spécifique via l'année de la classe 
-        $horaires = Horaire::whereHas('classeProf', function ($query) use ($anneeClasseId) {
-            $query->where('annee_classe_id', $anneeClasseId);
-        })
-        ->with(['classeProf.anneeClasse.classe', 'classeProf.profMatiere.professeur', 'classeProf.profMatiere.matiere'])
-        ->get();
+        // Récupérer toutes les classes pour l'année donnée, même sans horaires
+        $classeProfs = ClasseProf::where('annee_classe_id', $anneeClasseId)
+            ->with(['horaires', 'anneeClasse.classe', 'profMatiere.professeur', 'profMatiere.matiere'])
+            ->get();
     
-        // Vérifier si des horaires existent pour l'année classe donnée
-        if ($horaires->isEmpty()) {
-            return response()->json([
-                'message' => 'Aucun horaire trouvé pour cette année classe.',
-                'status' => 404
-            ]);
-        }
-    
-        // Préparer les données pour la réponse
         $data = [];
-        foreach ($horaires as $horaire) {
-            $data[] = [
-                'nom_classe' => $horaire->classeProf->anneeClasse->classe->nom, 
-                'matiere' => $horaire->classeProf->profMatiere->matiere->nom,   
-                'professeur' => $horaire->classeProf->profMatiere->professeur->prenom . ' ' . $horaire->classeProf->profMatiere->professeur->nom,
-                'horaire' => $horaire->heure_debut. ' ' . $horaire->heure_fin
-       
-            ];
+        foreach ($classeProfs as $classeProf) {
+            if ($classeProf->horaires->isEmpty()) {
+                // Si aucune horaire n'est associée, on indique "Pas encore rempli"
+                $data[] = [
+                    'nom_classe' => $classeProf->anneeClasse->classe->nom,
+                    'matiere' => $classeProf->profMatiere->matiere->nom,
+                    'professeur' => $classeProf->profMatiere->professeur->prenom . ' ' . $classeProf->profMatiere->professeur->nom,
+                    'horaire' => 'Pas encore rempli',
+                    'jour' => '-',
+                    'horaire_id' => null, // Pas d'ID car pas encore d'horaire
+                    'classe_prof_id' => $classeProf->id // Ajout de l'ID de la classe_prof
+                ];
+            } else {
+                // Si des horaires existent, on les ajoute avec leur ID
+                foreach ($classeProf->horaires as $horaire) {
+                    $data[] = [
+                        'horaire_id' => $horaire->id, // Récupération de l'ID de l'horaire
+                        'nom_classe' => $classeProf->anneeClasse->classe->nom,
+                        'matiere' => $classeProf->profMatiere->matiere->nom,
+                        'professeur' => $classeProf->profMatiere->professeur->prenom . ' ' . $classeProf->profMatiere->professeur->nom,
+                        'horaire' => $horaire->heure_debut . ' - ' . $horaire->heure_fin,
+                        'jour' => $horaire->jour,
+                        'classe_prof_id' => $classeProf->id // Ajout de l'ID de la classe_prof
+                    ];
+                }
+            }
         }
     
         return response()->json([
@@ -46,6 +54,7 @@ class HoraireController extends Controller
             'status' => 200
         ]);
     }
+    
     
    
     //horaires pour un prof
@@ -126,15 +135,24 @@ class HoraireController extends Controller
      */
     public function update(UpdateHoraireRequest $request, $id)
     {
-        //modifier une horaire
-        $horaire = Horaire::find($id);
-        $horaire->update($request->all());
-        return response()->json([
-           'message' => 'Horaire modifié avec succès',
-           'données' => $horaire,
-           'status' => 200
-        ]);
+        try {
+            $horaire = Horaire::findOrFail($id);
+            $horaire->update($request->validated());
+    
+            return response()->json([
+                'message' => 'Horaire modifié avec succès',
+                'données' => $horaire,
+                'status' => 200
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Erreur lors de la modification de l\'horaire',
+                'error' => $e->getMessage(),
+                'status' => 500
+            ], 500);
+        }
     }
+    
 
     /**
      * Remove the specified resource from storage.

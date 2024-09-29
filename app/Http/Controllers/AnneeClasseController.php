@@ -140,19 +140,37 @@ public function niveauClasses($anneeId)
     /**
      * Display the specified resource.
      */
-    public function show(AnneeClasse $anneeClasse)
-    {
-        //
+    public function show($id)
+{
+    // Récupérer l'instance d'AnneeClasse par ID, en incluant la relation classe
+    $anneeClasse = AnneeClasse::with('classe')->find($id);
+
+    // Vérifier si l'instance existe
+    if (!$anneeClasse) {
+        return response()->json([
+            'message' => 'Année classe non trouvée',
+            'status' => 404
+        ]);
     }
+
+    // Vérifier si la classe existe
+    $classe = $anneeClasse->classe;
+
+    return response()->json([
+        'message' => 'Détails d\'une année classe',
+        'id_annee_classe' => $anneeClasse->id,
+        'donnees_classe' => $classe ? [
+            'nom' => $classe->nom,
+            'capacite' => $classe->capacite,
+        ] : null, // Si la classe n'existe pas, renvoie null
+        'status' => 200
+    ]);
+}
+
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(AnneeClasse $anneeClasse)
-    {
-        //
-    }
-
     /**
      * Update the specified resource in storage.
      */

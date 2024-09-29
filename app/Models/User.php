@@ -58,7 +58,7 @@ class User extends Authenticatable implements JWTSubject
     //relation avec le professeur
     public function professeur()
     {
-        return $this->hasOne(Professeur::class);
+        return $this->hasOne(Professeur::class, 'user_id');
     }
 
     //relation avec eleve

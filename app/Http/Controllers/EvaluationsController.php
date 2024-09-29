@@ -17,10 +17,24 @@ public function evaluationsJour()
     // Récupérer la date du jour
     $dateDuJour = now()->toDateString(); 
 
-    // Récupérer les évaluations pour la date du jour 
-    $evaluations = Evaluations::with(['classeProf.profMatiere.professeur', 'classeProf.anneeClasse.classe'])
-                                ->whereDate('date', $dateDuJour) 
-                                ->get();
+   // Récupérer les évaluations pour la date du jour
+   $evaluations = Evaluations::with(['classeProf.profMatiere.professeur', 'classeProf.anneeClasse.classe','classeProf.anneeClasse.annee'])
+   ->whereDate('date', $dateDuJour)
+   ->get();
+
+// Filtrer les évaluations pour celles dont l'année est "En_cours"
+$evaluationsEnCours = $evaluations->filter(function ($evaluation) {
+   return $evaluation->classeProf->anneeClasse->annee->etat === 'En_cours';
+});
+
+// Vérifier s'il y a des évaluations pour aujourd'hui et de l'année en cours
+if ($evaluationsEnCours->isEmpty()) {
+   return response()->json([
+       'message' => "Il n'y a pas d'évaluations prévues pour aujourd'hui dans l'année en cours.",
+       'status' => 200
+   ]);
+}
+
     // Vérifier s'il y a des évaluations pour aujourd'hui
     if ($evaluations->isEmpty()) {
         return response()->json([
@@ -32,11 +46,12 @@ public function evaluationsJour()
     $resultat = $evaluations->map(function ($evaluation) {
         return [
             'matiere' => $evaluation->classeProf->profMatiere->matiere->nom,
-            'Professeur' => $evaluation->classeProf->profMatiere->professeur->prenom. ' - ' .$evaluation->classeProf->profMatiere->professeur->nom,
+            'professeur' => $evaluation->classeProf->profMatiere->professeur->prenom. ' - ' .$evaluation->classeProf->profMatiere->professeur->nom,
             'type' => $evaluation->type_evaluation,
             'date' => $evaluation->date, 
             'classe' => $evaluation->classeProf->anneeClasse->classe->nom,
-            'duree' => $evaluation->duree
+            'duree' => $evaluation->duree,
+            'heure' => $evaluation->heure
         ];
     });
 
