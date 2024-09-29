@@ -110,7 +110,7 @@ Route::group ([ "middleware" => ["auth"] ],  function(){
     Route::get('annees/{anneeId}/niveaux', [AnneeClasseController::class, 'niveauClasses']);
 
       //route pour le total d'élèves
-   Route::get('total-eleves', [EleveController::class, 'totalEleves']);
+   Route::get('total-eleves', [ClasseEleveController::class, 'totalEleves']);
 
    //route pour le total de professeurs
    Route::get('total-professeurs', [ProfesseurController::class, 'totalProfesseurs']);
@@ -182,10 +182,7 @@ Route::group ([ "middleware" => ["auth"] ],  function(){
     //evaluations pour un eleve
     Route::get('eleves/{eleveId}/evaluations', [EvaluationsController::class, 'evaluationsEleve']);
 
-     //route pour les notes par matieres
- Route::get('notes/matiere/{classProfId}', [NoteController::class, 'index']);
 
-       
     });
 
 
@@ -217,10 +214,13 @@ Route::group ([ "middleware" => ["auth"] ],  function(){
     // Route::apiResource('annees-classes', AnneeClasseController::class);
     Route::get('annees-classes/{annees_class}', [AnneeClasseController::class,'show']);
    
+         //route pour les notes par matieres
+ Route::get('notes/matiere/{classProfId}', [NoteController::class, 'index']);
 
+       
     //route pour les classes-professeurs
     // Route::apiResource('classes-professeurs', ClasseProfController::class);
-    Route::get('classes-professeurs/{classes_professeur}', [ClasseProfController::class,'show']);
+    Route::get('classes-professeurs/{anneeClasseId}', [ClasseProfController::class,'showProfMatiereClasse']);
     Route::get('classes-professeurs', [ClasseProfController::class,'index']);
     
 

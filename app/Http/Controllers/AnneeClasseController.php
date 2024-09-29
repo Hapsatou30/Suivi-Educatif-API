@@ -41,34 +41,36 @@ class AnneeClasseController extends Controller
      *liste les classe par annee
      */
     public function index()
-{
-    // Récupérer la liste des années scolaires avec leurs classes associées
-    $anneesScolaires = AnneeScolaire::with('classes')->get();
-
-    // Mapper les résultats pour obtenir les informations nécessaires
-    $resultats = $anneesScolaires->map(function ($annee) {
-        return [
-            'id' => $annee->id, // ID de l'année scolaire
-            'annee_debut' => $annee->annee_debut,
-            'annee_fin' => $annee->annee_fin,
-            'etat' => $annee->etat,
-            'classes' => $annee->classes->map(function ($classe) {
-                return [
-                    'id' => $classe->id, 
-                    'nom' => $classe->nom, 
-                    'niveau' => $classe->niveau, 
-                    'capacite' => $classe->capacite, 
-                ];
-            }),
-        ];
-    });
-
-    return response()->json([
-        'message' => 'Liste des années scolaires et leurs classes',
-        'données' => $resultats,
-        'status' => 200
-    ]);
-}
+    {
+        // Récupérer la liste des années scolaires avec leurs classes associées
+        $anneesScolaires = AnneeScolaire::with(['classes' => function($query) {
+        }])->where('etat', 'En_cours')->get(); // Filtrer les années scolaires avec l'état 'En_cours'
+    
+        // Mapper les résultats pour obtenir les informations nécessaires
+        $resultats = $anneesScolaires->map(function ($annee) {
+            return [
+                'id' => $annee->id, // ID de l'année scolaire
+                'annee_debut' => $annee->annee_debut,
+                'annee_fin' => $annee->annee_fin,
+                'etat' => $annee->etat,
+                'classes' => $annee->classes->map(function ($classe) {
+                    return [
+                        'id' => $classe->id, 
+                        'nom' => $classe->nom, 
+                        'niveau' => $classe->niveau, 
+                        'capacite' => $classe->capacite, 
+                    ];
+                }),
+            ];
+        });
+    
+        return response()->json([
+            'message' => 'Liste des années scolaires et leurs classes en cours',
+            'données' => $resultats,
+            'status' => 200
+        ]);
+    }
+    
 
 //listes des niveau des classes dans une année
 

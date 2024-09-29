@@ -13,31 +13,19 @@ class EleveController extends Controller
 {
 
     //methode pour récuperer le nombre total d'eleve pour l'année en cours 
-    public function totalEleves()
-    {
-        // Récupérer l'année en cours
-        $anneeEnCours = AnneeClasse::whereHas('annee', function ($query) {
-            $query->where('etat', 'En_cours');
-        })->first();
-    
-        if (!$anneeEnCours) {
-            return response()->json([
-                'message' => 'Aucune année en cours trouvée.',
-                'total' => 0,
-                'status' => 404
-            ]);
-        }
-    
-        // Compter le nombre total d'élèves associés à l'année en cours
-        $totalEleves = $anneeEnCours->eleves()->count();
-    
-        // Structurer la réponse en JSON
-        return response()->json([
-            'message' => 'Total d\'élèves pour l\'année en cours.',
-            'total' => $totalEleves,
-            'status' => 200
-        ]);
-    }
+//     public function totalEleves()
+// {
+//     // Compter le nombre total d'élèves dans la base de données
+//     $totalEleves = Eleve::count();
+
+//     // Structurer la réponse en JSON
+//     return response()->json([
+//         'message' => 'Total d\'élèves dans la base de données.',
+//         'total' => $totalEleves,
+//         'status' => 200
+//     ]);
+// }
+
     
     /**
      *Voir la liste des eleves 

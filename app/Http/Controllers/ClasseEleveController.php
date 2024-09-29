@@ -2,14 +2,35 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Eleve;
 use App\Models\Parents;
 use App\Models\AnneeClasse;
 use App\Models\ClasseEleve;
+use App\Models\AnneeScolaire;
 use App\Http\Requests\StoreClasseEleveRequest;
 use App\Http\Requests\UpdateClasseEleveRequest;
 
 class ClasseEleveController extends Controller
 {
+
+  
+    public function totalEleves()
+{
+    // Compter le nombre d'élèves pour l'année en cours
+    $nombreElevesTotal = Eleve::whereHas('anneeClasses', function ($query) {
+        $query->whereHas('annee', function ($query) {
+            $query->where('etat', 'En_cours'); // Filtrer par état "En_cours"
+        });
+    })->count();
+
+    // Structurer la réponse en JSON
+    return response()->json([
+        'message' => 'Nombre total d\'élèves pour l\'année en cours',
+        'nombre_eleves_total' => $nombreElevesTotal,
+        'status' => 200
+    ]);
+}
+
     /**
      * les eleves par annee_classe
      */
