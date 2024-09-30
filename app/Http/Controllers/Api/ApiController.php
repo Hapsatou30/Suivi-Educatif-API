@@ -26,6 +26,13 @@ class ApiController extends Controller
             // Si les données sont valides, authentifier l'utilisateur
             $credentials = $request->only('email', 'password');
             $token = auth()->attempt($credentials);
+
+                    // Récupérer l'utilisateur authentifié
+            $user = auth()->user();
+
+            // Récupérer les rôles de l'utilisateur
+            $roles = $user->getRoleNames(); // Méthode Spatie pour obtenir les noms de rôles
+
             // Si les informations de connexion ne sont pas correctes, renvoyer une erreur 401  
             if (!$token) {
                 return response()->json(['message' => 'Information de connexion incorrectes'], 401);
@@ -35,6 +42,7 @@ class ApiController extends Controller
                 "access_token" => $token,
                 "token_type" => "bearer",
                 "user" => auth()->user(),
+                "roles" => $roles,
                 "expires_in" => env("JwT_TTL") * 60  . 'seconds'
             ]);
         }
@@ -63,5 +71,38 @@ class ApiController extends Controller
             ]);
         }
     
+    //methode pour récuperer les informations du user
+    public function profile() {
+        // Récupérer l'utilisateur authentifié
+        $user = auth()->user();
+    
+        // Récupérer les rôles de l'utilisateur
+        $roles = $user->getRoleNames(); // Méthode Spatie pour obtenir les noms de rôles
+    
+        // Variable pour stocker le prénom
+        $prenom = null;
+    
+        // Vérification des rôles et récupération du prénom dans la table correspondante
+        if ($roles->contains('professeur')) {
+            // Si l'utilisateur est un professeur
+            $professeur = $user->professeur; // Relation avec la table 'professeurs'
+            $prenom = $professeur ? $professeur->prenom : null;
+        } elseif ($roles->contains('parent')) {
+            // Si l'utilisateur est un parent
+            $parent = $user->parent; // Relation avec la table 'parents'
+            $prenom = $parent ? $parent->prenom : null;
+        } elseif ($roles->contains('eleve')) {
+            // Si l'utilisateur est un élève
+            $eleve = $user->eleve; // Relation avec la table 'eleves'
+            $prenom = $eleve ? $eleve->prenom : null;
+        }
+    
+        // Renvoyer les informations du user avec ses rôles et le prénom
+        return response()->json([
+            "user" => $user,
+            "roles" => $roles,
+            "prenom" => $prenom
+        ]);
+    }
     
 }

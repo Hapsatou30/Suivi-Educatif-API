@@ -34,6 +34,10 @@ Route::middleware(['auth:api'])->group(function () {
     Route::get('logout', [ApiController::class, 'logout']);
     //route pour le rafraichir du token
     Route::get('refresh', [ApiController::class,'refresh']);
+
+     //route pour voir le profile
+     Route::get('profile', [ApiController::class, 'profile']);
+ 
 });
 
 
@@ -161,6 +165,9 @@ Route::group ([ "middleware" => ["auth"] ],  function(){
          //nombre de matiere pour un prof
         Route::get('professeur/{id}/nombre-matieres', [MatiereController::class, 'nombreMatieresParProf']);
 
+        //liste des classes du prof
+        Route::get( 'professeur/{id}/liste_classes' , [ClasseProfController::class, 'listeClassesParProf']);
+
         //nombre de classes pour un prof
         Route::get('professeurs/{professeurId}/classes', [ClasseProfController::class, 'nombreClassesParProf']);
 
@@ -282,9 +289,8 @@ Route::group ([ "middleware" => ["auth"] ],  function(){
    Route::get('classe-eleve/{classeEleveId}/absences', [PresenceController::class, 'getAbsences']);
 
 
-
- 
-
+   //voir les années scolaire
+   Route::get('annees-scolaires', [AnneeScolaireController::class,'index']);
 
 
 

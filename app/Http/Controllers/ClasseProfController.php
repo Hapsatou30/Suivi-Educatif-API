@@ -57,31 +57,69 @@ public function nombreClassesParProf($professeurId)
         ]);
     }
 
-    // Récupérer toutes les classes via les relations 
-    $nombreClasses = $professeur->profMatieres()
-        ->with('anneeClasses.classe') 
-        ->get()
-        ->pluck('anneeClasse.classe.id') // Extraire les IDs des classes
-        ->unique() // Supprimer les doublons
-        ->count(); // Compter le nombre de classes uniques
+    // Récupérer le nombre d'années de classe pour le professeur
+    $nombreClasses = ClasseProf::whereHas('profMatiere', function ($query) use ($professeurId) {
+        // Filtrer par le professeur
+        $query->where('professeur_id', $professeurId);
+    })
+    ->with('anneeClasse') 
+    ->get()
+    ->pluck('anneeClasse.id') // Récupérer les IDs des années de classe
+    ->unique() // Assurer l'unicité
+    ->count(); // Compter le nombre d'années de classe
 
     return response()->json([
-        'message' => 'Nombre de classes pour le professeur',
         'données' => $nombreClasses,
         'status' => 200
     ]);
 }
 
-   
+public function listeClassesParProf($professeurId)
+{
+    // Vérifier si le professeur existe
+    $professeur = Professeur::find($professeurId);
 
- //methode pour attriber des classes au professeur
-    public function store(StoreClasseProfRequest $request)
+    if (!$professeur) {
+        return response()->json([
+            'message' => 'Professeur non trouvé.',
+            'status' => 404
+        ]);
+    }
+
+    // Récupérer la liste des classes pour le professeur
+    $classeProf = ClasseProf::whereHas('profMatiere', function ($query) use ($professeurId) {
+        // Filtrer par le professeur
+        $query->where('professeur_id', $professeurId);
+    })
+    ->with(['anneeClasse.classe', 'profMatiere.matiere']) // Charger les relations nécessaires
+    ->get()
+    ->map(function ($classeProf) {
+        return [
+            'nom_classe' => $classeProf->anneeClasse->classe->nom, 
+            'capacite' => $classeProf->anneeClasse->classe->capacite, 
+            'nom_matiere' => $classeProf->profMatiere->matiere->nom 
+        ];
+    });
+
+    return response()->json([
+        'classes' => $classeProf,
+        'status' => 200
+    ]);
+}
+
+
+
+
+
+
+// Méthode pour attribuer des classes au professeur
+public function store(StoreClasseProfRequest $request)
 {
     // Récupérer les données validées
     $data = $request->validated();
 
     // Vérifier que l'année classe spécifiée est valide
-    $anneeClasse = AnneeClasse::where('id', $data['annee_classe_id'])->first();
+    $anneeClasse = AnneeClasse::find($data['annee_classe_id']);
 
     if (!$anneeClasse) {
         return response()->json([
@@ -100,36 +138,15 @@ public function nombreClassesParProf($professeurId)
         ]);
     }
 
-    // Vérifier que les IDs des prof_matieres sont bien récupérés
-    Log::info('IDs des prof_matieres:', $data['prof_mat_ids']);
-
-    // Récupérer les prof_matieres actuellement associés à l'année classe
-    $idProfMatActu = $anneeClasse->profMatieres()->pluck('prof_matieres.id')->toArray();
-
-    // Déterminer les prof_matieres à ajouter et à retirer
-    $profMatRetirer = array_diff($idProfMatActu, $data['prof_mat_ids']);
-    $profMatAjouter = array_diff($data['prof_mat_ids'], $idProfMatActu);
-
-    // Supprimer les prof_matieres qui ne sont plus sélectionnés
-    if (!empty($profMatRetirer)) {
-        $anneeClasse->profMatieres()->detach($profMatRetirer);
-    }
-
-    // Ajouter les nouvelles prof_matieres (si elles ne sont pas déjà associées)
-    if (!empty($profMatAjouter)) {
-        foreach ($profMatAjouter as $profMatId) {
-            ClasseProf::create([
-                'annee_classe_id' => $data['annee_classe_id'],
-                'prof_mat_id' => $profMatId,
-            ]);
-        }
-    }
+    // Utiliser syncWithoutDetaching pour ajouter les prof_matieres sans détacher les anciennes associations
+    $anneeClasse->profMatieres()->syncWithoutDetaching($data['prof_mat_ids']);
 
     return response()->json([
-        'message' => 'Professeurs et matières associés avec succès à l\'année classe.',
+        'success' => 'Professeurs et matières associés avec succès à l\'année classe.',
         'status' => 200
     ]);
 }
+
 
 
     /**
@@ -150,6 +167,7 @@ public function nombreClassesParProf($professeurId)
         $classes_matieres = [];
         foreach ($anneeClasse->profMatieres as $profMatiere) {
             $classes_matieres[] = [
+                'id' => $profMatiere->id,
                 'nom_professeur' => $profMatiere->professeur->nom,
                 'prenom_professeur' => $profMatiere->professeur->prenom,
                 'matiere' => $profMatiere->matiere->nom,
