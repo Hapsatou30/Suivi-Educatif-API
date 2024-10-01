@@ -176,11 +176,21 @@ class ProfesseurController extends Controller
      */
     public function destroy(Professeur $professeur)
     {
+        // Supprimer l'utilisateur associé
+        if ($professeur->user_id) {
+            $user = User::find($professeur->user_id);
+            if ($user) {
+                $user->delete();
+            }
+        }
+    
         // Supprimer le professeur
         $professeur->delete();
+    
         return response()->json([
-           'message' => 'Professeur supprimé avec succès',
-           'status' => 200
+            'message' => 'Professeur et utilisateur supprimés avec succès',
+            'status' => 200
         ]);
     }
+    
 }

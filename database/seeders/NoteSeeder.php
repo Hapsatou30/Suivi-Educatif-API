@@ -4,6 +4,8 @@ namespace Database\Seeders;
 
 use App\Models\Eleve;
 use App\Models\Bulletin;
+use App\Models\Classe;
+use App\Models\ClasseEleve;
 use App\Models\Evaluations;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
@@ -20,7 +22,7 @@ class NoteSeeder extends Seeder
         $evaluations = Evaluations::all();
 
         // Récupérer tous les élèves
-        $eleves = Eleve::all();
+        $eleves = ClasseEleve::all();
 
        
 
@@ -32,7 +34,7 @@ class NoteSeeder extends Seeder
                         'notes' => rand(0, 200) / 10, // Note aléatoire entre 0 et 20
                         'commentaire' => 'Commentaire pour l\'élève ' . $eleve->id,
                         'evaluation_id' => $evaluation->id,
-                        'eleve_id' => $eleve->id,
+                        'classe_eleve_id' => $eleve->id,
                         'bulletin_id' => null,
                         'created_at' => now(),
                         'updated_at' => now(),

@@ -34,8 +34,5 @@ class Eleve extends Model
     }
 
     //relation avec notes
-    public function notes()
-    {
-        return $this->hasMany(Note::class);
-    }
+    
 }

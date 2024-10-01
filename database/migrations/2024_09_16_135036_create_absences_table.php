@@ -11,11 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('presences', function (Blueprint $table) {
+        Schema::create('absences', function (Blueprint $table) {
             $table->id();
-            $table->date('date_presence');
+            $table->date('date_presence')->default(now());
             $table->enum('status', ['present', 'absent'])->default('present');
-            $table->string('motif');
             $table->string('justification');
             $table->foreignId('classe_eleve_id')->constrained('classe_eleves')->onDelete('cascade');
             $table->foreignId('classe_prof_id')->constrained('classe_profs')->onDelete('cascade');
@@ -29,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('presences');
+        Schema::dropIfExists('absences');
     }
 };

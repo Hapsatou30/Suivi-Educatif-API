@@ -78,7 +78,7 @@ Route::group ([ "middleware" => ["auth"] ],  function(){
     Route::delete('classes/{class}', [ClasseController::class,'destroy']);
 
     //route pour les années-classes
-    Route::get('annee-classes/{anneeClasse}', [AnneeClasseController::class, 'show']);
+   
     Route::get('annees-classes', [AnneeClasseController::class,'index']);
     Route::post('annees-classes', [AnneeClasseController::class,'store']);
     Route::put('annees-classes/{annees_class}', [AnneeClasseController::class,'update']);
@@ -157,10 +157,10 @@ Route::group ([ "middleware" => ["auth"] ],  function(){
         Route::put('notes/{note}', [NoteController::class,'update']);
         Route::delete('notes/{note}', [NoteController::class,'destroy']);
 
-        //route pour les presences
-        Route::post('presences', [PresenceController::class,'store']);
-        Route::put('presences/{presence}', [PresenceController::class,'update']);
-        Route::delete('presences/{presence}', [PresenceController::class,'destroy']);
+        //route pour les absences
+        Route::post('absences', [PresenceController::class,'store']);
+        Route::put('absences/{absence}', [PresenceController::class,'update']);
+        Route::delete('absences/{absence}', [PresenceController::class,'destroy']);
 
          //nombre de matiere pour un prof
         Route::get('professeur/{id}/nombre-matieres', [MatiereController::class, 'nombreMatieresParProf']);
@@ -275,9 +275,9 @@ Route::group ([ "middleware" => ["auth"] ],  function(){
       
 
       //routes pour les prensences
-//    Route::apiResource('presences' , PresenceController::class);
-   Route::get('presences/{presence}', [PresenceController::class,'show']);
-   Route::get('presences', [PresenceController::class,'index']);
+//    Route::apiResource('absences' , PresenceController::class);
+   Route::get('absences/{absence}', [PresenceController::class,'show']);
+   Route::get('absences', [PresenceController::class,'index']);
 
  
    //horaire d'une classe
@@ -293,7 +293,7 @@ Route::group ([ "middleware" => ["auth"] ],  function(){
    Route::get('annees-scolaires', [AnneeScolaireController::class,'index']);
 
 
-
+   Route::get('annee-classes/{anneeClasse}', [AnneeClasseController::class, 'show']);
 
 
 });

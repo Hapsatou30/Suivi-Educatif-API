@@ -16,7 +16,7 @@ return new class extends Migration
             $table->float('notes');
             $table->string('commentaire');
             $table->foreignId('evaluation_id')->constrained('evaluations')->onDelete('cascade');
-            $table->foreignId('eleve_id')->constrained('eleves')->onDelete('cascade');
+            $table->foreignId('classe_eleve_id')->constrained('classe_eleves')->onDelete('cascade');
             $table->unsignedBigInteger('bulletin_id')->nullable();
             $table->softDeletes();
             $table->timestamps();

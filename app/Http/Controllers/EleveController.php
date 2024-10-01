@@ -263,15 +263,26 @@ public function eleves()
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy( $id)
+    public function destroy($id)
     {
-        //supprimer un eleve
+        // Récupérer l'élève
         $eleve = Eleve::findOrFail($id);
+    
+        // Supprimer l'utilisateur associé
+        if ($eleve->user_id) {
+            $user = User::find($eleve->user_id);
+            if ($user) {
+                $user->delete();
+            }
+        }
+    
+        // Supprimer l'élève
         $eleve->delete();
-
+    
         return response()->json([
-           'message' => 'Élève supprimé avec succès',
-           'status' => 200
+            'message' => 'Élève et utilisateur supprimés avec succès',
+            'status' => 200
         ]);
     }
+    
 }

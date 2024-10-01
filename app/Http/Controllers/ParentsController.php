@@ -99,15 +99,34 @@ class ParentsController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy( $id)
+    public function destroy($id)
     {
-        //supprimer un parent
+        // Récupérer le parent
         $parent = Parents::find($id);
+    
+        // Vérifier si le parent existe
+        if (!$parent) {
+            return response()->json([
+                'message' => 'Parent non trouvé',
+                'status' => 404
+            ]);
+        }
+    
+        // Supprimer l'utilisateur associé
+        if ($parent->user_id) {
+            $user = User::find($parent->user_id);
+            if ($user) {
+                $user->delete();
+            }
+        }
+    
+        // Supprimer le parent
         $parent->delete();
-
+    
         return response()->json([
-           'message' => 'Parent supprimé avec succès',
-           'status' => 200
+            'message' => 'Parent et utilisateur supprimés avec succès',
+            'status' => 200
         ]);
     }
+    
 }

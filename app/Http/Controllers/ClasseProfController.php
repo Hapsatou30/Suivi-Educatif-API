@@ -95,6 +95,8 @@ public function listeClassesParProf($professeurId)
     ->get()
     ->map(function ($classeProf) {
         return [
+            'classeProf_id' => $classeProf->id,
+            'annee_classe_id' => $classeProf->annee_classe_id,
             'nom_classe' => $classeProf->anneeClasse->classe->nom, 
             'capacite' => $classeProf->anneeClasse->classe->capacite, 
             'nom_matiere' => $classeProf->profMatiere->matiere->nom 

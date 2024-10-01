@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Presence;
+use Illuminate\Http\Request;
 use App\Http\Requests\StorePresenceRequest;
 use App\Http\Requests\UpdatePresenceRequest;
-use App\Models\Presence;
 
 class PresenceController extends Controller
 {
@@ -32,20 +33,20 @@ class PresenceController extends Controller
     ]);
 }
 
-    public function store(StorePresenceRequest $request)
+public function store(Request $request) // Si vous avez enlevé StorePresenceRequest, utilisez simplement Request
 {
-    // Récupérer les données validées
-    $validated = $request->validated();
+    // Récupérer les données, assurez-vous que 'date_presence' est inclus
+    $validated = $request->only([
+        'date_presence',
+        'status',
+        'motif',
+        'justification',
+        'classe_eleve_id',
+        'classe_prof_id',
+    ]);
 
     // Créer une nouvelle présence
-    $presence = Presence::create([
-        'date_presence' => $validated['date_presence'],
-        'status' => $validated['status'],
-        'motif' => $validated['motif'],
-        'justification' => $validated['justification'],
-        'classe_eleve_id' => $validated['classe_eleve_id'],
-        'classe_prof_id' => $validated['classe_prof_id'],
-    ]);
+    $presence = Presence::create($validated);
 
     // Retourner une réponse JSON
     return response()->json([
@@ -54,6 +55,7 @@ class PresenceController extends Controller
         'status' => 201
     ]);
 }
+
 
 
     /**

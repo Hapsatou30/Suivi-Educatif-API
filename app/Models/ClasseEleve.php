@@ -27,13 +27,13 @@ class ClasseEleve extends Model
     //relation avec presence
     public function presence()
     {
-        return $this->hasMany(Presence::class,'classe_prof_id');
+        return $this->hasMany(Presence::class);
     }
 
     //relation avec bulletin
-    public function bulletins()
+  
+    public function notes()
     {
-        return $this->hasMany(Bulletin::class);
+        return $this->hasMany(Note::class,'classe_eleve_id');
     }
-
 }
