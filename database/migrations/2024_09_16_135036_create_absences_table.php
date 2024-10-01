@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->date('date_presence')->default(now());
             $table->enum('status', ['present', 'absent'])->default('present');
-            $table->string('justification');
+            $table->string('justification')->nullable();
             $table->foreignId('classe_eleve_id')->constrained('classe_eleves')->onDelete('cascade');
             $table->foreignId('classe_prof_id')->constrained('classe_profs')->onDelete('cascade');
             $table->softDeletes();

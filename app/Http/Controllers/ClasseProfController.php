@@ -65,7 +65,6 @@ public function nombreClassesParProf($professeurId)
     ->with('anneeClasse') 
     ->get()
     ->pluck('anneeClasse.id') // Récupérer les IDs des années de classe
-    ->unique() // Assurer l'unicité
     ->count(); // Compter le nombre d'années de classe
 
     return response()->json([

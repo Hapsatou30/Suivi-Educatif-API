@@ -161,7 +161,7 @@ Route::group ([ "middleware" => ["auth"] ],  function(){
         Route::post('absences', [PresenceController::class,'store']);
         Route::put('absences/{absence}', [PresenceController::class,'update']);
         Route::delete('absences/{absence}', [PresenceController::class,'destroy']);
-
+        
          //nombre de matiere pour un prof
         Route::get('professeur/{id}/nombre-matieres', [MatiereController::class, 'nombreMatieresParProf']);
 
@@ -277,7 +277,7 @@ Route::group ([ "middleware" => ["auth"] ],  function(){
       //routes pour les prensences
 //    Route::apiResource('absences' , PresenceController::class);
    Route::get('absences/{absence}', [PresenceController::class,'show']);
-   Route::get('absences', [PresenceController::class,'index']);
+   Route::get('absences/{classeEleveId}', [PresenceController::class,'getAbsences']);
 
  
    //horaire d'une classe

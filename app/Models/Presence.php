@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Presence extends Model
 {
     use HasFactory,SoftDeletes;
+    protected $table = 'absences';
 
     // Permet l'assignation en masse de tous les attributs du modèle.
     protected $guarded = [];
