@@ -276,8 +276,9 @@ Route::group ([ "middleware" => ["auth"] ],  function(){
 
       //routes pour les prensences
 //    Route::apiResource('absences' , PresenceController::class);
-   Route::get('absences/{absence}', [PresenceController::class,'show']);
-   Route::get('absences/{classeEleveId}', [PresenceController::class,'getAbsences']);
+//    Route::get('absences/{absence}', [PresenceController::class,'show']);
+//    Route::get('absences/{classeEleveId}', [PresenceController::class,'getAbsences']);
+   Route::get('absences/{classProfId}' , [PresenceController::class, 'index']);
 
  
    //horaire d'une classe
@@ -286,7 +287,7 @@ Route::group ([ "middleware" => ["auth"] ],  function(){
    //horaires pour un prof
    Route::get('professeur/{professeurId}/horaires', [HoraireController::class, 'horaireProf']);
 
-   Route::get('classe-eleve/{classeEleveId}/absences', [PresenceController::class, 'getAbsences']);
+//    Route::get('classe-eleve/{classeEleveId}/absences', [PresenceController::class, 'getAbsences']);
 
 
    //voir les années scolaire

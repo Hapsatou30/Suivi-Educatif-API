@@ -14,14 +14,15 @@ class StorePresenceRequest extends FormRequest
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
     public function rules(): array
-    {
-        return [
-            'status' => 'required|in:present,absent',
-            'justification' => 'nullable|string|max:255',
-            'classe_eleve_id' => 'required|exists:classe_eleves,id',
-            'classe_prof_id' => 'required|exists:classe_profs,id',
-        ];
-    }
+{
+    return [
+        'status' => 'required|in:present,absent',
+        'justification' => 'nullable|string|max:255',
+        'classe_eleve_id' => 'required|exists:classe_eleves,id',
+        'classe_prof_id' => 'required|exists:classe_profs,id',
+    ];
+}
+
 
     /**
      * Messages personnalisés pour chaque règle de validation.

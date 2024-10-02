@@ -13,10 +13,26 @@ class PresenceController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index($classProfId)
     {
-        //
+        // Récupérer les absences pour la classe avec les informations des élèves, du professeur et de la matière
+        $absences = Presence::where('classe_prof_id', $classProfId)
+            ->where('status', 'absent')
+            ->with([
+                'classeEleve.eleve',   
+                'classeProf.profMatiere.professeur',
+                'classeProf.profMatiere.matiere' 
+            ])
+            ->get();
+    
+        // Retourner la liste des absences avec les infos des élèves, du prof et de la matière
+        return response()->json([
+            'message' => 'Liste des absences pour ce cours',
+            'data' => $absences,
+            'status' => 200
+        ]);
     }
+    
 
    
     public function getAbsences($classeEleveId)
@@ -33,21 +49,17 @@ class PresenceController extends Controller
         'status' => 200
     ]);
 }
-
-public function store(Request $request)
+public function store(StorePresenceRequest $request)
 {
-    // Récupérer les données, assurez-vous que 'date_presence' est inclus
-    $validated = $request->only([
-        'date_presence',
-        'status',
-        'justification',
-        'classe_eleve_id',
-        'classe_prof_id',
-    ]);
+    // Récupérer les données validées sans date_presence
+    $validated = $request->validated();
+
+    // Ajouter la date_presence automatiquement
+    $validated['date_presence'] = now(); // Ajouter la date actuelle
 
     // Vérifier si le statut est "absent"
     if ($validated['status'] === 'absent') {
-        // Créer une nouvelle présence
+        // Créer une nouvelle absence
         $absence = Presence::create($validated);
 
         // Retourner une réponse JSON
@@ -64,7 +76,6 @@ public function store(Request $request)
         'status' => 400
     ]);
 }
-
 
 
 
