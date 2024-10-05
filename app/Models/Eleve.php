@@ -33,6 +33,5 @@ class Eleve extends Model
         ->withTimestamps();
     }
 
-    //relation avec notes
     
 }

@@ -46,6 +46,36 @@ public function nombreMatieresParProf($professeurId)
         'status' => 200
     ]);
 }
+public function listeMatieresParProf($professeurId)
+{
+    // Vérifier si le professeur existe
+    $professeur = Professeur::find($professeurId);
+    
+    if (!$professeur) {
+        return response()->json([
+            'message' => 'Professeur non trouvé.',
+            'status' => 404
+        ]);
+    }
+
+    // Récupérer la liste des matières associées au professeur via la table pivot
+    $matieres = $professeur->matieres()->get(); // Utilise la relation pour récupérer les matières
+
+    // Vérifier si des matières sont trouvées
+    if ($matieres->isEmpty()) {
+        return response()->json([
+            'message' => 'Aucune matière associée à ce professeur.',
+            'status' => 404
+        ]);
+    }
+
+    return response()->json([
+        'message' => 'Liste des matières pour le professeur',
+        'données' => $matieres,
+        'status' => 200
+    ]);
+}
+
 
      //methode pour créer une matiere
     public function store(StoreMatiereRequest $request)

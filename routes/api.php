@@ -55,7 +55,7 @@ Route::group ([ "middleware" => ["auth"] ],  function(){
     //route pour les professeurs
     Route::get('professeurs', [ProfesseurController::class, 'index']);
     Route::post('professeurs', [ProfesseurController::class,'store']);
-    Route::put('professeur/{professeur}', [ProfesseurController::class, 'update']);
+    // Route::put('professeur/{professeur}', [ProfesseurController::class, 'update']);
     Route::delete('professeur/{professeur}', [ProfesseurController::class, 'destroy']);
 
     //route pour les prof matieres
@@ -139,6 +139,11 @@ Route::group ([ "middleware" => ["auth"] ],  function(){
     });
 
 
+//role pour professeur et admin 
+Route::middleware(['auth', 'role:professeur|admin'])->group(function () {
+    Route::post('professeur/{professeur}', [ProfesseurController::class, 'update']);
+});
+
     //role professeur
     Route::middleware(['auth', 'role:professeur'])->group(function () {
 
@@ -146,6 +151,8 @@ Route::group ([ "middleware" => ["auth"] ],  function(){
         Route::post('evaluations', [EvaluationsController::class,'store']);
         Route::put('evaluations/{evaluation}', [EvaluationsController::class,'update']);
         Route::delete('evaluations/{evaluation}', [EvaluationsController::class,'destroy']);
+        Route::get('evaluations/professeur/{professeurId}', [EvaluationsController::class, 'evaluationsParProfesseur']);
+        Route::get('evaluations/classe/{classeProfId}', [EvaluationsController::class, 'evaluationsParClasseProf']);
 
         //route pour le cahier de texte
         Route::post('cahiers-texte', [CahierTexteController::class,'store']);
@@ -165,6 +172,8 @@ Route::group ([ "middleware" => ["auth"] ],  function(){
          //nombre de matiere pour un prof
         Route::get('professeur/{id}/nombre-matieres', [MatiereController::class, 'nombreMatieresParProf']);
 
+        //liste des matieres pour un prof
+        Route::get('professeur/{id}/matieres', [MatiereController::class,'listeMatieresParProf']);
         //liste des classes du prof
         Route::get( 'professeur/{id}/liste_classes' , [ClasseProfController::class, 'listeClassesParProf']);
 
@@ -222,7 +231,7 @@ Route::group ([ "middleware" => ["auth"] ],  function(){
     Route::get('annees-classes/{annees_class}', [AnneeClasseController::class,'show']);
    
          //route pour les notes par matieres
- Route::get('notes/matiere/{classProfId}', [NoteController::class, 'index']);
+ Route::get('notes/classe/{annee_classe_id}', [NoteController::class, 'index']);
 
        
     //route pour les classes-professeurs
@@ -246,15 +255,17 @@ Route::group ([ "middleware" => ["auth"] ],  function(){
 
     //route pour les classes-élèves
     // Route::apiResource('classes-eleves', ClasseEleveController::class);
-    Route::get('classes-eleves/{classes_elefe}', [ClasseEleveController::class,'show']);
-    Route::get('classes-eleves', [ClasseEleveController::class,'index']);
+    // Route::get('classes-eleves/{classes_elefe}', [ClasseEleveController::class,'show']);
+    Route::get('classes-eleves/{anneeClasseId}', [ClasseEleveController::class,'index']);
 ;
 
     //routes pour les cahiers de texte
 //    Route::apiResource('cahiers_texte', CahierTexteController::class);
    Route::get('cahiers-texte', [CahierTexteController::class,'index']);
   
-   Route::get('cahiers-texte/classe/{anneeClasseId}', [CahierTexteController::class, 'show']);
+   Route::get('cahiers-texte/classe/{anneeClasseId}', [CahierTexteController::class, 'cahierParClasse']);
+
+   Route::get('details-cahiers-texte/{id}', [CahierTexteController::class, 'show']);
 
    //route pour les évaluations
 //    Route::apiResource('evaluations', EvaluationsController::class);

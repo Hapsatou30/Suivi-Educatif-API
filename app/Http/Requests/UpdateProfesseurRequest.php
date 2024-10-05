@@ -18,7 +18,13 @@ class UpdateProfesseurRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [];
+        return [
+            'nom' => 'nullable|string|max:255',   
+            'prenom' => 'nullable|string|max:255',
+            'telephone' => 'nullable|string|max:20',
+            'email' => 'nullable|email|max:255',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ];
     }
     
 

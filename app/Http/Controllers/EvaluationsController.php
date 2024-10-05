@@ -110,13 +110,15 @@ public function evaluationsEleve($eleveId)
         // Transformer les données pour afficher les informations souhaitées
         $resultat = $evaluations->map(function ($evaluation) {
             return [
-                'matiere' => $evaluation->classeProf->profMatiere->matiere->nom, // Nom de la matière
+                'id' => $evaluation->id,
+                'matiere' => $evaluation->classeProf->profMatiere->matiere->nom, 
                 'nom' => $evaluation->nom,
-                'date' => $evaluation->date, // Date de l'évaluation
-                'heure' => $evaluation->heure, // Heure de l'évaluation
-                'duree' => $evaluation->duree, // Durée de l'évaluation
-                'classe' => $evaluation->classeProf->anneeClasse->classe->nom, // Nom de la classe
-                'prenom_professeur' => $evaluation->classeProf->profMatiere->professeur->prenom, // Prénom du professeur
+                'date' => $evaluation->date, 
+                'heure' => $evaluation->heure, 
+                'duree' => $evaluation->duree, 
+                'classe' => $evaluation->classeProf->anneeClasse->classe->nom, 
+                'professeur' =>  $evaluation->classeProf->profMatiere->professeur->prenom .' '. $evaluation->classeProf->profMatiere->professeur->nom,
+                'profId' => $evaluation->classeProf->profMatiere->professeur->id,
             ];
         });
 
@@ -228,4 +230,84 @@ public function evaluationsEleve($eleveId)
            'status' => 200
         ]);
     }
+    public function evaluationsParProfesseur($professeurId)
+{
+    // Récupérer les évaluations avec les relations nécessaires pour un professeur spécifique
+    $evaluations = Evaluations::with(['classeProf.profMatiere.matiere', 'classeProf.anneeClasse.classe'])
+        ->whereHas('classeProf.profMatiere.professeur', function ($query) use ($professeurId) {
+            $query->where('id', $professeurId);
+        })
+        ->get();
+
+    // Vérifier s'il y a des évaluations pour ce professeur
+    if ($evaluations->isEmpty()) {
+        return response()->json([
+            'message' => "Il n'y a pas d'évaluations pour ce professeur.",
+            'status' => 404
+        ]);
+    }
+
+    // Transformer les données pour afficher les informations souhaitées
+    $resultat = $evaluations->map(function ($evaluation) {
+        return [
+            'id' => $evaluation->id,
+            'nom' => $evaluation->nom,  
+            'classe_prof_id' => $evaluation->classe_prof_id,
+            'matiere' => $evaluation->classeProf->profMatiere->matiere->nom,
+            'professeur' => $evaluation->classeProf->profMatiere->professeur->prenom .' '. $evaluation->classeProf->profMatiere->professeur->nom,
+            'type_evaluation' => $evaluation->type_evaluation,
+            'date' => $evaluation->date,
+            'heure' => $evaluation->heure,
+            'duree' => $evaluation->duree,
+            'classe' => $evaluation->classeProf->anneeClasse->classe->nom,
+        ];
+    });
+
+    // Retourner les données sous forme de JSON
+    return response()->json([
+        'message' => "Évaluations pour le professeur",
+        'evaluations' => $resultat,
+        'status' => 200
+    ]);
+}
+
+public function evaluationsParClasseProf($classeProfId)
+{
+    // Récupérer les évaluations pour un 'classeProf' spécifique avec les relations nécessaires
+    $evaluations = Evaluations::with(['classeProf.profMatiere.matiere', 'classeProf.profMatiere.professeur', 'classeProf.anneeClasse.classe'])
+        ->where('classe_prof_id', $classeProfId)
+        ->get();
+
+    // Vérifier s'il y a des évaluations pour cette classeProf
+    if ($evaluations->isEmpty()) {
+        return response()->json([
+            'message' => "Il n'y a pas d'évaluations pour cette classeProf.",
+            'status' => 404
+        ]);
+    }
+
+    // Transformer les données pour afficher les informations souhaitées
+    $resultat = $evaluations->map(function ($evaluation) {
+        return [
+            'id' => $evaluation->id,
+            'nom' => $evaluation->nom,
+            'classe_prof_id' => $evaluation->classe_prof_id,
+            'matiere' => $evaluation->classeProf->profMatiere->matiere->nom,
+            'professeur' => $evaluation->classeProf->profMatiere->professeur->prenom . ' ' . $evaluation->classeProf->profMatiere->professeur->nom,
+            'type_evaluation' => $evaluation->type_evaluation,
+            'date' => $evaluation->date,
+            'heure' => $evaluation->heure,
+            'duree' => $evaluation->duree,
+            'classe' => $evaluation->classeProf->anneeClasse->classe->nom,
+        ];
+    });
+
+    // Retourner les données sous forme de JSON
+    return response()->json([
+        'message' => "Évaluations pour la classe et le professeur",
+        'evaluations' => $resultat,
+        'status' => 200
+    ]);
+}
+
 }

@@ -34,42 +34,56 @@ class ClasseEleveController extends Controller
     /**
      * les eleves par annee_classe
      */
-    public function index()
+    public function index($anneeClasseId)
 {
-    // Récupérer les années_classes de l'année en cours avec leurs élèves
-    $anneeClasses = AnneeClasse::whereHas('annee', function ($query) {
-        $query->where('etat', 'En_cours'); // Filtrer par état "En_cours"
-    })
-    ->with('classe', 'eleves')
-    ->get();
+    // Récupérer l'année de classe spécifique avec ses élèves
+    $anneeClasse = AnneeClasse::with(['classe', 'eleves.anneeClasses']) // Charger les élèves avec leurs années de classe
+        ->where('id', $anneeClasseId)
+        ->whereHas('annee', function ($query) {
+            $query->where('etat', 'En_cours'); // Filtrer par état "En_cours"
+        })
+        ->first();
+
+    // Vérifier si l'année de classe existe
+    if (!$anneeClasse) {
+        return response()->json([
+            'message' => 'Année de classe non trouvée.',
+            'status' => 404
+        ], 404);
+    }
 
     // Structurer la réponse en JSON
     return response()->json([
-        'message' => 'Liste des élèves pour l\'année en cours',
-        'données' => $anneeClasses->map(function ($anneeClasse) {
-            return [
+        'message' => 'Liste des élèves pour l\'année de classe demandée',
+        'données' => [
+            [
                 'annee' => $anneeClasse->annee->annee_debut . ' - ' . $anneeClasse->annee->annee_fin, // Afficher l'année scolaire
-                'classe' => $anneeClasse->classe->nom, 
-                'id' => $anneeClasse->classe->id,
+                'classe' => $anneeClasse->classe->nom,
+                'id_classe' => $anneeClasse->classe->id,
                 'eleves' => $anneeClasse->eleves->map(function ($eleve) {
+                    // Récupérer l'ID de la table pivot classeEleve
+                    $classeEleveId = $eleve->anneeClasses->first()->pivot->id ?? null; // Utilisation de `pivot` pour accéder aux attributs de la table pivot
+
                     return [
-                        'id' => $eleve->id,  // Afficher l'ID de l'élève
+                        'id_eleve' => $eleve->id,  // Afficher l'ID de l'élève
                         'nom' => $eleve->nom,
                         'prenom' => $eleve->prenom,
                         'matricule' => $eleve->matricule,
+                        'id_classeEleve' => $classeEleveId, // ID de la classeEleve
                         'date_naissance' => $eleve->date_naissance,
                         'telephone' => $eleve->telephone,
                         'genre' => $eleve->genre,
                         'photo' => $eleve->photo,
-                        'parent' => $eleve->parent->prenom. ' ' . $eleve->parent->nom,
+                        'parent' => $eleve->parent->prenom . ' ' . $eleve->parent->nom,
                         'parent_telephone' => $eleve->parent->telephone
                     ];
                 }),
-            ];
-        }),
+            ],
+        ],
         'status' => 200
     ]);
 }
+
 
 //liste des eleves et leur annees classes regroupée par parent
     /**

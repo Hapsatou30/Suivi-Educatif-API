@@ -56,11 +56,42 @@ class CahierTexteController extends Controller
            'status' => 201
         ]);
     }
+    public function show($id)
+    {
+        // Récupérer le cahier de texte par son ID
+        $cahierTexte = CahierTexte::find($id);
+
+        // Vérifier si le cahier de texte existe
+        if (!$cahierTexte) {
+            return response()->json([
+                'message' => 'Cahier de texte non trouvé.',
+                'status' => 404
+            ]);
+        }
+
+        // Transformer les données pour les rendre plus lisibles
+        $resultat = [
+            'id' => $cahierTexte->id,
+            'titre' => $cahierTexte->titre,
+            'resume' => $cahierTexte->resume,
+            'date' => $cahierTexte->date,
+            'ressource' => $cahierTexte->ressource,
+            'professeur' => $cahierTexte->classeProf->profMatiere->professeur->prenom,
+           'matiere' => $cahierTexte->classeProf->profMatiere->matiere->nom,
+            'classe' => $cahierTexte->classeProf->anneeClasse->classe->nom,
+            'annee' => $cahierTexte->classeProf->anneeClasse->annee->annee_debut.' - '. $cahierTexte->classeProf->anneeClasse->annee->annee_fin
+        ];
+        return response()->json([
+           'message' => 'Cahier de texte trouvé.',
+            'données' => $resultat,
+           'status' => 200
+        ]);
+    }
 
     /**
      * Metode pour voir le cahier de texte pour une classe
      */
-    public function show($anneeClasseId)
+    public function cahierParClasse($anneeClasseId)
     {
         // Récupérer les cahiers de texte associés à cette année de classe
         $cahiersTexte = CahierTexte::whereHas('classeProf', function ($query) use ($anneeClasseId) {
@@ -78,6 +109,7 @@ class CahierTexteController extends Controller
         if ($cahiersTexte->isEmpty()) {
             return response()->json([
                 'message' => 'Aucun cahier de texte trouvé pour cette année de classe.',
+                'données' => [],
                 'status' => 404
             ]);
         }
@@ -85,10 +117,12 @@ class CahierTexteController extends Controller
         // Transformer les données pour les rendre plus lisibles
         $result = $cahiersTexte->map(function ($cahier) {
             return [
+                'id' => $cahier->id,
                 'titre' => $cahier->titre,
                 'resume' => $cahier->resume,
                 'date' => $cahier->date,
                 'professeur' => $cahier->classeProf->profMatiere->professeur->prenom,
+                'professeur_id' => $cahier->classeProf->profMatiere->professeur->id,
                 'matiere' => $cahier->classeProf->profMatiere->matiere->nom,
                 'classe' => $cahier->classeProf->anneeClasse->classe->nom,
                 'annee' => $cahier->classeProf->anneeClasse->annee->annee_debut . ' - ' . $cahier->classeProf->anneeClasse->annee->annee_fin

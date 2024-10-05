@@ -20,7 +20,7 @@ class UpdateEvaluationsRequest extends FormRequest
                 'classe_prof_id' => ['sometimes', 'exists:classe_profs,id'],
                 'nom' => ['sometimes', 'string', 'max:255'],
                 'date' => ['sometimes', 'date', 'after_or_equal:' . Carbon::today()->toDateString()],
-                'heure' => ['sometimes', 'date_format:H:i'], 
+                'heure' => ['sometimes', 'date_format:H:i:s'], 
                 'duree' => ['sometimes', 'integer', 'min:1'],
                 'type_evaluation' => ['sometimes', Rule::in(['Devoir', 'Examen'])],
             ];

@@ -19,7 +19,7 @@ class StoreNoteRequest extends FormRequest
             'notes' => 'required|numeric|min:0|max:20', 
             'commentaire' => 'nullable|string|max:255',
             'evaluation_id' => 'required|exists:evaluations,id',
-            'eleve_id' => 'required|exists:eleves,id',
+            'classe_eleve_id' => 'required|exists:classe_eleves,id',
             'bulletin_id' => 'nullable|exists:bulletins,id',
         ];
     }
@@ -33,8 +33,8 @@ class StoreNoteRequest extends FormRequest
             'notes.max' => 'La note ne peut pas dépasser 20.',
             'evaluation_id.required' => 'L\'identifiant de l\'évaluation est obligatoire.',
             'evaluation_id.exists' => 'L\'évaluation spécifiée n\'existe pas.',
-            'eleve_id.required' => 'L\'identifiant de l\'élève est obligatoire.',
-            'eleve_id.exists' => 'L\'élève spécifié n\'existe pas.',
+            'classe_eleve_id.required' => 'L\'identifiant de l\'élève est obligatoire.',
+            'classe_eleve_id.exists' => 'L\'élève spécifié n\'existe pas.',
             'bulletin_id.required' => 'L\'identifiant du bulletin est obligatoire.',
             'bulletin_id.exists' => 'Le bulletin spécifié n\'existe pas.',
         ];

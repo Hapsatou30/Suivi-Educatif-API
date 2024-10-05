@@ -7,6 +7,7 @@ use App\Models\Professeur;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Storage;
 use App\Http\Requests\StoreProfesseurRequest;
 use App\Http\Requests\UpdateProfesseurRequest;
 
@@ -91,7 +92,7 @@ class ProfesseurController extends Controller
             'prenom' => $request->prenom,
             'matricule' => $matricule,
             'telephone' => $request->telephone,
-            'photo' => $request->hasFile('photo') ? $request->photo->store('photos') : null,  // Sauvegarder l'image dans le dossier public/photos
+            'photo' => $request->hasFile('photo') ? $request->photo->store('photos') : null,  
             'user_id' => $user->id, // ID de l'utilisateur créé
         ]);
     
@@ -121,55 +122,66 @@ class ProfesseurController extends Controller
      */
    
      public function update(Request $request, $id)
-     {
-         // Récupérer le professeur par ID
-         $professeur = Professeur::find($id);
-     
-         if (!$professeur) {
-             return response()->json([
-                 'message' => 'Professeur non trouvé',
-                 'status' => 404
-             ]);
-         }
-     
-         // Récupérer l'utilisateur associé au professeur
-         $user = User::find($professeur->user_id);
-     
-         if (!$user) {
-             return response()->json([
-                 'message' => 'Utilisateur non trouvé',
-                 'status' => 404
-             ]);
-         }
-     
-         Log::info('Données envoyées pour la mise à jour:', $request->all());
-     
-         // Mettre à jour les données du professeur
-         $professeur->matricule = $request->matricule;
-         $professeur->nom = $request->nom;
-         $professeur->prenom = $request->prenom;
-         $professeur->telephone = $request->telephone;
-     
-         // Mettre à jour les données de l'utilisateur si elles sont fournies
-         if ($request->has('email')) {
-             $user->email = $request->email;
-         }
-     
-         if ($request->has('password')) {
-             $user->password = bcrypt($request->password); // Utiliser bcrypt pour sécuriser le mot de passe
-         }
-     
-         // Sauvegarder les modifications
-         $professeur->save();
-         $user->save();
-     
-         return response()->json([
-             'message' => 'Professeur et utilisateur modifiés avec succès',
-             'données' => $professeur,
-             'status' => 200
-         ]);
-     }
-     
+{
+    // Récupérer le professeur par ID
+    $professeur = Professeur::find($id);
+
+    if (!$professeur) {
+        return response()->json([
+            'message' => 'Professeur non trouvé',
+            'status' => 404
+        ]);
+    }
+
+    // Récupérer l'utilisateur associé au professeur
+    $user = User::find($professeur->user_id);
+
+    if (!$user) {
+        return response()->json([
+            'message' => 'Utilisateur non trouvé',
+            'status' => 404
+        ]);
+    }
+
+    Log::info('Données envoyées pour la mise à jour:', $request->all());
+
+    // Mettre à jour les données du professeur
+    $professeur->nom = $request->input('nom', $professeur->nom);
+    $professeur->prenom = $request->input('prenom', $professeur->prenom);
+    $professeur->telephone = $request->input('telephone', $professeur->telephone);
+
+   // Vérifier si une nouvelle image a été uploadée
+   if ($request->hasFile('photo')) {
+    // Supprimer l'ancienne photo
+    if ($professeur->photo) {
+        Storage::disk('public')->delete($professeur->photo);
+    }
+
+    // Stocker la nouvelle photo
+    $photoPath = $request->file('photo')->store('photos', 'public');
+
+    $professeur->photo = $photoPath; // Stocke le chemin relatif de l'image
+}
+ // Mettre à jour les données de l'utilisateur
+ if ($request->has('email')) {
+     $user->email = $request->input('email');
+ }
+
+ if ($request->has('password')) {
+     $user->password = bcrypt($request->input('password'));
+ }
+
+    // Sauvegarder les modifications
+    $professeur->save();
+    $user->save();
+
+    return response()->json([
+        'message' => 'Professeur et utilisateur modifiés avec succès',
+        'données' => $professeur,
+        'status' => 200
+    ]);
+}
+
     
     /**
      * Supprimer un professeur

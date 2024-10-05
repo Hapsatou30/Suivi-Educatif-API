@@ -19,7 +19,7 @@ class UpdateCahierTexteRequest extends FormRequest
         return [
             'titre' => 'sometimes|string|max:255',
             'resume' => 'sometimes|string|max:255',
-            'date' => ['sometimes', 'date', Rule::in([Carbon::today()->toDateString()])], 
+            'date' => ['sometimes', 'date'], 
             'ressource' => 'nullable|string',
             'classe_prof_id' => 'sometimes|exists:classe_profs,id', 
         ];
