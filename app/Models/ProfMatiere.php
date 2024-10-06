@@ -30,6 +30,11 @@ class ProfMatiere extends Model
         ->withPivot('id','annee_classe_id',  'prof_mat_id')
         ->withTimestamps();
     }
+   
+    public function classeProfs()
+{
+    return $this->hasMany(ClasseProf::class, 'prof_mat_id');
+}
 
 
 

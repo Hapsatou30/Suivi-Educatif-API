@@ -109,7 +109,7 @@ Route::group ([ "middleware" => ["auth"] ],  function(){
     Route::post('classes-eleves', [ClasseEleveController::class,'store']);
     Route::put('classes-eleves/{classes_elefe}', [ClasseEleveController::class,'update']);
     Route::delete('classes-eleves/{classes_elefe}', [ClasseEleveController::class,'destroy']);
-
+    Route::get('classeEleve', [ClasseEleveController::class, 'classeEleve']);
     //route pour les niveau classe
     Route::get('annees/{anneeId}/niveaux', [AnneeClasseController::class, 'niveauClasses']);
 
@@ -231,7 +231,7 @@ Route::middleware(['auth', 'role:professeur|admin'])->group(function () {
     Route::get('annees-classes/{annees_class}', [AnneeClasseController::class,'show']);
    
          //route pour les notes par matieres
- Route::get('notes/classe/{annee_classe_id}', [NoteController::class, 'index']);
+ Route::get('notes/classe/{classe_prof_id}', [NoteController::class, 'index']);
 
        
     //route pour les classes-professeurs
@@ -282,7 +282,7 @@ Route::middleware(['auth', 'role:professeur|admin'])->group(function () {
      //route pour les notes
     //   Route::apiResource('notes', NoteController::class);
       Route::get('notes/{note}', [NoteController::class,'show']);
-      Route::get('notes', [NoteController::class,'index']);
+    //   Route::get('notes', [NoteController::class,'index']);
       
 
       //routes pour les prensences
@@ -306,6 +306,13 @@ Route::middleware(['auth', 'role:professeur|admin'])->group(function () {
 
 
    Route::get('annee-classes/{anneeClasse}', [AnneeClasseController::class, 'show']);
+
+    //cahier de texte par annee classe id 
+
+    Route::get('evaluations/anneeClasse/{anneeClasseId}', [EvaluationsController::class, 'evaluationsParAnneeClasse']);
+
+    //les absences par année classe 
+    Route::get('absences/annee-classe/{anneeClasseId}', [PresenceController::class, 'getAbsencesParAnneeClasse']);
 
 
 });

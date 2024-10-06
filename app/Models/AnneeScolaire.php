@@ -22,4 +22,9 @@ class AnneeScolaire extends Model
         ->withPivot('id','annee_id', 'classe_id')
         ->withTimestamps();
     }
+
+    public function anneeClasses()
+    {
+        return $this->hasMany(AnneeClasse::class);
+    }
 }

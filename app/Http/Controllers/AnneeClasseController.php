@@ -59,6 +59,7 @@ class AnneeClasseController extends Controller
                         'nom' => $classe->nom, 
                         'niveau' => $classe->niveau, 
                         'capacite' => $classe->capacite, 
+                        'anneeClasse_id' => $classe->pivot->id,
                     ];
                 }),
             ];

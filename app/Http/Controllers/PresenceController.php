@@ -138,5 +138,26 @@ public function store(StorePresenceRequest $request)
         }
     }
     
-    
+    public function getAbsencesParAnneeClasse($anneeClasseId)
+{
+    // Récupérer les absences pour l'année de classe spécifiée
+    $absences = Presence::whereHas('classeProf', function ($query) use ($anneeClasseId) {
+            $query->where('annee_classe_id', $anneeClasseId);
+        })
+        ->where('status', 'absent')
+        ->with([
+            'classeEleve.eleve',   
+            'classeProf.profMatiere.professeur',
+            'classeProf.profMatiere.matiere' 
+        ])
+        ->get();
+
+    // Retourner la liste des absences avec les infos des élèves, du prof et de la matière
+    return response()->json([
+        'message' => 'Liste des absences pour l\'année de classe spécifiée',
+        'data' => $absences,
+        'status' => 200
+    ]);
+}
+
 }

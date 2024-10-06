@@ -9,10 +9,7 @@ class StoreClasseProfRequest extends FormRequest
     /**
      * Détermine si l'utilisateur est autorisé à faire cette requête.
      */
-    public function authorize(): bool
-    {
-        return true; // Changez ceci si nécessaire pour gérer les autorisations
-    }
+  
 
     /**
      * Obtenir les règles de validation qui s'appliquent à la requête.

@@ -139,14 +139,32 @@ public function store(StoreClasseProfRequest $request)
         ]);
     }
 
-    // Utiliser syncWithoutDetaching pour ajouter les prof_matieres sans détacher les anciennes associations
-    $anneeClasse->profMatieres()->syncWithoutDetaching($data['prof_mat_ids']);
+    // Récupérer les IDs des matières actuellement associées
+    $idProfMatActu = $anneeClasse->profMatieres()->pluck('prof_matieres.id')->toArray();
+
+    // Vérifier que les IDs des professeurs et matières sont bien récupérés
+    Log::info('IDs des prof_mat:', $data['prof_mat_ids']);
+
+    // Déterminer les professeurs et matières à ajouter et à retirer
+    $profMatRetirer = array_diff($idProfMatActu, $data['prof_mat_ids']);
+    $profMatAjouter = array_diff($data['prof_mat_ids'], $idProfMatActu);
+
+    // Supprimer les professeurs et matières qui ne sont plus sélectionnés
+    if (!empty($profMatRetirer)) {
+        $anneeClasse->profMatieres()->detach($profMatRetirer);
+    }
+
+    // Ajouter les nouveaux professeurs et matières (s'ils ne sont pas déjà associés)
+    if (!empty($profMatAjouter)) {
+        $anneeClasse->profMatieres()->syncWithoutDetaching($profMatAjouter);
+    }
 
     return response()->json([
-        'success' => 'Professeurs et matières associés avec succès à l\'année classe.',
+        'success' => 'Professeurs et matières synchronisés avec succès pour l\'année classe.',
         'status' => 200
     ]);
 }
+
 
 
 
@@ -154,40 +172,54 @@ public function store(StoreClasseProfRequest $request)
      * Display the specified resource.
      */
     public function showProfMatiereClasse($anneeClasseId)
-    {
-        // Récupérer les informations de l'année de classe avec les professeurs et matières associés
-        $anneeClasse = AnneeClasse::with(['profMatieres.professeur', 'profMatieres.matiere'])
-                                   ->find($anneeClasseId);
-    
-        // Vérifier si l'année de classe existe
-        if (!$anneeClasse) {
-            return response()->json(['error' => 'Année de classe non trouvée'], 404);
-        }
-    
-        // Préparer la réponse avec les professeurs et matières associées
-        $classes_matieres = [];
-        foreach ($anneeClasse->profMatieres as $profMatiere) {
+{
+    // Récupérer les informations de l'année de classe avec les professeurs et matières associés
+    $anneeClasse = AnneeClasse::with(['profMatieres.professeur', 'profMatieres.matiere', 'profMatieres.classeProfs'])
+                               ->find($anneeClasseId);
+
+    // Vérifier si l'année de classe existe
+    if (!$anneeClasse) {
+        return response()->json(['error' => 'Année de classe non trouvée'], 404);
+    }
+
+    // Préparer la réponse avec les professeurs et matières associées
+    $classes_matieres = [];
+    $id_profMat_unique = []; // Tableau pour suivre les ID déjà ajoutés
+
+    foreach ($anneeClasse->profMatieres as $profMatiere) {
+        // Si cet id_profMat n'a pas encore été ajouté
+        if (!in_array($profMatiere->id, $id_profMat_unique)) {
+            // Ajouter l'ID du profMatiere dans le tableau pour vérifier les doublons
+            $id_profMat_unique[] = $profMatiere->id;
+
+            // Ajouter les détails dans la réponse
             $classes_matieres[] = [
-                'id' => $profMatiere->id,
+                'id_profMat' => $profMatiere->id,
                 'nom_professeur' => $profMatiere->professeur->nom,
                 'prenom_professeur' => $profMatiere->professeur->prenom,
                 'matiere' => $profMatiere->matiere->nom,
+                'classeProfs' => $profMatiere->classeProfs->map(function ($classeProf) {
+                    return [
+                        'id_classeProf' => $classeProf->id,
+                    ];
+                }),
                 'annee' => $anneeClasse->annee->annee_debut . ' - ' . $anneeClasse->annee->annee_fin,
             ];
         }
-    
-        // Construire la réponse finale
-        $response = [
-            'annee_classe' => [
-                'nom_classe' => $anneeClasse->classe->nom,
-                'annee' => $anneeClasse->annee->annee_debut . ' - ' . $anneeClasse->annee->annee_fin,
-            ],
-            'classes_matieres' => $classes_matieres,
-        ];
-    
-        return response()->json($response);
     }
-    
+
+    // Construire la réponse finale
+    $response = [
+        'annee_classe' => [
+            'nom_classe' => $anneeClasse->classe->nom,
+            'annee' => $anneeClasse->annee->annee_debut . ' - ' . $anneeClasse->annee->annee_fin,
+        ],
+        'classes_matieres' => $classes_matieres,
+    ];
+
+    return response()->json($response);
+}
+
     
     /**
      * Update the specified resource in storage.

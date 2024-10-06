@@ -101,7 +101,7 @@ class ProfMatiereController extends Controller
     }
 
     return response()->json([
-        'message' => 'Matières synchronisées avec succès pour le professeur',
+        'success' => 'Matières synchronisées avec succès pour le professeur',
         'status' => 200
     ]);
     }

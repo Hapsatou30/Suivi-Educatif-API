@@ -12,14 +12,18 @@ class NoteController extends Controller
     /**
      * Liste des notes par matiere
      */
-    public function index($annee_classe_id )
+    public function index($classe_prof_id)
     {
-        // Récupérer les notes pour une matière spécifique avec les évaluations et élèves associés
-        $notes = Note::with(['evaluation.classeProf.profMatiere.matiere', 'classeEleve.eleve'])
-            ->whereHas('classeEleve.anneeClasse', function($query) use ($annee_classe_id ) {
-                $query->where('id', $annee_classe_id );
-            })
-            ->get();
+        // Récupérer les notes pour la classe du professeur associée à un ID de classe_prof
+        $notes = Note::with([
+            'evaluation.classeProf.profMatiere.matiere',
+            'evaluation.classeProf.profMatiere.professeur', 
+            'classeEleve.eleve'
+        ])
+        ->whereHas('evaluation', function($query) use ($classe_prof_id) {
+            $query->where('classe_prof_id', $classe_prof_id);
+        })
+        ->get();
     
         // Vérifier si des notes existent
         if ($notes->isEmpty()) {
@@ -29,16 +33,24 @@ class NoteController extends Controller
             ]);
         }
     
-        // Préparer la réponse avec la liste des notes pour la matière spécifiée
+        // Préparer la réponse avec la liste des notes pour la classe du professeur
         $result = [];
         foreach ($notes as $note) {
+            // Récupérer les informations sur la matière et le professeur
             $matiere = $note->evaluation->classeProf->profMatiere->matiere;
-            $eleve = $note->classeEleve->eleve;
-            $classeEleve = $note->classeEleve;
+            $professeur = $note->evaluation->classeProf->profMatiere->professeur; // Assurez-vous que cette relation est définie
+    
+            $eleve = $note->classeEleve->eleve; // On obtient l'élève associé à la note
+            $classeEleve = $note->classeEleve; // On obtient la classe de l'élève
     
             $result[] = [
                 'id' => $note->id,
-                'matiere' => $matiere->nom,
+                'matiere' => $matiere->nom, // Nom de la matière
+                'professeur' => [
+                    'nom' => $professeur->nom,
+                    'prenom' => $professeur->prenom,
+                    // Ajoutez d'autres attributs du professeur si nécessaire
+                ],
                 'note' => $note->notes, 
                 'appreciation' => $note->commentaire,
                 'evaluation' => $note->evaluation->type_evaluation,
@@ -56,7 +68,7 @@ class NoteController extends Controller
         }
     
         return response()->json([
-            'message' => 'Liste des notes pour la matière spécifiée',
+            'message' => 'Liste des notes pour la classe du professeur spécifiée',
             'données' => $result,
             'status' => 200
         ]);

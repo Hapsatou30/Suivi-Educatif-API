@@ -13,6 +13,16 @@ use App\Http\Requests\UpdateClasseEleveRequest;
 class ClasseEleveController extends Controller
 {
 
+    public function classeEleve()
+    {
+        $classeEleve = ClasseEleve::all();
+        return response()->json ([
+           'message' => 'Liste des Eleve qui ont une classe',
+           'données' => $classeEleve,
+           'status' => 200
+        ]);
+    }
+
   
     public function totalEleves()
 {
@@ -59,6 +69,7 @@ class ClasseEleveController extends Controller
             [
                 'annee' => $anneeClasse->annee->annee_debut . ' - ' . $anneeClasse->annee->annee_fin, // Afficher l'année scolaire
                 'classe' => $anneeClasse->classe->nom,
+                'id_anneeClasse' => $anneeClasse->id,
                 'id_classe' => $anneeClasse->classe->id,
                 'eleves' => $anneeClasse->eleves->map(function ($eleve) {
                     // Récupérer l'ID de la table pivot classeEleve

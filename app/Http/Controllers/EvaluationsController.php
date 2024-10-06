@@ -310,4 +310,46 @@ public function evaluationsParClasseProf($classeProfId)
     ]);
 }
 
+public function evaluationsParAnneeClasse($anneeClasseId)
+{
+    // Récupérer les évaluations pour une année classe spécifique avec les relations nécessaires
+    $evaluations = Evaluations::with(['classeProf.profMatiere.matiere', 'classeProf.profMatiere.professeur', 'classeProf.anneeClasse.classe'])
+        ->whereHas('classeProf.anneeClasse', function ($query) use ($anneeClasseId) {
+            $query->where('id', $anneeClasseId);
+        })
+        ->get();
+
+    // Vérifier s'il y a des évaluations pour cette année classe
+    if ($evaluations->isEmpty()) {
+        return response()->json([
+            'message' => "Il n'y a pas d'évaluations pour cette année classe.",
+            'status' => 404
+        ]);
+    }
+
+    // Transformer les données pour afficher les informations souhaitées
+    $resultat = $evaluations->map(function ($evaluation) {
+        return [
+            'id' => $evaluation->id,
+            'nom' => $evaluation->nom,
+            'classe_prof_id' => $evaluation->classe_prof_id,
+            'matiere' => $evaluation->classeProf->profMatiere->matiere->nom,
+            'professeur' => $evaluation->classeProf->profMatiere->professeur->prenom . ' ' . $evaluation->classeProf->profMatiere->professeur->nom,
+            'type_evaluation' => $evaluation->type_evaluation,
+            'date' => $evaluation->date,
+            'heure' => $evaluation->heure,
+            'duree' => $evaluation->duree,
+            'classe' => $evaluation->classeProf->anneeClasse->classe->nom,
+        ];
+    });
+
+    // Retourner les données sous forme de JSON
+    return response()->json([
+        'message' => "Évaluations pour l'année classe",
+        'evaluations' => $resultat,
+        'status' => 200
+    ]);
+}
+
+
 }
