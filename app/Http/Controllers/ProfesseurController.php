@@ -4,10 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Professeur;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Storage;
+
+use App\Mail\ProfesseurCreated;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Mail;
 use App\Http\Requests\StoreProfesseurRequest;
 use App\Http\Requests\UpdateProfesseurRequest;
 
@@ -95,6 +99,8 @@ class ProfesseurController extends Controller
             'photo' => $request->hasFile('photo') ? $request->photo->store('photos') : null,  
             'user_id' => $user->id, // ID de l'utilisateur créé
         ]);
+        // Envoyer un email au professeur
+        Mail::to($request->email)->send(new ProfesseurCreated($professeur, $request->password));
     
         return response()->json([
             'message' => 'Professeur créé avec succès',
