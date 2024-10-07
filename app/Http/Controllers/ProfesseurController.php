@@ -100,8 +100,8 @@ class ProfesseurController extends Controller
             'user_id' => $user->id, // ID de l'utilisateur créé
         ]);
         // Envoyer un email au professeur
-        Mail::to($request->email)->send(new ProfesseurCreated($professeur, $request->password));
-    
+        Mail::to($request->email)->send(new ProfesseurCreated($professeur, $password));
+     
         return response()->json([
             'message' => 'Professeur créé avec succès',
             'données' => $professeur,

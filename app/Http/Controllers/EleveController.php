@@ -6,8 +6,11 @@ use App\Models\User;
 use App\Models\Eleve;
 use App\Models\Parents;
 use App\Models\AnneeClasse;
+use Illuminate\Support\Facades\Mail;
 use App\Http\Requests\StoreEleveRequest;
 use App\Http\Requests\UpdateEleveRequest;
+use App\Mail\EleveCreated;
+use App\Mail\ParentCreated;
 
 class EleveController extends Controller
 {
@@ -76,12 +79,15 @@ class EleveController extends Controller
         // Rechercher un parent existant via son numéro de téléphone
         $parent = Parents::where('telephone', $request->parent_telephone)->first();
         
+        // Définir un mot de passe fixe
+        $password = 'password123'; // Mot de passe fixe
+
         // Si le parent n'existe pas, on le crée
         if (!$parent) {
             // Créer un nouvel utilisateur pour le parent
             $userParent = User::create([
                 'email' => $request->parent_email,
-                'password' => bcrypt('password123'), // Mot de passe par défaut
+                'password' => bcrypt($password), // Mot de passe par défaut
                 'role_id' => 3, // ID du rôle correspondant à un parent
             ]);
     
@@ -95,6 +101,8 @@ class EleveController extends Controller
                 'user_id' => $userParent->id,
             ]);
         }
+        // Envoyer un email au professeur
+        Mail::to($request->email)->send(new ParentCreated($parent, $password));
     
         // Créer un nouvel utilisateur pour l'élève
         $userEleve = User::create([
@@ -124,6 +132,10 @@ class EleveController extends Controller
             'user_id' => $userEleve->id, // ID de l'utilisateur créé pour l'élève
             'parent_id' => $parent->id, // ID du parent associé (existant ou créé)
         ]);
+          
+              // Envoyer un email au professeur
+        Mail::to($request->email)->send(new EleveCreated($eleve, $password));
+     
     
         // Retourner la réponse JSON avec les données de l'élève créé
         return response()->json([

@@ -9,18 +9,18 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class ProfesseurCreated extends Mailable
+class ParentCreated extends Mailable
 {
     use Queueable, SerializesModels;
     
-    public $professeur;
+    public $parent;
     public $password;
     /**
      * Create a new message instance.
      */
-    public function __construct($professeur, $password)
+    public function __construct($parent, $password)
     {
-        $this->professeur = $professeur;
+        $this->parent = $parent;
         $this->password = $password;
     }
 
@@ -32,11 +32,11 @@ class ProfesseurCreated extends Mailable
     {
         $emailContent = '
         <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
-            <h2 style="color: #4862C4;">Bonjour ' . $this->professeur->prenom . ',</h2>
+            <h2 style="color: #4862C4;">Bonjour ' . $this->parent->prenom . ',</h2>
             <p>Nous sommes ravis de vous informer que votre compte a été créé avec succès. Voici vos informations de connexion :</p>
             
             <ul style="list-style-type: none; padding: 0;">
-                <li><strong>Adresse e-mail :</strong> ' . $this->professeur->user->email . '</li>
+                <li><strong>Adresse e-mail :</strong> ' . $this->parent->user->email . '</li>
                 <li><strong>Mot de passe :</strong> ' . $this->password . '</li>
             </ul>
             
@@ -47,7 +47,7 @@ class ProfesseurCreated extends Mailable
             
         </div>';
     
-        return $this->subject('Création de compte Professeur')
+        return $this->subject('Création de compte parent')
                     ->html($emailContent);
     }
     
