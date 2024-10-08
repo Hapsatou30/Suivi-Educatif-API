@@ -16,15 +16,15 @@ class StoreAnneeScolaireRequest extends FormRequest
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
-    // public function rules(): array
-    // {
-    //     $annee_en_cours = date('Y');
-    //     return [
-    //         'annee_debut' => ['required', 'digits:4', 'integer', 'gte:' . $annee_en_cours, 'max:' . ($annee_en_cours + 1)], 
-    //         'annee_fin' => ['required', 'digits:4', 'integer', 'gte:annee_debut', 'max:' . ($annee_en_cours + 2)], 
-    //         'etat' => ['required', 'in:En_cours,Fermée'], 
-    //     ];
-    // }
+    public function rules(): array
+    {
+        $annee_en_cours = date('Y');
+        return [
+            'annee_debut' => ['required', 'digits:4', 'integer', 'gte:' . $annee_en_cours, 'max:' . ($annee_en_cours + 1)], 
+            'annee_fin' => ['required', 'digits:4', 'integer', 'gte:annee_debut', 'max:' . ($annee_en_cours + 2)], 
+            'etat' => ['required', 'in:En_cours,Fermée'], 
+        ];
+    }
 
     public function messages(): array
     {

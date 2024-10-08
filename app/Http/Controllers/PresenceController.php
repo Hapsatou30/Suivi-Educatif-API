@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Requests\StorePresenceRequest;
 use App\Http\Requests\UpdatePresenceRequest;
+use Illuminate\Support\Facades\Storage;
 
 class PresenceController extends Controller
 {
@@ -41,11 +42,15 @@ class PresenceController extends Controller
     // Récupérer les absences de l'élève spécifié
     $absences = Presence::where('classe_eleve_id', $classeEleveId)
         ->where('status', 'absent')
+        ->with([  
+            'classeProf.profMatiere.professeur',
+            'classeProf.profMatiere.matiere' 
+        ])
         ->get();
 
     // Structurer la réponse en JSON
     return response()->json([
-        'message' => 'Liste des absences',
+        'message' => 'Liste des absences par eleve',
         'données' => $absences,
         'status' => 200
     ]);
@@ -106,10 +111,44 @@ public function store(StorePresenceRequest $request)
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdatePresenceRequest $request, Presence $presence)
-    {
-        //
+    /**
+ * Update the specified resource in storage.
+ */
+public function update(Request $request,  $id)
+{
+        //récuperer l'absence par id 
+        $absence = Presence::find($id);
+        if(!$absence){
+            return response()->json([
+               'message' => 'Absence introuvable',
+               'status' => 404
+            ]);
+        }
+        //mettre à jour les données des absences
+        $absence->motif = $request->input('motif', $absence->motif);
+
+        // Vérifier si un nouveau fichier a été uploadée
+   if ($request->hasFile('justification')) {
+    // Supprimer l'ancien fichier
+    if ($absence->justification) {
+        Storage::disk('public')->delete($absence->justification);
     }
+
+    // Stocker la nouvelle justification
+    $justificationPath = $request->file('justification')->store('justifications', 'public');
+
+    $absence->justification = $justificationPath; // Stocke le chemin relatif de l'image
+}
+ // Sauvegarder les modifications
+ $absence->save();
+        // Retourner une réponse JSON
+        return response()->json([
+            'message' => 'Absence mise à jour avec succès.',
+            'data' => $absence,
+            'status' => 200
+        ]);
+    
+}
 
     /**
      * Remove the specified resource from storage.

@@ -166,7 +166,7 @@ Route::middleware(['auth', 'role:professeur|admin'])->group(function () {
 
         //route pour les absences
         Route::post('absences', [PresenceController::class,'store']);
-        Route::put('absences/{absence}', [PresenceController::class,'update']);
+      
         Route::delete('absences/{absence}', [PresenceController::class,'destroy']);
         
          //nombre de matiere pour un prof
@@ -183,6 +183,8 @@ Route::middleware(['auth', 'role:professeur|admin'])->group(function () {
 
     });
 
+    //ajouter une justification
+    Route::post('absences/{absence}', [PresenceController::class,'update']);
     //role parent et eleve
     Route::middleware(['auth', 'role:parent|eleve'])->group(function () {
 
@@ -306,7 +308,7 @@ Route::middleware(['auth', 'role:professeur|admin'])->group(function () {
    //horaires pour un prof
    Route::get('professeur/{professeurId}/horaires', [HoraireController::class, 'horaireProf']);
 
-//    Route::get('classe-eleve/{classeEleveId}/absences', [PresenceController::class, 'getAbsences']);
+  Route::get('classe-eleve/{classeEleveId}/absences', [PresenceController::class, 'getAbsences']);
 
 
    //voir les années scolaire

@@ -16,11 +16,11 @@ class StoreCahierTexteRequest extends FormRequest
     public function rules(): array
     {
         return [
-            // 'titre' => 'required|string|max:255',
-            // 'resume' => 'required|string|max:255',
-            // 'date' => ['required', 'date'], 
-            // 'ressource' => 'nullable|string',
-            // 'classe_prof_id' => 'required|exists:classe_profs,id', 
+            'titre' => 'required|string|max:255',
+            'resume' => 'required|string|max:255',
+            'date' => ['required', 'date'], 
+            'ressource' => 'nullable|string',
+            'classe_prof_id' => 'required|exists:classe_profs,id', 
         ];
     }
 
