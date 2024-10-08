@@ -6,6 +6,7 @@ use App\Models\Note;
 use App\Models\Eleve;
 use App\Http\Requests\StoreNoteRequest;
 use App\Http\Requests\UpdateNoteRequest;
+use App\Models\ClasseEleve;
 
 class NoteController extends Controller
 {
@@ -75,13 +76,13 @@ class NoteController extends Controller
     }
     
     //note pour un eleve 
-    public function noteEleve($eleveId)
+    public function noteEleve($classeEleve_id)
     {
         // Récupérer l'élève avec ses notes, évaluations et matières associées
-        $eleve = Eleve::with(['notes.evaluation.classeProf.profMatiere.matiere'])->find($eleveId);
+        $classeEleve = ClasseEleve::with(['notes.evaluation.classeProf.profMatiere.matiere'])->find($classeEleve_id);
     
         // Vérifier si l'élève existe
-        if (!$eleve) {
+        if (!$classeEleve) {
             return response()->json([
                 'message' => 'Élève non trouvé.',
                 'status' => 404
@@ -89,7 +90,7 @@ class NoteController extends Controller
         }
     
         // Vérifier si l'élève a des notes
-        if ($eleve->notes->isEmpty()) {
+        if ($classeEleve->notes->isEmpty()) {
             return response()->json([
                 'message' => 'Aucune note trouvée pour cet élève.',
                 'status' => 404
@@ -98,14 +99,17 @@ class NoteController extends Controller
     
         // Préparer la réponse avec les notes de l'élève
         $result = [];
-        foreach ($eleve->notes as $note) {
+        foreach ($classeEleve->notes as $note) {
             $matiere = $note->evaluation->classeProf->profMatiere->matiere;
     
             $result[] = [
                 'matiere' => $matiere->nom,
+                'coefficient' => $matiere->coefficient,
                 'note' => $note->notes,
+                'commentaire' => $note->commentaire,
                 'evaluation' => $note->evaluation->type_evaluation,
                 'date' => $note->evaluation->date,
+                'nom_evaluation' => $note->evaluation->nom,
             ];
         }
     
@@ -113,8 +117,8 @@ class NoteController extends Controller
         return response()->json([
             'message' => 'Notes de l\'élève',
             'eleve' => [
-                'nom' => $eleve->nom,
-                'prenom' => $eleve->prenom,
+                'nom' => $classeEleve->eleve->nom,
+                'prenom' => $classeEleve->eleve->prenom,
                 'notes' => $result,
             ],
             'status' => 200

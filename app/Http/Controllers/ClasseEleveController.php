@@ -124,12 +124,15 @@ public function elevesParParent($parent_id)
     // Préparer la liste des élèves avec leurs informations
     $eleves = $parent->eleves->map(function ($eleve) {
         return [
+            
             'nom' => $eleve->nom,
             'prenom' => $eleve->prenom,
+            'photo' => $eleve->photo,
             'annee_classe' => $eleve->anneeClasses->map(function ($anneeClasse) {
                 return [
                     'annee' => $anneeClasse->annee->annee_debut . ' - ' . $anneeClasse->annee->annee_fin,
                     'classe' => $anneeClasse->classe->nom,
+                    'classeEleve_id' => $anneeClasse->pivot->id, 
                     
                 ];
             })
@@ -231,7 +234,22 @@ public function nombreElevesParParent($parent_id)
      */
     public function show(ClasseEleve $classeEleve)
     {
-        //
+        
+        $eleve = $classeEleve->eleve;
+        
+        
+        $anneeClasseId = $classeEleve->anneeClasse->id;
+    
+        return response()->json([
+            'message' => 'Détails de l\'élève',
+            'données' => [
+                'classeEleve_id' => $classeEleve->id,
+                'anneeClasse_id' => $anneeClasseId,  
+                'prenom' => $eleve->prenom,
+                'nom' => $eleve->nom,
+            ],
+            'status' => 200
+        ]);
     }
 
     /**

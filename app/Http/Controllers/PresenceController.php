@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Eleve;
 use App\Models\Presence;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -155,6 +156,31 @@ public function store(StorePresenceRequest $request)
     // Retourner la liste des absences avec les infos des élèves, du prof et de la matière
     return response()->json([
         'message' => 'Liste des absences pour l\'année de classe spécifiée',
+        'data' => $absences,
+        'status' => 200
+    ]);
+}
+    //liste des absences pour les élèves par parent
+    public function getAbsencesParParent($parentId)
+{
+    // Récupérer tous les élèves du parent spécifié
+    $eleves = Eleve::where('parent_id', $parentId)->pluck('id');
+
+    // Récupérer les absences des élèves de ce parent
+    $absences = Presence::whereHas('classeEleve', function ($query) use ($eleves) {
+        $query->whereIn('eleve_id', $eleves);
+    })
+    ->where('status', 'absent')
+    ->with([
+        'classeEleve.eleve',   
+        'classeProf.profMatiere.professeur',
+        'classeProf.profMatiere.matiere' 
+    ])
+    ->get();
+
+    // Retourner les absences avec les informations des élèves, du professeur et de la matière
+    return response()->json([
+        'message' => 'Liste des absences pour les enfants du parent spécifié',
         'data' => $absences,
         'status' => 200
     ]);

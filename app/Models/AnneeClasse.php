@@ -31,7 +31,11 @@ class AnneeClasse extends Model
         ->withPivot('id', 'annee_classe_id', 'prof_mat_id')
         ->withTimestamps();
     }
-
+    public function classeProfs()
+    {
+        return $this->hasMany(ClasseProf::class, 'annee_classe_id');
+    }
+    
     //relation avec eleves
     public function eleves()
     {

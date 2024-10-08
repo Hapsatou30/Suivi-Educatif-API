@@ -121,6 +121,7 @@ class CahierTexteController extends Controller
                 'titre' => $cahier->titre,
                 'resume' => $cahier->resume,
                 'date' => $cahier->date,
+                'ressources' => $cahier->ressource,
                 'professeur' => $cahier->classeProf->profMatiere->professeur->prenom,
                 'professeur_id' => $cahier->classeProf->profMatiere->professeur->id,
                 'matiere' => $cahier->classeProf->profMatiere->matiere->nom,

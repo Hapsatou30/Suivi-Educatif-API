@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use App\Models\Note;
+use App\Models\Parents;
 use App\Models\Evaluations;
 use App\Http\Requests\StoreEvaluationsRequest;
 use App\Http\Requests\UpdateEvaluationsRequest;
@@ -351,5 +353,41 @@ public function evaluationsParAnneeClasse($anneeClasseId)
     ]);
 }
 
+//la liste des evaluations pour les élèves d'un parent
+
+
+public function evaluationsEleveParent($parentId)
+{
+    // Récupérer les informations nécessaires (évaluations, élèves, matières)
+    $parent = Parents::with([
+        'eleves.anneeClasses.classeProfs.evaluations',
+        'eleves.anneeClasses.classeProfs.profMatiere.matiere' 
+    ])->findOrFail($parentId);
+
+    // Structure pour stocker les résultats
+    $resultats = collect();
+    
+    // Parcourir les élèves, les classes et les évaluations
+    foreach ($parent->eleves as $eleve) {
+        foreach ($eleve->anneeClasses as $anneeClasse) {
+            foreach ($anneeClasse->classeProfs as $classeProf) {
+                foreach ($classeProf->evaluations as $evaluation) {
+                    $matiere = $classeProf->profMatiere->matiere;
+                    
+                    // Ajouter uniquement les informations nécessaires
+                    $resultats->push([
+                        'prenom' => $eleve->prenom, 
+                        'matiere' => $matiere->nom, 
+                        'type_evaluation' => $evaluation->type_evaluation, 
+                        'date_evaluation' => $evaluation->date, 
+                        'heure' => $evaluation->heure
+                    ]);
+                }
+            }
+        }
+    }
+
+    return $resultats;
+}
 
 }

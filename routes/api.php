@@ -188,15 +188,23 @@ Route::middleware(['auth', 'role:professeur|admin'])->group(function () {
 
         //liste des eleves regroupes par parent
     Route::get('parents/{parent_id}/eleves', [ClasseEleveController::class, 'elevesParParent']);
+    
+    //details d'un eleve
+    Route::get('eleve/{classeEleve}', [ClasseEleveController::class, 'show']);
 
     //nombre eleves par parent
     Route::get('parents/{parent_id}/nombre-eleves', [ClasseEleveController::class, 'nombreElevesParParent']);
 
+    Route::get('parents/{parentId}/absences', [PresenceController::class, 'getAbsencesParParent']);
+
     //note pour un eleve
-    Route::get('eleves/{eleveId}/notes', [NoteController::class, 'noteEleve']);
+    Route::get('eleves/{classeEleve_id}/notes', [NoteController::class, 'noteEleve']);
 
     //evaluations pour un eleve
     Route::get('eleves/{eleveId}/evaluations', [EvaluationsController::class, 'evaluationsEleve']);
+
+    //liste des evaluations 
+    Route::get('evaluations/eleves/{parentId}' , [EvaluationsController::class, 'evaluationsEleveParent']);
 
 
     });
