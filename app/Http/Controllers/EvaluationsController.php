@@ -389,5 +389,45 @@ public function evaluationsEleveParent($parentId)
 
     return $resultats;
 }
+public function evaluationsParClasseEleve($classeEleveId)
+{
+    // Récupérer les évaluations pour une classe élève spécifique avec les relations nécessaires
+    $evaluations = Evaluations::with(['classeProf.profMatiere.matiere', 'classeProf.profMatiere.professeur', 'classeProf.anneeClasse.classe'])
+        ->whereHas('classeProf.anneeClasse', function ($query) use ($classeEleveId) {
+            $query->where('id', $classeEleveId);
+        })
+        ->get();
+
+    // Vérifier s'il y a des évaluations pour cette classe élève
+    if ($evaluations->isEmpty()) {
+        return response()->json([
+            'message' => "Il n'y a pas d'évaluations pour cette classe élève.",
+            'status' => 404
+        ]);
+    }
+
+    // Transformer les données pour afficher les informations souhaitées
+    $resultat = $evaluations->map(function ($evaluation) {
+        return [
+            'id' => $evaluation->id,
+            'nom' => $evaluation->nom,
+            'classe_prof_id' => $evaluation->classe_prof_id,
+            'matiere' => $evaluation->classeProf->profMatiere->matiere->nom,
+            'professeur' => $evaluation->classeProf->profMatiere->professeur->prenom . ' ' . $evaluation->classeProf->profMatiere->professeur->nom,
+            'type_evaluation' => $evaluation->type_evaluation,
+            'date' => $evaluation->date,
+            'heure' => $evaluation->heure,
+            'duree' => $evaluation->duree,
+            'classe' => $evaluation->classeProf->anneeClasse->classe->nom,
+        ];
+    });
+
+    // Retourner les données sous forme de JSON
+    return response()->json([
+        'message' => "Évaluations pour la classe élève",
+        'evaluations' => $resultat,
+        'status' => 200
+    ]);
+}
 
 }

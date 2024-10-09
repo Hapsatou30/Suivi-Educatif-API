@@ -203,7 +203,7 @@ Route::middleware(['auth', 'role:professeur|admin'])->group(function () {
     Route::get('eleves/{classeEleve_id}/notes', [NoteController::class, 'noteEleve']);
 
     //evaluations pour un eleve
-    Route::get('eleves/{eleveId}/evaluations', [EvaluationsController::class, 'evaluationsEleve']);
+    Route::get('eleves/{classeEleveId}/evaluations', [EvaluationsController::class, 'evaluationsParClasseEleve']);
 
     //liste des evaluations 
     Route::get('evaluations/eleves/{parentId}' , [EvaluationsController::class, 'evaluationsEleveParent']);

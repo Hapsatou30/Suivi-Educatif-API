@@ -33,30 +33,27 @@ class AnneeScolaireController extends Controller
         $anneeScolaireEnCours = AnneeScolaire::where('etat', 'En_cours')->first();
         if ($anneeScolaireEnCours) {
             return response()->json([
-                'message' => 'Il existe déjà une année scolaire en cours.',
-                'status' => 409
-            ]);
+                'message' => 'Il existe déjà une année scolaire en cours.'
+            ], 409); // Utiliser 409 pour indiquer un conflit
         }
     
         // Vérifier si une année scolaire avec les mêmes dates existe déjà
         $anneeExistante = AnneeScolaire::where('annee_debut', $request->annee_debut)
-        ->where('annee_fin', $request->annee_fin)
-        ->first();
-
+            ->where('annee_fin', $request->annee_fin)
+            ->first();
+    
         if ($anneeExistante) {
-        return response()->json([
-        'message' => 'Une année scolaire avec les mêmes dates existe déjà.',
-        'status' => 409
-        ]);
+            return response()->json([
+                'message' => 'Une année scolaire avec les mêmes dates existe déjà.'
+            ], 409); // Utiliser 409 pour indiquer un conflit
         }
     
         // Créer une nouvelle année scolaire
         $annee = AnneeScolaire::create($request->all());
         return response()->json([
             'message' => 'Année scolaire créée avec succès',
-            'données' => $annee,
-            'status' => 201
-        ]);
+            'données' => $annee
+        ], 201); // Utiliser 201 pour indiquer la création réussie
     }
     
 

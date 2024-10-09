@@ -41,7 +41,7 @@ class ProfesseurCreated extends Mailable
             </ul>
             
             <p>Pour des raisons de sécurité, nous vous recommandons de <strong>changer votre mot de passe</strong> après votre première connexion.</p>
-            <p>Vous pouvez vous connecter à votre compte en utilisant le lien suivant : <a href="https://votre-site.com" style="color: #4862C4;">Se connecter</a></p>
+            <p>Vous pouvez vous connecter à votre compte en utilisant le lien suivant : <a href="https://suivieducatiffrontend.thiamhapstou.simplonfabriques.com/" style="color: #4862C4;">Se connecter</a></p>
             
             <p>Cordialement, SAMA ECOLE</p>
             

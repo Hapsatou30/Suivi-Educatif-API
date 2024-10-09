@@ -67,7 +67,7 @@ class ApiController extends Controller
                 "access_token" => $token,
                 "token_type" => "bearer",
                 "user" => auth()->user(),
-                "expires_in" => env("JWT_TTL") * 60  .'seconds'
+                "expires_in" => env("JWT_TTL") * 240  .'seconds'
             ]);
         }
     
