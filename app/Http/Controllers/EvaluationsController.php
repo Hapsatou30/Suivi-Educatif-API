@@ -393,10 +393,12 @@ public function evaluationsParClasseEleve($classeEleveId)
 {
     // Récupérer les évaluations pour une classe élève spécifique avec les relations nécessaires
     $evaluations = Evaluations::with(['classeProf.profMatiere.matiere', 'classeProf.profMatiere.professeur', 'classeProf.anneeClasse.classe'])
-        ->whereHas('classeProf.anneeClasse', function ($query) use ($classeEleveId) {
-            $query->where('id', $classeEleveId);
-        })
-        ->get();
+    ->whereHas('classeProf.anneeClasse.eleves', function ($query) use ($classeEleveId) {
+        $query->where('classe_eleves.id', $classeEleveId); 
+    })
+    ->get();
+
+
 
     // Vérifier s'il y a des évaluations pour cette classe élève
     if ($evaluations->isEmpty()) {

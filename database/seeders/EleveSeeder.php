@@ -16,9 +16,9 @@ class EleveSeeder extends Seeder
     {
         // Liste des élèves avec leurs informations détaillées
         $eleves = [
-            ['user_email' => 'eleve@gmail.com', 'matricule' => 'EAM' . rand(100, 999), 'nom' => 'Fall', 'prenom' => 'Amina Zahra', 'date_naissance' => '2006-05-15', 'telephone' => '123456789', 'genre' => 'Feminin', 'parent_id' => 1],
-            ['user_email' => 'eleve1@gmail.com', 'matricule' => 'ECH' . rand(100, 999), 'nom' => 'Fall', 'prenom' => 'Cherif', 'date_naissance' => '2007-08-20', 'telephone' => '987654321', 'genre' => 'Masculin', 'parent_id' => 1],
-            ['user_email' => 'eleve2@gmail.com', 'matricule' => 'ESI' . rand(100, 999), 'nom' => 'Sy', 'prenom' => 'Sir Hamdel', 'date_naissance' => '2008-12-30', 'telephone' => '456789123', 'genre' => 'Masculin', 'parent_id' => 2],
+            ['user_email' => 'eleve@gmail.com', 'matricule' => 'EAM' . rand(100, 999), 'nom' => 'Fall', 'prenom' => 'Amina Zahra', 'date_naissance' => '2006-05-15', 'genre' => 'Feminin', 'parent_id' => 1],
+            ['user_email' => 'eleve1@gmail.com', 'matricule' => 'ECH' . rand(100, 999), 'nom' => 'Fall', 'prenom' => 'Cherif', 'date_naissance' => '2007-08-20',  'genre' => 'Masculin', 'parent_id' => 1],
+            ['user_email' => 'eleve2@gmail.com', 'matricule' => 'ESI' . rand(100, 999), 'nom' => 'Sy', 'prenom' => 'Sir Hamdel', 'date_naissance' => '2008-12-30',  'genre' => 'Masculin', 'parent_id' => 2],
         ];
 
         // Parcourir chaque élève de la liste
@@ -34,7 +34,6 @@ class EleveSeeder extends Seeder
                     'nom' => $eleve['nom'],
                     'prenom' => $eleve['prenom'],
                     'date_naissance' => $eleve['date_naissance'],
-                    'telephone' => $eleve['telephone'],
                     'genre' => $eleve['genre'],
                     'user_id' => $user->id, // Associer l'élève à l'utilisateur correspondant
                     'parent_id' => $eleve['parent_id'], // Associer l'élève à son parent

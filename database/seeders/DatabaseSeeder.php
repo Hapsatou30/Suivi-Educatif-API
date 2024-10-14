@@ -30,7 +30,6 @@ class DatabaseSeeder extends Seeder
             ClasseProfSeeder::class,         // Seeder pour lier les professeurs aux classes qu'ils gèrent
             ClasseEleveSeeder::class,        // Seeder pour lier les élèves aux classes
             EvaluationsSeeder::class,        // Seeder pour les évaluations (devoirs, examens.)
-            NoteSeeder::class,               // Seeder pour les notes des élèves
             CahierTexteSeeder::class,        // Seeder pour les cahiers de textes (programme scolaire)
           
            

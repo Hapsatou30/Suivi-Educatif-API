@@ -31,7 +31,7 @@ class PresenceSeeder extends Seeder
 
                 // Créer la présence
                 DB::table('presences')->insert([
-                    'date_presence' => now()->subDays(rand(0, 30)), // Date aléatoire dans le dernier mois
+                    'date_absence' => now()->subDays(rand(0, 30)), // Date aléatoire dans le dernier mois
                     'status' => $status,
                     'motif' => $motif,
                     'justification' => $justification,

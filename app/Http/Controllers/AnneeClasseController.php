@@ -117,8 +117,7 @@ public function niveauClasses($anneeId)
         $data = $request->validated();
         
         // Vérifier que l'année spécifiée est en cours
-        $anneeScolaire = AnneeScolaire::where('id', $data['annee_id'])
-            ->first();
+        $anneeScolaire = AnneeScolaire::where('id', $data['annee_id'])->first();
     
         if (!$anneeScolaire || $anneeScolaire->etat !== 'En_cours') {
             return response()->json([
@@ -127,16 +126,29 @@ public function niveauClasses($anneeId)
             ]);
         }
     
-        // Ajouter les nouvelles classes sans retirer les anciennes
-        if (!empty($data['classe_ids'])) {
-            $anneeScolaire->classes()->syncWithoutDetaching($data['classe_ids']);
+        // Récupérer les classes actuellement associées
+        $idClasseActu = $anneeScolaire->classes()->pluck('classes.id')->toArray();
+    
+        // Déterminer les classes à ajouter et à retirer
+        $classeRetirer = array_diff($idClasseActu, $data['classe_ids']);
+        $classeAjouter = array_diff($data['classe_ids'], $idClasseActu);
+    
+        // Supprimer les classes qui ne sont plus sélectionnées
+        if (!empty($classeRetirer)) {
+            $anneeScolaire->classes()->detach($classeRetirer);
+        }
+    
+        // Ajouter les nouvelles classes (si elles ne sont pas déjà associées)
+        if (!empty($classeAjouter)) {
+            $anneeScolaire->classes()->syncWithoutDetaching($classeAjouter);
         }
     
         return response()->json([
-            'message' => 'Classes ajoutées avec succès pour l\'année scolaire',
+            'message' => 'Classes synchronisées avec succès pour l\'année scolaire',
             'status' => 200
         ]);
     }
+    
     
     
 

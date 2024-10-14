@@ -18,13 +18,13 @@ class UserSeeder extends Seeder
         // Liste des utilisateurs à créer avec leurs emails, mots de passe et rôles associés
         $users = [
             ['email' => 'thiamhapstou@gmail.com', 'password' => Hash::make('password123'), 'role' => 'admin'],
-            ['email' => 'hapsthiam@gmail.com', 'password' => Hash::make('password123'), 'role' => 'professeur'],
-            ['email' => 'hapsatou.thiam@univ-thies.sn', 'password' => Hash::make('password123'), 'role' => 'parent'],
-            ['email' => 'parent@gmail.com', 'password' => Hash::make('password123'), 'role' => 'parent'],
             ['email' => 'prof@gmail.com', 'password' => Hash::make('password123'), 'role' => 'professeur'],
+            ['email' => 'parent@gmail.com', 'password' => Hash::make('password123'), 'role' => 'parent'],
+            ['email' => 'parent1@gmail.com', 'password' => Hash::make('password123'), 'role' => 'parent'],
+            ['email' => 'prof1@gmail.com', 'password' => Hash::make('password123'), 'role' => 'professeur'],
             ['email' => 'eleve@gmail.com', 'password' => Hash::make('password123'), 'role' => 'eleve'],
             ['email' => 'eleve1@gmail.com', 'password' => Hash::make('password123'), 'role' => 'eleve'],
-            ['email' => 'prof1@gmail.com', 'password' => Hash::make('password123'), 'role' => 'professeur'],
+            ['email' => 'prof2@gmail.com', 'password' => Hash::make('password123'), 'role' => 'professeur'],
             ['email' => 'eleve2@gmail.com', 'password' => Hash::make('password123'), 'role' => 'eleve'],
         ];
 

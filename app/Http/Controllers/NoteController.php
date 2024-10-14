@@ -232,4 +232,50 @@ public function update(UpdateNoteRequest $request, Note $note)
             ]);
         }
     }
+
+    public function notesParParent($parent_id)
+{
+    // Récupérer les élèves du parent
+    $eleves = Eleve::where('parent_id', $parent_id)->with('classeEleves.notes.evaluation.classeProf.profMatiere.matiere')->get();
+
+    // Vérifier si des élèves existent pour ce parent
+    if ($eleves->isEmpty()) {
+        return response()->json([
+            'message' => 'Aucun élève trouvé pour ce parent.',
+            'status' => 404
+        ]);
+    }
+
+    // Préparer la réponse avec la liste des notes pour chaque élève du parent
+    $result = [];
+    foreach ($eleves as $eleve) {
+        foreach ($eleve->classeEleves as $classeEleve) {
+            foreach ($classeEleve->notes as $note) {
+                $matiere = $note->evaluation->classeProf->profMatiere->matiere;
+
+                $result[] = [
+                    'eleve' => [
+                        'nom' => $eleve->nom,
+                        'prenom' => $eleve->prenom,
+                        'matricule' => $eleve->matricule,
+                    ],
+                    'matiere' => $matiere->nom,
+                    'note' => $note->notes,
+                    'coefficient' => $matiere->coefficient,
+                    'commentaire' => $note->commentaire,
+                    'evaluation' => $note->evaluation->type_evaluation,
+                    'date' => $note->evaluation->date,
+                    'nom_evaluation' => $note->evaluation->nom,
+                ];
+            }
+        }
+    }
+
+    return response()->json([
+        'message' => 'Liste des notes pour les enfants du parent spécifié',
+        'données' => $result,
+        'status' => 200
+    ]);
+}
+
 }

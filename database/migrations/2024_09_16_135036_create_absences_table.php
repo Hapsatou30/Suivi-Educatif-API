@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('absences', function (Blueprint $table) {
             $table->id();
-            $table->date('date_presence')->default(now());
+            $table->date('date_absence')->default(now());
             $table->enum('status', ['present', 'absent'])->default('present');
             $table->string('justification')->nullable();
             $table->foreignId('classe_eleve_id')->constrained('classe_eleves')->onDelete('cascade');

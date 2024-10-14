@@ -9,7 +9,11 @@ class StoreAnneeScolaireRequest extends FormRequest
     /**
      * Determine if the user is authorized to make this request.
      */
-   
+    public function authorize(): bool
+    {
+        return true; // Autoriser toutes les requêtes pour l'exemple
+    }
+    
 
     /**
      * Get the validation rules that apply to the request.
@@ -21,7 +25,13 @@ class StoreAnneeScolaireRequest extends FormRequest
         $annee_en_cours = date('Y');
         return [
             'annee_debut' => ['required', 'digits:4', 'integer', 'gte:' . $annee_en_cours, 'max:' . ($annee_en_cours + 1)], 
-            'annee_fin' => ['required', 'digits:4', 'integer', 'gte:annee_debut', 'max:' . ($annee_en_cours + 2)], 
+          'annee_fin' => [
+    'required',
+    'digits:4',
+    'integer',
+    'gte:annee_debut',
+    'max:' . ($annee_en_cours + 2)
+],
             'etat' => ['required', 'in:En_cours,Fermée'], 
         ];
     }

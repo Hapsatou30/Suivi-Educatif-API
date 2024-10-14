@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AnneeScolaire;
+use Illuminate\Http\Request; 
 use App\Http\Requests\StoreAnneeScolaireRequest;
 use App\Http\Requests\UpdateAnneeScolaireRequest;
-use App\Models\AnneeScolaire;
 
 class AnneeScolaireController extends Controller
 {
@@ -27,36 +28,39 @@ class AnneeScolaireController extends Controller
     /**
      * Méthode pour ajouter une année scolaire
      */
-    public function store(StoreAnneeScolaireRequest $request)
-    {
-        // Vérifier si une année scolaire en cours existe déjà
-        $anneeScolaireEnCours = AnneeScolaire::where('etat', 'En_cours')->first();
-        if ($anneeScolaireEnCours) {
-            return response()->json([
-                'message' => 'Il existe déjà une année scolaire en cours.'
-            ], 409); // Utiliser 409 pour indiquer un conflit
-        }
-    
-        // Vérifier si une année scolaire avec les mêmes dates existe déjà
-        $anneeExistante = AnneeScolaire::where('annee_debut', $request->annee_debut)
-            ->where('annee_fin', $request->annee_fin)
-            ->first();
-    
-        if ($anneeExistante) {
-            return response()->json([
-                'message' => 'Une année scolaire avec les mêmes dates existe déjà.'
-            ], 409); // Utiliser 409 pour indiquer un conflit
-        }
-    
-        // Créer une nouvelle année scolaire
-        $annee = AnneeScolaire::create($request->all());
-        return response()->json([
-            'message' => 'Année scolaire créée avec succès',
-            'données' => $annee
-        ], 201); // Utiliser 201 pour indiquer la création réussie
-    }
-    
+    public function store(Request $request)
+{
+    // Vérifier si une année scolaire en cours existe déjà
+    $anneeScolaireEnCours = AnneeScolaire::where('etat', 'En_cours')->first();
 
+    if ($anneeScolaireEnCours) {
+        return response()->json([
+            'message' => 'Il existe déjà une année scolaire en cours.'
+        ], 409); // Code de statut 409 pour conflit
+    }
+
+    // Vérifier si une année scolaire avec les mêmes dates existe déjà
+    $anneeExistante = AnneeScolaire::where('annee_debut', $request->input('annee_debut'))
+        ->where('annee_fin', $request->input('annee_fin'))
+        ->first();
+
+    if ($anneeExistante) {
+        return response()->json([
+            'message' => 'Une année scolaire avec les mêmes dates existe déjà.'
+        ], 409); // Code de statut 409 pour conflit
+    }
+
+    // Créer une nouvelle année scolaire sans validations
+    $annee = AnneeScolaire::create($request->all());
+
+    return response()->json([
+        'message' => 'Année scolaire créée avec succès',
+        'données' => $annee
+    ], 201); // Code de statut 201 pour création réussie
+}
+
+    
+    
     /**
      *Methode pour voir les details d'une annéee scolaire créée
      */
@@ -104,7 +108,7 @@ class AnneeScolaireController extends Controller
         return response()->json([
             'message' => 'Année scolaire modifiée avec succès',
             'données' => $anneeScolaire,
-            'status' => 200
+            'status' => 201
         ]);
     }
     

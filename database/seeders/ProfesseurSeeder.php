@@ -16,9 +16,9 @@ class ProfesseurSeeder extends Seeder
     {
         // Liste des professeurs avec leurs informations
         $professeursData = [
-            ['nom' => 'Sall', 'prenom' => 'Fatima', 'email' => 'hapsthiam@gmail.com', 'matricule' => 'PFA' . rand(100, 999)],
-            ['nom' => 'Ndiaye', 'prenom' => 'Moussa', 'email' => 'prof@gmail.com', 'matricule' => 'PMO' . rand(100, 999)],
-            ['nom' => 'Tavarez', 'prenom' => 'Rachid', 'email' => 'prof1@gmail.com', 'matricule' => 'PRA' . rand(100, 999)],
+            ['nom' => 'Sall', 'prenom' => 'Fatima', 'email' => 'prof@gmail.com', 'matricule' => 'PFA' . rand(100, 999)],
+            ['nom' => 'Ndiaye', 'prenom' => 'Moussa', 'email' => 'prof1@gmail.com', 'matricule' => 'PMO' . rand(100, 999)],
+            ['nom' => 'Tavarez', 'prenom' => 'Rachid', 'email' => 'prof2@gmail.com', 'matricule' => 'PRA' . rand(100, 999)],
         ];
 
         // Créer les enregistrements dans la table des professeurs

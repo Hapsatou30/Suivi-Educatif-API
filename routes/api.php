@@ -135,6 +135,9 @@ Route::group ([ "middleware" => ["auth"] ],  function(){
    //route pour la liste de tous les elves
    Route::get('listeleves', [ EleveController::class, 'eleves']);
 
+   //route pour la liste de tous les absences
+   Route::get('absences/toutes', [PresenceController::class, 'getAbsencesSemaine']);
+
 
     });
 
@@ -183,8 +186,7 @@ Route::middleware(['auth', 'role:professeur|admin'])->group(function () {
 
     });
 
-    //ajouter une justification
-    Route::post('absences/{absence}', [PresenceController::class,'update']);
+  
     //role parent et eleve
     Route::middleware(['auth', 'role:parent|eleve'])->group(function () {
 
@@ -202,12 +204,17 @@ Route::middleware(['auth', 'role:professeur|admin'])->group(function () {
     //note pour un eleve
     Route::get('eleves/{classeEleve_id}/notes', [NoteController::class, 'noteEleve']);
 
+    //liste des notes pour les eleves d'un parent
+    Route::get('parents/{parentId}/notes', [NoteController::class, 'notesParParent']);
+
     //evaluations pour un eleve
     Route::get('eleves/{classeEleveId}/evaluations', [EvaluationsController::class, 'evaluationsParClasseEleve']);
 
     //liste des evaluations 
     Route::get('evaluations/eleves/{parentId}' , [EvaluationsController::class, 'evaluationsEleveParent']);
-
+    
+      //ajouter une justification
+      Route::post('absences/{absence}', [PresenceController::class,'update']);
 
     });
 

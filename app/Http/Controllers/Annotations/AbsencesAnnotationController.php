@@ -45,7 +45,7 @@ namespace App\Http\Controllers\Annotations ;
  *             @OA\Schema(
  *                 type="object",
  *                 properties={
- *                     @OA\Property(property="date_presence", type="string"),
+ *                     @OA\Property(property="date_absence", type="string"),
  *                     @OA\Property(property="status", type="string"),
  *                     @OA\Property(property="motif", type="string"),
  *                     @OA\Property(property="justification", type="string"),

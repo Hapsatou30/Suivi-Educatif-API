@@ -57,11 +57,11 @@ class PresenceController extends Controller
 }
 public function store(StorePresenceRequest $request)
 {
-    // Récupérer les données validées sans date_presence
+    // Récupérer les données validées sans date_absence
     $validated = $request->validated();
 
-    // Ajouter la date_presence automatiquement
-    $validated['date_presence'] = now(); // Ajouter la date actuelle
+    // Ajouter la date_absence automatiquement
+    $validated['date_absence'] = now(); // Ajouter la date actuelle
 
     // Vérifier si le statut est "absent"
     if ($validated['status'] === 'absent') {
@@ -80,6 +80,24 @@ public function store(StorePresenceRequest $request)
     return response()->json([
         'message' => 'Le statut doit être "absent" pour enregistrer une absence.',
         'status' => 400
+    ]);
+}
+public function getAbsencesSemaine()
+{
+    // Déterminer les dates de début et de fin de la semaine courante
+    $debutSemaine = now()->startOfWeek(); // Début de la semaine (lundi)
+    $finSemaine = now()->endOfWeek(); // Fin de la semaine (dimanche)
+
+    // Récupérer les absences de la semaine courante avec les informations des élèves, du professeur et de la matière
+    $absences = Presence::where('status', 'absent')
+        ->whereBetween('date_absence', [$debutSemaine, $finSemaine]) // Filtrer par date dans la semaine courante
+        ->get();
+
+    // Retourner la liste des absences de la semaine courante
+    return response()->json([
+        'message' => 'Liste des absences de la semaine courante',
+        'data' => $absences,
+        'status' => 200
     ]);
 }
 

@@ -17,7 +17,6 @@ return new class extends Migration
             $table->string('nom');
             $table->string('prenom');
             $table->date('date_naissance');
-            $table->string('telephone')->unique();
             $table->string('photo')->nullable();
             $table->enum('genre', ['Feminin', 'Masculin']);
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');

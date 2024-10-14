@@ -27,7 +27,7 @@ class EvaluationsSeeder extends Seeder
                 do {
                     // Générer une date et une heure aléatoires
                     $date = now()->addDays(rand(1, 30));
-                    $heure = now()->addHours(rand(8, 16))->format('H:i:s'); // Heure aléatoire entre 8h et 18h
+                    $heure = now()->addHours(rand(8, 16))->format('H:i'); // Heure aléatoire entre 8h et 18h
     
                     // Vérifier s'il existe déjà une évaluation à la même date et heure pour cette classe
                     $exists = DB::table('evaluations')

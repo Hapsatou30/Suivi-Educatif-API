@@ -14,6 +14,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Mail;
 use App\Http\Requests\StoreProfesseurRequest;
 use App\Http\Requests\UpdateProfesseurRequest;
+use Illuminate\Support\Str;
+
 
 class ProfesseurController extends Controller
 {
@@ -69,16 +71,16 @@ class ProfesseurController extends Controller
     public function store(StoreProfesseurRequest $request)
     {
     
-        // Définir un mot de passe fixe
-        $password = 'password123'; // Mot de passe fixe
-
+         // Générer un mot de passe aléatoire de 10 caractères
+            $password = Str::random(10); 
     
         // Créer un nouvel utilisateur
         $user = User::create([
             'email' => $request->email,
             'password' => bcrypt($password),
-            'role_id' => 2, // ID du rôle correspondant à un professeur
         ]);
+         // Assigner le rôle "professeur" à l'utilisateur (en supposant que le rôle existe dans la base de données)
+             $user->assignRole('professeur');  
     
         // Générer une matricule unique
         $prenom = strtoupper(substr($request->prenom, 0, 2)); // Prendre les deux premières lettres du prénom en majuscules

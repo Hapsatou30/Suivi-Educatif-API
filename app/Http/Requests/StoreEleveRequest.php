@@ -18,18 +18,18 @@ class StoreEleveRequest extends FormRequest
         return [
             'nom' => 'required|string|max:255',
             'prenom' => 'required|string|max:255',
-            'date_naissance' => 'required|date|before:today|before_or_equal:' . now()->subYears(5)->toDateString(),
-            'telephone' => 'required|string|unique:eleves,telephone|regex:/^[0-9]{9}$/',
+           'date_naissance' => 'required|date|before:today|after_or_equal:' . now()->subYears(17)->toDateString() . '|before_or_equal:' . now()->subYears(11)->toDateString(),
             'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'genre' => 'required|in:Masculin,Feminin',
-            'email' => 'required|email|unique:users,email', 
-            'parent_telephone' => 'required|string|regex:/^[0-9]{9}$/', 
-            'parent_nom' => 'required|string|max:255', 
-            'parent_prenom' => 'required|string|max:255', 
-            'parent_email' => 'required|email',
-            'parent_adresse' => 'required|string|max:255', 
+            'email' => 'nullable|email|unique:users,email', // Email de l'élève optionnel
+            'parent_telephone' => 'required|string|regex:/^[0-9]{9}$/',
+            'parent_nom' => 'required|string|max:255',
+            'parent_prenom' => 'required|string|max:255',
+            'parent_email' => 'required|email', // Email du parent obligatoire
+            'parent_adresse' => 'required|string|max:255',
         ];
     }
+    
 
     /**
      * Messages personnalisés pour chaque règle de validation.
@@ -40,7 +40,10 @@ class StoreEleveRequest extends FormRequest
             'nom.required' => 'Le nom est obligatoire.',
             'prenom.required' => 'Le prénom est obligatoire.',
             'date_naissance.required' => 'La date de naissance est obligatoire.',
-            'date_naissance.before_or_equal' => 'L\'élève doit avoir au moins 5 ans.',
+            'date_naissance.date' => 'La date de naissance doit être une date valide.',
+            'date_naissance.before' => 'La date de naissance doit être avant aujourd\'hui.',
+            'date_naissance.after_or_equal' => 'L\'élève doit avoir au moins 11 ans.',
+            'date_naissance.before_or_equal' => 'L\'élève ne doit pas avoir plus de 17 ans.',
             'telephone.required' => 'Le numéro de téléphone est obligatoire.',
             'telephone.unique' => 'Ce numéro de téléphone est déjà utilisé.',
             'telephone.regex' => 'Le numéro de téléphone doit comporter 10 chiffres.',
