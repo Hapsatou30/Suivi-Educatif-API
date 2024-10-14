@@ -9,10 +9,11 @@ use App\Models\ClasseEleve;
 use App\Models\AnneeScolaire;
 use App\Http\Requests\StoreClasseEleveRequest;
 use App\Http\Requests\UpdateClasseEleveRequest;
+use App\Traits\NotificationTrait;
 
 class ClasseEleveController extends Controller
 {
-
+     use NotificationTrait; 
     public function classeEleve()
     {
         $classeEleve = ClasseEleve::all();
@@ -199,10 +200,27 @@ public function nombreElevesParParent($parent_id)
             
             // Boucler sur chaque 'eleve_id' et créer une entrée
             foreach ($validated['eleve_id'] as $eleve_id) {
-                $classeEleves[] = ClasseEleve::create([
+                $classeEleve = ClasseEleve::create([
                     'annee_classe_id' => $validated['annee_classe_id'],
                     'eleve_id' => $eleve_id,
                 ]);
+                
+                // Récupérer l'élève
+                $eleve = Eleve::with('parent.user', 'user')->find($eleve_id);
+                
+                // Envoyer une notification à l'élève
+                if ($eleve && $eleve->user) {
+                    $contenuNotification = "Vous avez été attribué à la classe : " . $anneeClasse->classe->nom;
+                    $this->sendNotification($eleve->user, $contenuNotification);
+                }
+                
+                // Envoyer une notification au parent
+                if ($eleve && $eleve->parent && $eleve->parent->user) {
+                    $contenuNotificationParent = "Votre enfant " . $eleve->prenom. " a été attribué à la classe : " . $anneeClasse->classe->nom;
+                    $this->sendNotification($eleve->parent->user, $contenuNotificationParent);
+                }
+    
+                $classeEleves[] = $classeEleve;
             }
             
             // Retourner une réponse JSON avec les élèves ajoutés
@@ -219,6 +237,21 @@ public function nombreElevesParParent($parent_id)
                 'eleve_id' => $validated['eleve_id'],
             ]);
             
+            // Récupérer l'élève
+            $eleve = Eleve::with('parent.user', 'user')->find($validated['eleve_id']);
+            
+            // Envoyer une notification à l'élève
+            if ($eleve && $eleve->user) {
+                $contenuNotification = "Vous avez été attribué à la classe : " . $anneeClasse->classe->nom;
+                $this->sendNotification($eleve->user, $contenuNotification);
+            }
+            
+            // Envoyer une notification au parent
+            if ($eleve && $eleve->parent && $eleve->parent->user) {
+                $contenuNotificationParent = "Votre enfant " . $eleve->prenom . " a été attribué à la classe : " . $anneeClasse->classe->nom;
+                $this->sendNotification($eleve->parent->user, $contenuNotificationParent);
+            }            
+    
             // Retourner une réponse JSON pour un seul élève
             return response()->json([
                 'message' => 'Élève attribué à l\'année classe avec succès',
@@ -227,6 +260,7 @@ public function nombreElevesParParent($parent_id)
             ]);
         }
     }
+    
     
 
     /**
