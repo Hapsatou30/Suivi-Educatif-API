@@ -8,13 +8,14 @@ use App\Models\AnneeClasse;
 use App\Models\ProfMatiere;
 use Illuminate\Http\Request;
 use App\Models\AnneeScolaire;
+use App\Traits\NotificationTrait;
 use Illuminate\Support\Facades\Log;
 use App\Http\Requests\StoreClasseProfRequest;
 use App\Http\Requests\UpdateClasseProfRequest;
 
 class ClasseProfController extends Controller
 {
-   
+    use NotificationTrait; 
 
 public function index(Request $request)
 {
@@ -157,8 +158,28 @@ public function store(StoreClasseProfRequest $request)
     // Ajouter les nouveaux professeurs et matières (s'ils ne sont pas déjà associés)
     if (!empty($profMatAjouter)) {
         $anneeClasse->profMatieres()->syncWithoutDetaching($profMatAjouter);
-    }
+    
+      // Notifications
+      foreach ($profMatAjouter as $profMatId) {
+        $profMatiere = ProfMatiere::find($profMatId); // Récupérer l'association Prof/Matière
+        $professeur = $profMatiere->professeur; // Le professeur
+        $matiere = $profMatiere->matiere; // La matière
+        $classe = $anneeClasse->classe; // La classe
 
+        // Notification pour le professeur
+        $this->sendNotification($professeur->user, "Vous avez été ajouté à une nouvelle classe : {$classe->nom}, pour la matière : {$matiere->nom}.");
+
+        // Notification pour le parent de chaque élève
+        foreach ($anneeClasse->eleves as $eleve) {
+            $parent = $eleve->parent->user;
+            $this->sendNotification($parent, "Votre enfant, {$eleve->prenom}, a un nouveau professeur Mme/Mr : {$professeur->nom} pour la matière {$matiere->nom}.");
+
+            // Notification pour l'élève
+            $eleveUser = $eleve->user;
+            $this->sendNotification($eleveUser, "Vous avez un nouveau professeur Mme/Mr : {$professeur->nom} pour la matière {$matiere->nom}.");
+        }
+    }
+}
     return response()->json([
         'success' => 'Professeurs et matières synchronisés avec succès pour l\'année classe.',
         'status' => 200
