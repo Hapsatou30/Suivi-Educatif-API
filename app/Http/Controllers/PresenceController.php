@@ -4,14 +4,17 @@ namespace App\Http\Controllers;
 
 use App\Models\Eleve;
 use App\Models\Presence;
+use App\Models\ClasseEleve;
 use Illuminate\Http\Request;
+use App\Traits\NotificationTrait;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use App\Http\Requests\StorePresenceRequest;
 use App\Http\Requests\UpdatePresenceRequest;
-use Illuminate\Support\Facades\Storage;
 
 class PresenceController extends Controller
 {
+    use NotificationTrait; 
     /**
      * Display a listing of the resource.
      */
@@ -68,12 +71,34 @@ public function store(StorePresenceRequest $request)
         // Créer une nouvelle absence
         $absence = Presence::create($validated);
 
-        // Retourner une réponse JSON
-        return response()->json([
-            'message' => 'Absence attribuée avec succès.',
-            'data' => $absence,
-            'status' => 201
-        ]);
+        
+        // Récupérer l'élève via la relation avec 'classe_eleve'
+        $classeEleve = ClasseEleve::find($validated['classe_eleve_id']);
+
+        if ($classeEleve && $classeEleve->eleve && $classeEleve->eleve->parent) {
+            // Récupérer l'élève et son parent
+            $eleve = $classeEleve->eleve;
+            $parent = $eleve->parent;
+
+            // Récupérer l'utilisateur associé au parent
+            $userParent = $parent->user;
+
+            // Envoyer la notification au parent
+            $this->sendNotification($userParent, "Votre enfant {$eleve->prenom} est absent le {$validated['date_absence']}.");
+
+            // Retourner une réponse JSON avec succès
+            return response()->json([
+                'message' => 'Absence attribuée avec succès et notification envoyée au parent.',
+                'data' => $absence,
+                'status' => 201
+            ]);
+        } else {
+            // Si l'élève ou le parent n'existe pas, retourner une erreur
+            return response()->json([
+                'message' => "Impossible d'envoyer la notification : élève ou parent introuvable.",
+                'status' => 404
+            ]);
+        }
     }
 
     // Si le statut n'est pas "absent", retourner une erreur

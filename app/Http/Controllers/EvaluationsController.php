@@ -4,13 +4,15 @@ namespace App\Http\Controllers;
 
 use Carbon\Carbon;
 use App\Models\Note;
+use App\Models\Admin;
 use App\Models\Parents;
 use App\Models\Evaluations;
 use App\Http\Requests\StoreEvaluationsRequest;
 use App\Http\Requests\UpdateEvaluationsRequest;
-
+use App\Traits\NotificationTrait;
 class EvaluationsController extends Controller
 {
+    use NotificationTrait; 
     /**
  * Liste des évaluations du jour 
  */
@@ -146,30 +148,69 @@ public function evaluationsEleve($eleveId)
      */
     public function store(StoreEvaluationsRequest $request)
     {
-        // Récupérer les données validées
-        $data = $request->validated();
+        try {
+            // Récupérer les données validées
+            $data = $request->validated();
+        
+            // Vérifier si une évaluation existe déjà pour cette classe à la même date et heure
+            $evaluationExistante = Evaluations::where('classe_prof_id', $data['classe_prof_id'])
+                ->where('date', $data['date'])
+                ->where('heure', $data['heure'])
+                ->first();
+        
+            if ($evaluationExistante) {
+                return response()->json([
+                    'message' => 'Une évaluation existe déjà pour cette classe à cette date et heure.',
+                    'status' => 400
+                ]);
+            }
+        
+            // Créer l'évaluation
+            $evaluation = Evaluations::create($data);
+            
+            // Récupérer la classe concernée par l'évaluation
+            $classeProf = $evaluation->classeProf;
+            $anneeClasse = $classeProf->anneeClasse;
     
-        // Vérifier si une évaluation existe déjà pour cette classe à la même date et heure
-        $evaluationExistante = Evaluations::where('classe_prof_id', $data['classe_prof_id'])
-            ->where('date', $data['date'])
-            ->where('heure', $data['heure'])
-            ->first();
+            // Récupérer les élèves de cette classe
+            $eleves = $anneeClasse->eleves;
     
-        if ($evaluationExistante) {
+            // Envoyer des notifications à chaque élève et parent
+            foreach ($eleves as $eleve) {
+                $parent = $eleve->parent;
+    
+                // Notification pour l'élève
+                if ($eleve->user) {
+                    $contenuNotificationEleve = "Une nouvelle évaluation a été ajoutée le " . $evaluation->date . " à " . $evaluation->heure . ".";
+                    $this->sendNotification($eleve->user, $contenuNotificationEleve);
+                }
+    
+                // Notification pour le parent
+                if ($parent && $parent->user) {
+                    $contenuNotificationParent = "Une nouvelle évaluation pour votre enfant " . $eleve->prenom . " est prévue le " . $evaluation->date . " à " . $evaluation->heure . ".";
+                    $this->sendNotification($parent->user, $contenuNotificationParent);
+                }
+            }
+    
+            // Notification pour l'admin (on suppose qu'il n'y a qu'un seul admin)
+            $admin = Admin::first(); // Ou bien récupérer tous les admins si nécessaire
+            if ($admin && $admin->user) {
+                $contenuNotificationAdmin = "Une nouvelle évaluation a été planifiée pour la classe " . $anneeClasse->classe->nom . " le " . $evaluation->date . " à " . $evaluation->heure . ".";
+                $this->sendNotification($admin->user, $contenuNotificationAdmin);
+            }
+    
             return response()->json([
-                'message' => 'Une évaluation existe déjà pour cette classe à cette date et heure.',
-                'status' => 400
+                'message' => 'Évaluation créée avec succès',
+                'données' => $evaluation,
+                'status' => 201
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Erreur lors de la création de l\'évaluation.',
+                'error' => $e->getMessage(),
+                'status' => 500
             ]);
         }
-    
-        // Ajouter l'évaluation
-        $evaluation = Evaluations::create($data);
-    
-        return response()->json([
-            'message' => 'Évaluation créée avec succès',
-            'données' => $evaluation,
-            'status' => 201
-        ]);
     }
     
 
