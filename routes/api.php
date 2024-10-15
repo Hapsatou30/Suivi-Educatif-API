@@ -333,9 +333,10 @@ Route::middleware(['auth', 'role:professeur|admin'])->group(function () {
     Route::get('absences/annee-classe/{anneeClasseId}', [PresenceController::class, 'getAbsencesParAnneeClasse']);
 
 //route pour les notifications
-Route::get('user/notifications', [NotificationController::class, 'getUserNotifications'])->name('notifications.user');
-Route::patch('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
-Route::patch('/notifications/{id}/unread', [NotificationController::class, 'markAsUnread'])->name('notifications.unread');
+Route::get('user/notifications', [NotificationController::class, 'getUserNotifications']);
+Route::patch('notifications/{id}/read', [NotificationController::class, 'markAsRead']);
+Route::patch('notifications/{id}/unread', [NotificationController::class, 'markAsUnread']);
+Route::delete('notifications/{id}', [NotificationController::class, 'deleteReadNotifications']);
 
 
 });

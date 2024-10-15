@@ -3,12 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\Notification;
+use App\Traits\NotificationTrait;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\StoreNotificationRequest;
 use App\Http\Requests\UpdateNotificationRequest;
 
 class NotificationController extends Controller
 {
+    use NotificationTrait;
 
      /**
      * Récupérer les notifications de l'utilisateur authentifié.
@@ -32,36 +34,29 @@ class NotificationController extends Controller
     /**
      * Marquer une notification comme lue.
      */
-    public function markAsRead($id)
-    {
-        // Récupérer l'utilisateur connecté
-        $user = Auth::user();
-
-        // Trouver la notification par ID
-        $notification = $user->notifications()->findOrFail($id);
-
-        // Mettre à jour les champs is_read et read_at
-        $notification->update([
-            'is_read' => true,
-            'read_at' => now(),
-        ]);
-
-        return response()->json([
-            'message' => 'Notification marquée comme lue',
-            'status' => 200
-        ]);
-    }
+      // Méthode pour marquer une notification comme lue
+      public function markAsRead($id)
+      {
+          $user = Auth::user();
+          $notification = $user->notifications()->findOrFail($id);
+  
+          // Utilisation du trait pour marquer comme lue
+          $this->markNotificationAsRead($notification);
+  
+          return response()->json([
+              'message' => 'Notification marquée comme lue',
+              'status' => 200
+          ]);
+      }
 
 
     /**
      * Marquer une notification comme non lue.
      */
+    // Méthode pour marquer une notification comme non lue
     public function markAsUnread($id)
     {
-        // Récupérer l'utilisateur connecté
         $user = Auth::user();
-
-        // Trouver la notification par ID
         $notification = $user->notifications()->findOrFail($id);
 
         // Mettre à jour les champs is_read et read_at
@@ -75,6 +70,23 @@ class NotificationController extends Controller
             'status' => 200
         ]);
     }
+ /**
+ * Supprimer les notifications lues de l'utilisateur authentifié.
+ */
+public function deleteReadNotifications()
+{
+    // Récupérer l'utilisateur authentifié
+    $user = Auth::user();
+
+    // Supprimer toutes les notifications marquées comme lues
+    $deletedCount = $user->notifications()->where('is_read', true)->delete();
+
+    return response()->json([
+        'message' => "{$deletedCount} notifications lues supprimées.",
+        'status' => 200
+    ]);
+}
+
     /**
      * Display a listing of the resource.
      */
