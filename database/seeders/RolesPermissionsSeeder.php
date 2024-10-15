@@ -15,7 +15,7 @@ class RolesPermissionsSeeder extends Seeder
     public function run(): void
     {
         // Définir le guard (exemple : 'api' ou 'web')
-        $guard = 'api'; // Change à 'web' si nécessaire
+        $guard = 'api'; 
 
         // Permissions
         $permissions = [

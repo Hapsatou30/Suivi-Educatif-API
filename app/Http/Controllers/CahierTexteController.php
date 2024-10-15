@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ClasseProf;
+use App\Models\CahierTexte;
+use App\Traits\NotificationTrait;
 use App\Http\Requests\StoreCahierTexteRequest;
 use App\Http\Requests\UpdateCahierTexteRequest;
-use App\Models\CahierTexte;
 
 class CahierTexteController extends Controller
 {
+    use NotificationTrait; 
     /**
      * Methode pour afficher les contenu du cahier de texte
      */
@@ -48,14 +51,44 @@ class CahierTexteController extends Controller
      */
     public function store(StoreCahierTexteRequest $request)
     {
-        //ajouter un cahier de texte
+        // Ajouter un cahier de texte
         $cahierTexte = CahierTexte::create($request->all());
+    
+        // Récupérer la classe associée via le 'classe_prof_id'
+        $classeProf = ClasseProf::find($request->classe_prof_id);
+    
+        if ($classeProf && $classeProf->anneeClasse) {
+            // Récupérer les élèves inscrits dans la classe associée
+            $eleves = $classeProf->anneeClasse->eleves;
+    
+            foreach ($eleves as $eleve) {
+                // Envoyer une notification à l'élève s'il a un utilisateur associé
+                if ($eleve->user) {
+                    $this->sendNotification($eleve->user, "Un nouveau contenu a été ajouté dans votre cahier de texte.");
+                }
+    
+                // Récupérer le parent de l'élève et envoyer une notification au parent
+                if ($eleve->parent && $eleve->parent->user) {
+                    $parentUser = $eleve->parent->user;
+                    $this->sendNotification($parentUser, "Un nouveau contenu a été ajouté dans le cahier de texte de la classe de  {$eleve->prenom}.");
+                }
+            }
+    
+            // Retourner une réponse JSON avec succès
+            return response()->json([
+                'message' => 'Cahier de texte créé avec succès et notifications envoyées.',
+                'données' => $cahierTexte,
+                'status' => 201
+            ]);
+        }
+    
+        // Retourner une erreur si la classe n'est pas trouvée
         return response()->json([
-           'message' => 'Cahier de texte créé avec succès',
-           'données' => $cahierTexte,
-           'status' => 201
+            'message' => 'Classe associée introuvable.',
+            'status' => 404
         ]);
     }
+    
     public function show($id)
     {
         // Récupérer le cahier de texte par son ID

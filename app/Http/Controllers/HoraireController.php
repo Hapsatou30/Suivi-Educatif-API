@@ -7,9 +7,11 @@ use App\Models\ClasseProf;
 use Illuminate\Support\Facades\Log;
 use App\Http\Requests\StoreHoraireRequest;
 use App\Http\Requests\UpdateHoraireRequest;
+use App\Traits\NotificationTrait;
 
 class HoraireController extends Controller
 {
+    use NotificationTrait; 
     /**
      * liste des horaire d'une classe
      */
@@ -121,6 +123,8 @@ class HoraireController extends Controller
     
         // Récupérer l'ID du professeur
         $professeurId = $classeProf->profMatiere->professeur->id; // ID du professeur
+        $professeur = $classeProf->profMatiere->professeur; // Récupérer l'objet professeur
+
     
         // Vérifier les conflits d'horaires pour cette classe
         $conflitHoraire = Horaire::where('classe_prof_id', $classe_prof_id)
@@ -167,7 +171,10 @@ class HoraireController extends Controller
         // Si pas de conflit, on peut créer l'horaire
         $horaire = Horaire::create($request->all());
         Log::info('Données reçues:', $request->all());
-    
+         // Envoyer une notification au professeur
+        $contenuNotification = "Un nouvel horaire a été ajouté pour la classe " . $classeProf->anneeClasse->classe->nom . " le " . $jour . " de " . $heure_debut . " à " . $heure_fin;
+        $this->sendNotification($professeur->user, $contenuNotification);
+
         return response()->json([
             'message' => 'Horaire créé avec succès.',
             'données' => $horaire,

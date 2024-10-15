@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Notification extends Model
 {
-    use HasFactory,SoftDeletes;
+    use HasFactory;
 
     // Permet l'assignation en masse de tous les attributs du modèle.
     protected $guarded = [];
@@ -18,4 +18,5 @@ class Notification extends Model
     {
         return $this->belongsTo(User::class);
     }
+    
 }

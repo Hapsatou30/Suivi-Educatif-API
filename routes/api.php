@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\AnneeClasse;
+use App\Models\ClasseEleve;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\NoteController;
@@ -17,9 +19,8 @@ use App\Http\Controllers\CahierTexteController;
 use App\Http\Controllers\ClasseEleveController;
 use App\Http\Controllers\EvaluationsController;
 use App\Http\Controllers\ProfMatiereController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\AnneeScolaireController;
-use App\Models\AnneeClasse;
-use App\Models\ClasseEleve;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -330,6 +331,11 @@ Route::middleware(['auth', 'role:professeur|admin'])->group(function () {
 
     //les absences par année classe 
     Route::get('absences/annee-classe/{anneeClasseId}', [PresenceController::class, 'getAbsencesParAnneeClasse']);
+
+//route pour les notifications
+Route::get('user/notifications', [NotificationController::class, 'getUserNotifications'])->name('notifications.user');
+Route::patch('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
+Route::patch('/notifications/{id}/unread', [NotificationController::class, 'markAsUnread'])->name('notifications.unread');
 
 
 });
