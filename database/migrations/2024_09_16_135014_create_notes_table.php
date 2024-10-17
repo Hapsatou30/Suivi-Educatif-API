@@ -15,9 +15,9 @@ return new class extends Migration
             $table->id();
             $table->float('notes');
             $table->string('commentaire');
+            $table->enum('periode', ['1_semestre', '2_semestre']);
             $table->foreignId('evaluation_id')->constrained('evaluations')->onDelete('cascade');
-            $table->foreignId('classe_eleve_id')->constrained('classe_eleves')->onDelete('cascade');
-            $table->unsignedBigInteger('bulletin_id')->nullable();
+            $table->foreignId('bulletin_id')->constrained('bulletins')->onDelete('cascade');
             $table->softDeletes();
             $table->timestamps();
         });

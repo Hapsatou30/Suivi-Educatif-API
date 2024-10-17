@@ -32,7 +32,7 @@ class ClasseEleve extends Model
 
     //relation avec bulletin
   
-    public function notes()
+    public function bulletins()
     {
         return $this->hasMany(Note::class,'classe_eleve_id');
     }

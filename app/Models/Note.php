@@ -25,9 +25,5 @@ class Note extends Model
         return $this->belongsTo(Bulletin::class);
     }
 
-    //relation avec eleves
-    public function classeEleve()
-    {
-        return $this->belongsTo(ClasseEleve::class, 'classe_eleve_id');
-    }
+    
 }

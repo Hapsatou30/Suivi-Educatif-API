@@ -1,64 +1,110 @@
 <?php
-
 namespace App\Http\Controllers;
 
+use App\Models\Note;
+use App\Models\Bulletin;
+use App\Models\ClasseEleve;
+use App\Models\AnneeClasse; // Assurez-vous que ce modèle existe
 use App\Http\Requests\StoreBulletinRequest;
 use App\Http\Requests\UpdateBulletinRequest;
-use App\Models\Bulletin;
+use Illuminate\Http\Request;
 
 class BulletinController extends Controller
 {
+    public function creerBulletinsPourTousLesEleves()
+    {
+        // Récupérer tous les élèves pour l'année scolaire
+        $classeEleves = ClasseEleve::all();
+    
+        // Définir les périodes
+        $periodes = ['1_semestre', '2_semestre'];
+    
+        // Tableau pour stocker les bulletins créés
+        $bulletinsCrees = [];
+    
+        // Pour chaque élève, créer un bulletin pour chaque période
+        foreach ($classeEleves as $classeEleve) {
+            foreach ($periodes as $periode) {
+                // Vérifier si un bulletin existe déjà pour cette élève et cette période
+                $bulletinExiste = Bulletin::where('classe_eleve_id', $classeEleve->id)
+                                          ->where('periode', $periode)
+                                          ->exists();
+    
+                // Si le bulletin n'existe pas, on le crée
+                if (!$bulletinExiste) {
+                    $bulletin = Bulletin::create([
+                        'classe_eleve_id' => $classeEleve->id,
+                        'periode' => $periode,
+                        'moyenne' => 0,  // Valeur par défaut, à mettre à jour plus tard
+                        'commentaire' => 'Commentaire par défaut pour ' . $periode,  // À personnaliser plus tard
+                    ]);
+    
+                    // Ajouter le bulletin créé au tableau
+                    $bulletinsCrees[] = $bulletin;
+                }
+            }
+        }
+    
+        // Retourner la réponse JSON avec les bulletins créés
+        return response()->json([
+            'message' => 'Les bulletins ont été créés avec succès pour tous les élèves.',
+            'bulletins' => $bulletinsCrees
+        ], 201);
+    }
+
     /**
-     * Display a listing of the resource.
+     * Afficher tous les bulletins.
      */
     public function index()
     {
-        //
+        $bulletins = Bulletin::all();
+        return response()->json($bulletins, 200);
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Afficher les bulletins par classeEleve.
      */
-    public function create()
+    public function getBulletinsParClasseEleve($classeEleveId)
     {
-        //
+        $bulletins = Bulletin::where('classe_eleve_id', $classeEleveId)->get();
+        return response()->json($bulletins, 200);
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Afficher les bulletins par anneeClasse.
      */
+    public function getBulletinsParAnneeClasse($anneeClasseId)
+    {
+        // Récupérer tous les élèves de cette année classe
+        $classeEleves = ClasseEleve::where('annee_classe_id', $anneeClasseId)->pluck('id');
+        
+        // Récupérer tous les bulletins des élèves de cette année classe
+        $bulletins = Bulletin::whereIn('classe_eleve_id', $classeEleves)->get();
+        return response()->json($bulletins, 200);
+    }
+
+    // Autres méthodes existantes
+
     public function store(StoreBulletinRequest $request)
     {
         //
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(Bulletin $bulletin)
     {
         //
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Bulletin $bulletin)
     {
         //
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(UpdateBulletinRequest $request, Bulletin $bulletin)
     {
         //
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Bulletin $bulletin)
     {
         //
