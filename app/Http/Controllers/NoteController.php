@@ -4,10 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Note;
 use App\Models\Eleve;
-use App\Http\Requests\StoreNoteRequest;
-use App\Http\Requests\UpdateNoteRequest;
+use App\Models\Bulletin;
 use App\Models\ClasseEleve;
 use App\Traits\NotificationTrait;
+use App\Http\Requests\StoreNoteRequest;
+use App\Http\Requests\UpdateNoteRequest;
 class NoteController extends Controller
 {   use NotificationTrait; 
     /**
@@ -138,48 +139,53 @@ class NoteController extends Controller
      * Store a newly created resource in storage.
      */
     public function store(StoreNoteRequest $request)
-{
-    try {
-        // Créer une nouvelle note
-        $note = Note::create([
-            'notes' => $request->input('notes'),
-            'commentaire' => $request->input('commentaire'),
-            'evaluation_id' => $request->input('evaluation_id'),
-            'classe_eleve_id' => $request->input('classe_eleve_id'),
-            'bulletin_id' => $request->input('bulletin_id'),
-        ]);
-
-        // Récupérer l'élève à partir de la relation classe_eleve
-        $classeEleve = $note->classeEleve;
-        $eleve = $classeEleve->eleve;
-
-        // Vérifier si l'élève et son parent existent
-        if ($eleve && $eleve->parent && $eleve->parent->user) {
-            // Contenu des notifications
-            $contenuNotificationEleve = "Une nouvelle note a été ajoutée : " . $note->notes . " pour l'évaluation " . $note->evaluation->nom . " de la matiere " . $note->evaluation->classeProf->profMatiere->matiere->nom;
-            $contenuNotificationParent = "Votre enfant " . $eleve->prenom . " a reçu une nouvelle note : " . $note->notes . " pour l'évaluation " . $note->evaluation->nom . " de la matiere " . $note->evaluation->classeProf->profMatiere->matiere->nom;
-
-            // Envoyer la notification à l'élève
-            $this->sendNotification($eleve->user, $contenuNotificationEleve);
-
-            // Envoyer la notification au parent
-            $this->sendNotification($eleve->parent->user, $contenuNotificationParent);
+    {
+        try {
+            // Créer une nouvelle note
+            $note = Note::create([
+                'notes' => $request->input('notes'),
+                'commentaire' => $request->input('commentaire'),
+                'evaluation_id' => $request->input('evaluation_id'),
+                'bulletin_id' => $request->input('bulletin_id'),
+                'periode' => $request->input('periode'), 
+            ]);
+    
+            // Récupérer l'élève à partir du bulletin
+            $bulletin = Bulletin::find($note->bulletin_id);
+            $classeEleve = ClasseEleve::where('id', $bulletin->classe_eleve_id)->first(); // Modifiez cette ligne en fonction de votre clé étrangère
+    
+            if ($classeEleve) {
+                $eleve = $classeEleve->eleve;
+    
+                // Vérifier si l'élève et son parent existent
+                if ($eleve && $eleve->parent && $eleve->parent->user) {
+                    // Contenu des notifications
+                    $contenuNotificationEleve = "Une nouvelle note a été ajoutée : " . $note->notes . " pour l'évaluation " . $note->evaluation->nom . " de la matière " . $note->evaluation->classeProf->profMatiere->matiere->nom;
+                    $contenuNotificationParent = "Votre enfant " . $eleve->prenom . " a reçu une nouvelle note : " . $note->notes . " pour l'évaluation " . $note->evaluation->nom . " de la matière " . $note->evaluation->classeProf->profMatiere->matiere->nom;
+    
+                    // Envoyer la notification à l'élève
+                    $this->sendNotification($eleve->user, $contenuNotificationEleve);
+    
+                    // Envoyer la notification au parent
+                    $this->sendNotification($eleve->parent->user, $contenuNotificationParent);
+                }
+            }
+    
+            // Structurer la réponse en JSON
+            return response()->json([
+                'message' => 'Note ajoutée avec succès.',
+                'données' => $note,
+                'status' => 201
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Erreur lors de l\'ajout de la note.',
+                'error' => $e->getMessage(),
+                'status' => 500
+            ]);
         }
-
-        // Structurer la réponse en JSON
-        return response()->json([
-            'message' => 'Note ajoutée avec succès.',
-            'données' => $note,
-            'status' => 201
-        ]);
-    } catch (\Exception $e) {
-        return response()->json([
-            'message' => 'Erreur lors de l\'ajout de la note.',
-            'error' => $e->getMessage(),
-            'status' => 500
-        ]);
     }
-}
+    
 
 
     /**
