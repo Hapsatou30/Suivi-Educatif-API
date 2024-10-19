@@ -22,12 +22,8 @@ class Note extends Model
     //relation avec bulletin
     public function bulletin()
     {
-        return $this->belongsTo(Bulletin::class);
+        return $this->belongsTo(Bulletin::class,'bulletin_id');
     }
 
-    //relation avec eleves
-    public function classeEleve()
-    {
-        return $this->belongsTo(ClasseEleve::class, 'classe_eleve_id');
-    }
+    
 }

@@ -21,6 +21,7 @@ use App\Http\Controllers\EvaluationsController;
 use App\Http\Controllers\ProfMatiereController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\AnneeScolaireController;
+use App\Http\Controllers\BulletinController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -48,6 +49,10 @@ Route::group ([ "middleware" => ["auth"] ],  function(){
 
     //role admin
     Route::middleware(['auth', 'role:admin'])->group(function () {
+
+    //routes pour les bulletins
+    Route::post('creer-bulletins', [BulletinController::class, 'creerBulletinsPourTousLesEleves']); 
+  
     //route pour les matieres
     Route::post('matieres' , [MatiereController::class, 'store']);
     Route::put('matieres/{matiere}', [MatiereController::class, 'update']);
@@ -338,7 +343,10 @@ Route::patch('notifications/{id}/read', [NotificationController::class, 'markAsR
 Route::patch('notifications/{id}/unread', [NotificationController::class, 'markAsUnread']);
 Route::delete('notifications/{id}', [NotificationController::class, 'deleteReadNotifications']);
 
-
+//routes pour les bulletins
+Route::get('bulletins', [BulletinController::class, 'index']);
+Route::get('bulletins/classe-eleve/{classeEleveId}', [BulletinController::class, 'getBulletinsParClasseEleve']);
+Route::get('bulletins/annee-classe/{anneeClasseId}', [BulletinController::class, 'getBulletinsParAnneeClasse']);   
 });
 
 
