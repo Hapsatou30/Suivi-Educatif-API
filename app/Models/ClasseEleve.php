@@ -34,6 +34,6 @@ class ClasseEleve extends Model
   
     public function bulletins()
     {
-        return $this->hasMany(Note::class,'classe_eleve_id');
+        return $this->hasMany(Bulletin::class,'classe_eleve_id');
     }
 }

@@ -20,7 +20,7 @@ class NoteController extends Controller
         $notes = Note::with([
             'evaluation.classeProf.profMatiere.matiere',
             'evaluation.classeProf.profMatiere.professeur',
-            'classeEleve.eleve'
+            'bulletin.classeEleve.eleve'
         ])
             ->whereHas('evaluation', function ($query) use ($classe_prof_id) {
                 $query->where('classe_prof_id', $classe_prof_id);
@@ -40,23 +40,29 @@ class NoteController extends Controller
         foreach ($notes as $note) {
             // Récupérer les informations sur la matière et le professeur
             $matiere = $note->evaluation->classeProf->profMatiere->matiere;
-            $professeur = $note->evaluation->classeProf->profMatiere->professeur; // Assurez-vous que cette relation est définie
+            $professeur = $note->evaluation->classeProf->profMatiere->professeur; 
 
-            $eleve = $note->classeEleve->eleve; // On obtient l'élève associé à la note
-            $classeEleve = $note->classeEleve; // On obtient la classe de l'élève
+            $eleve = $note->bulletin->classeEleve->eleve;
+            $bulletin = $note->bulletin;
+            $classeEleve = $note->bulletin->classeEleve; 
 
             $result[] = [
                 'id' => $note->id,
-                'matiere' => $matiere->nom, // Nom de la matière
+                'matiere' => $matiere->nom,
                 'professeur' => [
                     'nom' => $professeur->nom,
                     'prenom' => $professeur->prenom,
-                    // Ajoutez d'autres attributs du professeur si nécessaire
                 ],
                 'note' => $note->notes,
                 'appreciation' => $note->commentaire,
                 'evaluation' => $note->evaluation->type_evaluation,
                 'evaluation_id' => $note->evaluation->id,
+                'bulletin_id' =>[
+                    'id' => $bulletin->id,
+                    'periode' => $bulletin->periode,
+                    'classe_eleve_id' => $bulletin->classe_eleve_id,
+
+                ],
                 'eleve' => [
                     'photo' => $eleve->photo,
                     'nom' =>  $eleve->nom,
@@ -79,41 +85,46 @@ class NoteController extends Controller
     //note pour un eleve 
     public function noteEleve($classeEleve_id)
     {
-        // Récupérer l'élève avec ses notes, évaluations et matières associées
-        $classeEleve = ClasseEleve::with(['notes.evaluation.classeProf.profMatiere.matiere'])->find($classeEleve_id);
-
-        // Vérifier si l'élève existe
+        // Récupérer la classe élève correspondante
+        $classeEleve = ClasseEleve::with('eleve', 'bulletins.notes.evaluation.classeProf.profMatiere.matiere')
+                        ->find($classeEleve_id);
+    
+        // Si la classe élève n'existe pas, retourner une erreur
         if (!$classeEleve) {
             return response()->json([
-                'message' => 'Élève non trouvé.',
+                'message' => 'Classe élève non trouvée',
                 'status' => 404
             ]);
         }
-
-        // Vérifier si l'élève a des notes
-        if ($classeEleve->notes->isEmpty()) {
-            return response()->json([
-                'message' => 'Aucune note trouvée pour cet élève.',
-                'status' => 404
-            ]);
-        }
-
-        // Préparer la réponse avec les notes de l'élève
+    
+        // Initialiser la liste des résultats
         $result = [];
-        foreach ($classeEleve->notes as $note) {
-            $matiere = $note->evaluation->classeProf->profMatiere->matiere;
-
-            $result[] = [
-                'matiere' => $matiere->nom,
-                'coefficient' => $matiere->coefficient,
-                'note' => $note->notes,
-                'commentaire' => $note->commentaire,
-                'evaluation' => $note->evaluation->type_evaluation,
-                'date' => $note->evaluation->date,
-                'nom_evaluation' => $note->evaluation->nom,
-            ];
+    
+        // Parcourir les bulletins liés à la classe élève
+        foreach ($classeEleve->bulletins as $bulletin) {
+            // Vérifier si le bulletin a des notes
+            if ($bulletin->notes->isNotEmpty()) {
+                // Parcourir chaque note dans le bulletin
+                foreach ($bulletin->notes as $note) {
+                    // Récupérer la matière associée à l'évaluation
+                    $matiere = $note->evaluation->classeProf->profMatiere->matiere;
+    
+                    // Ajouter les détails de la note à la réponse
+                    $result[] = [
+                        'matiere' => $matiere->nom,
+                        'coefficient' => $matiere->coefficient,
+                        'note' => $note->notes,  
+                        'commentaire' => $note->commentaire,
+                        'evaluation' => $note->evaluation->type_evaluation,
+                        'date' => $note->evaluation->date,
+                        'nom_evaluation' => $note->evaluation->nom,
+                        'bulletin_id' => $bulletin->id,  
+                        'periode' => $bulletin->periode 
+                    ];
+                }
+            }
         }
-
+    
         // Retourner les notes de l'élève en JSON
         return response()->json([
             'message' => 'Notes de l\'élève',
@@ -125,6 +136,7 @@ class NoteController extends Controller
             'status' => 200
         ]);
     }
+    
 
 
     /**
@@ -210,15 +222,14 @@ class NoteController extends Controller
     public function update(UpdateNoteRequest $request, Note $note)
     {
         try {
-            // Mettre à jour les attributs de la note avec les données fournies
-            $note->update([
-                'notes' => $request->input('notes'),
-                'commentaire' => $request->input('commentaire'),
-                'evaluation_id' => $request->input('evaluation_id'),
-                'classe_eleve_id' => $request->input('classe_eleve_id'),
-                'bulletin_id' => $request->input('bulletin_id'),
-            ]);
-
+            // Préparer un tableau avec les champs présents dans la requête
+            $dataToUpdate = array_filter($request->only(['notes', 'commentaire', 'evaluation_id', 'bulletin_id', 'periode']), function ($value) {
+                return !is_null($value); // Exclure les valeurs nulles
+            });
+    
+            // Mettre à jour la note avec les champs valides
+            $note->update($dataToUpdate);
+    
             // Structurer la réponse en JSON
             return response()->json([
                 'message' => 'Note mise à jour avec succès.',
@@ -233,6 +244,7 @@ class NoteController extends Controller
             ]);
         }
     }
+    
 
     /**
      * Remove the specified resource from storage.
@@ -259,8 +271,10 @@ class NoteController extends Controller
     public function notesParParent($parent_id)
     {
         // Récupérer les élèves du parent
-        $eleves = Eleve::where('parent_id', $parent_id)->with('classeEleves.notes.evaluation.classeProf.profMatiere.matiere')->get();
-
+        $eleves = Eleve::where('parent_id', $parent_id)
+                        ->with('classeEleves.bulletins.notes.evaluation.classeProf.profMatiere.matiere')
+                        ->get();
+    
         // Vérifier si des élèves existent pour ce parent
         if ($eleves->isEmpty()) {
             return response()->json([
@@ -268,36 +282,41 @@ class NoteController extends Controller
                 'status' => 404
             ]);
         }
-
+    
         // Préparer la réponse avec la liste des notes pour chaque élève du parent
         $result = [];
         foreach ($eleves as $eleve) {
             foreach ($eleve->classeEleves as $classeEleve) {
-                foreach ($classeEleve->notes as $note) {
-                    $matiere = $note->evaluation->classeProf->profMatiere->matiere;
-
-                    $result[] = [
-                        'eleve' => [
-                            'nom' => $eleve->nom,
-                            'prenom' => $eleve->prenom,
-                            'matricule' => $eleve->matricule,
-                        ],
-                        'matiere' => $matiere->nom,
-                        'note' => $note->notes,
-                        'coefficient' => $matiere->coefficient,
-                        'commentaire' => $note->commentaire,
-                        'evaluation' => $note->evaluation->type_evaluation,
-                        'date' => $note->evaluation->date,
-                        'nom_evaluation' => $note->evaluation->nom,
-                    ];
+                // Parcourir chaque bulletin de la classe de l'élève
+                foreach ($classeEleve->bulletins as $bulletin) {
+                    // Parcourir les notes de chaque bulletin
+                    foreach ($bulletin->notes as $note) {
+                        $matiere = $note->evaluation->classeProf->profMatiere->matiere;
+    
+                        $result[] = [
+                            'eleve' => [
+                                'nom' => $eleve->nom,
+                                'prenom' => $eleve->prenom,
+                                'matricule' => $eleve->matricule,
+                            ],
+                            'matiere' => $matiere->nom,
+                            'note' => $note->notes, 
+                            'coefficient' => $matiere->coefficient,
+                            'commentaire' => $note->commentaire,
+                            'evaluation' => $note->evaluation->type_evaluation,
+                            'date' => $note->evaluation->date,
+                            'nom_evaluation' => $note->evaluation->nom,
+                        ];
+                    }
                 }
             }
         }
-
+    
         return response()->json([
             'message' => 'Liste des notes pour les enfants du parent spécifié',
             'données' => $result,
             'status' => 200
         ]);
     }
+    
 }

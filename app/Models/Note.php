@@ -22,7 +22,7 @@ class Note extends Model
     //relation avec bulletin
     public function bulletin()
     {
-        return $this->belongsTo(Bulletin::class);
+        return $this->belongsTo(Bulletin::class,'bulletin_id');
     }
 
     
