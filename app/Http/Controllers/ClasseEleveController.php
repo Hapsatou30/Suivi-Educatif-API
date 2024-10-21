@@ -10,6 +10,7 @@ use App\Models\AnneeScolaire;
 use App\Http\Requests\StoreClasseEleveRequest;
 use App\Http\Requests\UpdateClasseEleveRequest;
 use App\Traits\NotificationTrait;
+use Illuminate\Support\Facades\Auth;
 
 class ClasseEleveController extends Controller
 {
@@ -298,6 +299,57 @@ public function nombreElevesParParent($parent_id)
             'status' => 200
         ]);
     }
+
+    /**
+ * Récupérer les informations de l'élève et sa classe en utilisant l'ID de l'élève
+ *
+ */
+public function getEleveDetails()
+{
+    // Récupérer l'utilisateur connecté
+    $user = Auth::user();
+
+    // Vérifier si l'utilisateur est bien un élève
+    if (!$user || !$user->eleve) {
+        return response()->json([
+            'message' => 'Aucun élève connecté.',
+            'status' => 404
+        ], 404);
+    }
+
+    // Récupérer l'élève connecté
+    $eleve = $user->eleve;
+
+    // Récupérer la classe de l'élève pour l'année scolaire en cours
+    $classeEleve = $eleve->classeEleves()->whereHas('anneeClasse.annee', function ($query) {
+        $query->where('etat', 'En_cours');
+    })->with('anneeClasse.classe', 'anneeClasse.annee')->first();
+
+    // Vérifier si l'élève a une classe pour l'année en cours
+    if (!$classeEleve) {
+        return response()->json([
+            'message' => 'Aucune classe trouvée pour l\'élève connecté durant l\'année en cours.',
+            'status' => 404
+        ], 404);
+    }
+
+    // Structurer la réponse avec les détails de l'élève et de la classe
+    return response()->json([
+        'message' => 'Détails de l\'élève connecté',
+        'données' => [
+            'prenom' => $eleve->prenom,
+            'nom' => $eleve->nom,
+            'matricule' => $eleve->matricule,
+            'photo' => $eleve->photo,
+            'classe' => $classeEleve->anneeClasse->classe->nom,
+            'niveau' => $classeEleve->anneeClasse->classe->niveau,
+            'anneeScolaire' => $classeEleve->anneeClasse->annee->annee_debut . ' - ' . $classeEleve->anneeClasse->annee->annee_fin,
+            'classeEleve_id' => $classeEleve->id,
+        ],
+        'status' => 200
+    ]);
+}
+
 
     /**
      * Show the form for editing the specified resource.

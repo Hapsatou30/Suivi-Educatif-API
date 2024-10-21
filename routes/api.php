@@ -201,6 +201,9 @@ Route::middleware(['auth', 'role:professeur|admin'])->group(function () {
     
     //details d'un eleve
     Route::get('eleve/{classeEleve}', [ClasseEleveController::class, 'show']);
+    
+     //details d'un eleve
+     Route::get('eleve', [ClasseEleveController::class, 'getEleveDetails']);
 
     //nombre eleves par parent
     Route::get('parents/{parent_id}/nombre-eleves', [ClasseEleveController::class, 'nombreElevesParParent']);
