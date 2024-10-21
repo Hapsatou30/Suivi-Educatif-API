@@ -2,14 +2,11 @@
 
 namespace Database\Seeders;
 
-use App\Models\Eleve;
-use App\Models\Bulletin;
-use App\Models\Classe;
 use App\Models\ClasseEleve;
 use App\Models\Evaluations;
+use App\Models\Bulletin;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 class NoteSeeder extends Seeder
 {
@@ -18,29 +15,41 @@ class NoteSeeder extends Seeder
      */
     public function run(): void
     {
-        // Récupérer toutes les évaluations
-        $evaluations = Evaluations::all();
+        // Récupérer toutes les évaluations passées
+        $evaluations = Evaluations::where('date', '<', now())->get();
 
-        // Récupérer tous les élèves
-        $eleves = ClasseEleve::all();
+        // Récupérer tous les classeEleves
+        $classeEleves = ClasseEleve::all();
 
-       
+        // Définir la période pour laquelle on ajoute les notes (par exemple, 1er semestre)
+        $periode = '1_semestre';
 
         // Boucle pour insérer des notes
         foreach ($evaluations as $evaluation) {
-            foreach ($eleves as $eleve) {
-                    // Insérer une note pour chaque élève, évaluation et bulletin
+            foreach ($classeEleves as $classeEleve) {
+                // Récupérer le bulletin de l'élève pour la période '1_semestre'
+                $bulletin = Bulletin::where('classe_eleve_id', $classeEleve->id)
+                                    ->where('periode', $periode)
+                                    ->first();
+
+                // Si un bulletin existe, vérifier s'il n'y a pas déjà une note pour cette évaluation
+                $existingNote = DB::table('notes')
+                    ->where('evaluation_id', $evaluation->id)
+                    ->where('bulletin_id', $bulletin->id)
+                    ->exists();
+
+                // Si aucune note n'existe déjà pour cette évaluation et cet élève, on en crée une
+                if ($bulletin && !$existingNote) {
                     DB::table('notes')->insert([
                         'notes' => rand(0, 200) / 10, // Note aléatoire entre 0 et 20
-                        'commentaire' => 'Commentaire pour l\'élève ' . $eleve->id,
+                        'commentaire' => 'Commentaire pour l\'élève ' . $classeEleve->id,
                         'evaluation_id' => $evaluation->id,
-                        'classe_eleve_id' => $eleve->id,
-                        'bulletin_id' => null,
+                        'bulletin_id' => $bulletin->id, // Lier la note à ce bulletin
                         'created_at' => now(),
                         'updated_at' => now(),
                     ]);
                 }
             }
-        
+        }
     }
 }

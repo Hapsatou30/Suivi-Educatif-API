@@ -219,6 +219,7 @@ public function store(StoreClasseProfRequest $request)
                 'nom_professeur' => $profMatiere->professeur->nom,
                 'prenom_professeur' => $profMatiere->professeur->prenom,
                 'matiere' => $profMatiere->matiere->nom,
+                'coefficient' => $profMatiere->matiere->coefficient,
                 'classeProfs' => $profMatiere->classeProfs->map(function ($classeProf) {
                     return [
                         'id_classeProf' => $classeProf->id,

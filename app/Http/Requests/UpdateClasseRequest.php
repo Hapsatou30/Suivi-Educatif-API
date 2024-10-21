@@ -19,7 +19,7 @@ class UpdateClasseRequest extends FormRequest
         return [
             'nom' => 'sometimes|string|max:255' ,
             'niveau' => 'sometimes|string|max:255',
-            'capacite' => 'sometimes|integer|min:1',
+            'capacite' => 'sometimes|integer|min:1|max:30',
         ];
     }
     

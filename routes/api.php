@@ -347,6 +347,9 @@ Route::delete('notifications/{id}', [NotificationController::class, 'deleteReadN
 Route::get('bulletins', [BulletinController::class, 'index']);
 Route::get('bulletins/classe-eleve/{classeEleveId}', [BulletinController::class, 'getBulletinsParClasseEleve']);
 Route::get('bulletins/annee-classe/{anneeClasseId}', [BulletinController::class, 'getBulletinsParAnneeClasse']);   
+
+Route::get('notes/annee-classe/{anneeClasse_id}', [NoteController::class, 'notesParAnneeClasse']);
+
 });
 
 

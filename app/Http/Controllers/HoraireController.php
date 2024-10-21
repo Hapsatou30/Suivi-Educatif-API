@@ -105,82 +105,129 @@ class HoraireController extends Controller
     /**
      * Methode  ajouter une horaire
      */
-    public function store(StoreHoraireRequest $request)
-    {
-        $classe_prof_id = $request->input('classe_prof_id');
-        $jour = $request->input('jour');  // Le jour de la semaine
-        $heure_debut = $request->input('heure_debut');
-        $heure_fin = $request->input('heure_fin');
-    
-        // Récupérer l'objet ClasseProf
-        $classeProf = ClasseProf::with(['profMatiere.professeur', 'anneeClasse'])->find($classe_prof_id);
-    
-        if (!$classeProf) {
-            return response()->json([
-                'error' => 'Classe professeur non trouvé.',
-            ], 404);
-        }
-    
-        // Récupérer l'ID du professeur
-        $professeurId = $classeProf->profMatiere->professeur->id; // ID du professeur
-        $professeur = $classeProf->profMatiere->professeur; // Récupérer l'objet professeur
+   public function store(StoreHoraireRequest $request)
+{
+    $classe_prof_id = $request->input('classe_prof_id');
+    $jour = $request->input('jour');  // Le jour de la semaine
+    $heure_debut = $request->input('heure_debut');
+    $heure_fin = $request->input('heure_fin');
 
-    
-        // Vérifier les conflits d'horaires pour cette classe
-        $conflitHoraire = Horaire::where('classe_prof_id', $classe_prof_id)
-            ->where('jour', $jour)
-            ->where(function($query) use ($heure_debut, $heure_fin) {
-                $query->whereBetween('heure_debut', [$heure_debut, $heure_fin])
-                      ->orWhereBetween('heure_fin', [$heure_debut, $heure_fin])
-                      ->orWhere(function($q) use ($heure_debut, $heure_fin) {
-                          $q->where('heure_debut', '<', $heure_debut)
-                            ->where('heure_fin', '>', $heure_fin);
-                      });
-            })
-            ->exists();
-    
-        if ($conflitHoraire) {
-            return response()->json([
-                'error' => 'Cette classe est déjà occupée à cet horaire.',
-            ], 400);
-        }
-    
-        // Vérifier si le professeur est occupé à cette heure pour toutes les classes
-        $conflitProf = Horaire::whereHas('classeProf', function($query) use ($professeurId) {
-                $query->whereHas('profMatiere', function($subQuery) use ($professeurId) {
-                    $subQuery->where('professeur_id', $professeurId);
-                });
-            })
-            ->where('jour', $jour)
-            ->where(function($query) use ($heure_debut, $heure_fin) {
-                $query->whereBetween('heure_debut', [$heure_debut, $heure_fin])
-                      ->orWhereBetween('heure_fin', [$heure_debut, $heure_fin])
-                      ->orWhere(function($q) use ($heure_debut, $heure_fin) {
-                          $q->where('heure_debut', '<', $heure_debut)
-                            ->where('heure_fin', '>', $heure_fin);
-                      });
-            })
-            ->exists();
-    
-        if ($conflitProf) {
-            return response()->json([
-                'error' => 'Ce professeur est déjà occupé à cet horaire dans une autre classe.',
-            ], 400);
-        }
-    
-        // Si pas de conflit, on peut créer l'horaire
-        $horaire = Horaire::create($request->all());
-        Log::info('Données reçues:', $request->all());
-         // Envoyer une notification au professeur
-        $contenuNotification = "Un nouvel horaire a été ajouté pour la classe " . $classeProf->anneeClasse->classe->nom . " le " . $jour . " de " . $heure_debut . " à " . $heure_fin;
-        $this->sendNotification($professeur->user, $contenuNotification);
+    // Récupérer l'objet ClasseProf
+    $classeProf = ClasseProf::with(['profMatiere.professeur', 'anneeClasse'])->find($classe_prof_id);
 
+    if (!$classeProf) {
         return response()->json([
-            'message' => 'Horaire créé avec succès.',
-            'données' => $horaire,
-            'status' => 201
-        ]);
+            'error' => 'Classe professeur non trouvé.',
+        ], 404);
     }
+
+    // Récupérer l'ID du professeur
+    $professeurId = $classeProf->profMatiere->professeur->id; // ID du professeur
+    $professeur = $classeProf->profMatiere->professeur; // Récupérer l'objet professeur
+
+    // Récupérer l'ID de anneeClasse
+    $anneeClasseId = $classeProf->anneeClasse->id;
+
+    // Vérifier les conflits d'horaires pour cette classe
+    $conflitHoraire = Horaire::where('classe_prof_id', $classe_prof_id)
+        ->where('jour', $jour)
+        ->where(function($query) use ($heure_debut, $heure_fin) {
+            $query->where(function($q) use ($heure_debut, $heure_fin) {
+                    $q->whereBetween('heure_debut', [$heure_debut, $heure_fin])
+                      ->orWhereBetween('heure_fin', [$heure_debut, $heure_fin])
+                      ->orWhere(function($subQuery) use ($heure_debut, $heure_fin) {
+                          $subQuery->where('heure_debut', '=', $heure_debut)
+                                    ->where('heure_fin', '>=', $heure_debut)
+                                    ->where('heure_fin', '<=', $heure_fin);
+                      });
+                })
+                ->orWhere(function($q) use ($heure_debut, $heure_fin) {
+                    $q->where('heure_debut', '<', $heure_debut)
+                      ->where('heure_fin', '>', $heure_fin);
+                });
+        })
+        ->exists(); // Vérifier si un conflit d'horaire existe
+
+    if ($conflitHoraire) {
+        return response()->json([
+            'error' => 'Cette classe est déjà occupée à cet horaire.',
+        ], 400);
+    }
+
+    // Vérifier la disponibilité de la classe pour l'année concernée
+    $conflitAnneeClasse = Horaire::whereHas('classeProf', function($query) use ($anneeClasseId) {
+            $query->where('annee_classe_id', $anneeClasseId);
+        })
+        ->where('jour', $jour)
+        ->where(function($query) use ($heure_debut, $heure_fin) {
+            $query->where(function($q) use ($heure_debut, $heure_fin) {
+                    $q->whereBetween('heure_debut', [$heure_debut, $heure_fin])
+                      ->orWhereBetween('heure_fin', [$heure_debut, $heure_fin])
+                      ->orWhere(function($subQuery) use ($heure_debut, $heure_fin) {
+                          $subQuery->where('heure_debut', '=', $heure_debut)
+                                    ->where('heure_fin', '>=', $heure_debut)
+                                    ->where('heure_fin', '<=', $heure_fin);
+                      });
+                })
+                ->orWhere(function($q) use ($heure_debut, $heure_fin) {
+                    $q->where('heure_debut', '<', $heure_debut)
+                      ->where('heure_fin', '>', $heure_fin);
+                });
+        })
+        ->exists(); // Vérifier si un conflit d'horaire existe pour l'année de classe
+
+    if ($conflitAnneeClasse) {
+        return response()->json([
+            'error' => 'Cette classe est déjà occupée à cet horaire dans l\'année concernée.',
+        ], 400);
+    }
+
+    // Vérifier si le professeur est occupé à cette heure pour toutes les classes
+    $conflitProf = Horaire::whereHas('classeProf', function($query) use ($professeurId) {
+            $query->whereHas('profMatiere', function($subQuery) use ($professeurId) {
+                // Vérifier si le professeur est lié à la classe
+                $subQuery->where('professeur_id', $professeurId);
+            });
+        })
+        ->where('jour', $jour)
+        ->where(function($query) use ($heure_debut, $heure_fin) {
+            $query->where(function($q) use ($heure_debut, $heure_fin) {
+                    $q->whereBetween('heure_debut', [$heure_debut, $heure_fin])
+                      ->orWhereBetween('heure_fin', [$heure_debut, $heure_fin])
+                      ->orWhere(function($subQuery) use ($heure_debut, $heure_fin) {
+                          $subQuery->where('heure_debut', '=', $heure_debut)
+                                    ->where('heure_fin', '>=', $heure_debut)
+                                    ->where('heure_fin', '<=', $heure_fin);
+                      });
+                })
+                ->orWhere(function($q) use ($heure_debut, $heure_fin) {
+                    $q->where('heure_debut', '<', $heure_debut)
+                      ->where('heure_fin', '>', $heure_fin);
+                });
+        })
+        ->exists(); // Vérifier si un conflit d'horaire existe pour le professeur
+
+    if ($conflitProf) {
+        return response()->json([
+            'error' => 'Ce professeur est déjà occupé à cet horaire dans une autre classe.',
+        ], 400);
+    }
+
+    // Si pas de conflit, on peut créer l'horaire
+    $horaire = Horaire::create($request->all());
+    Log::info('Données reçues:', $request->all());
+
+    // Envoyer une notification au professeur
+    $contenuNotification = "Un nouvel horaire a été ajouté pour la classe " . $classeProf->anneeClasse->classe->nom . " le " . $jour . " de " . $heure_debut . " à " . $heure_fin;
+    $this->sendNotification($professeur->user, $contenuNotification);
+
+    return response()->json([
+        'message' => 'Horaire créé avec succès.',
+        'données' => $horaire,
+        'status' => 201
+    ]);
+}
+
     
     
     
@@ -197,89 +244,119 @@ class HoraireController extends Controller
     /**
      * Update the specified resource in storage.
      */
-   public function update(UpdateHoraireRequest $request, $id)
-{
-    try {
-        $horaire = Horaire::findOrFail($id);
-        
-        // Récupérer les données de la requête
-        $classe_prof_id = $request->input('classe_prof_id');
-        $jour = $request->input('jour');
-        $heure_debut = $request->input('heure_debut');
-        $heure_fin = $request->input('heure_fin');
-
-        // Récupérer l'objet ClasseProf
-        $classeProf = ClasseProf::with(['profMatiere.professeur', 'anneeClasse'])->find($classe_prof_id);
-
-        if (!$classeProf) {
+    public function update(UpdateHoraireRequest $request, $id)
+    {
+        try {
+            // Récupérer l'horaire actuel
+            $horaire = Horaire::findOrFail($id);
+    
+            // Récupérer les données de la requête
+            $classe_prof_id = $request->input('classe_prof_id');
+            $jour = $request->input('jour');
+            $heure_debut = $request->input('heure_debut');
+            $heure_fin = $request->input('heure_fin');
+    
+            // Récupérer l'objet ClasseProf
+            $classeProf = ClasseProf::with(['profMatiere.professeur', 'anneeClasse'])->find($classe_prof_id);
+    
+            if (!$classeProf) {
+                return response()->json([
+                    'error' => 'Classe professeur non trouvé.',
+                ], 404);
+            }
+    
+            // Récupérer l'ID du professeur
+            $professeurId = $classeProf->profMatiere->professeur->id;
+            $anneeClasseId = $classeProf->anneeClasse->id;
+    
+            // Vérifier les conflits d'horaires pour cette classe
+            $conflitHoraire = Horaire::where('classe_prof_id', $classe_prof_id)
+                ->where('jour', $jour)
+                ->where('id', '!=', $id) // Exclure l'horaire actuel
+                ->where(function($query) use ($heure_debut, $heure_fin) {
+                    $query->whereBetween('heure_debut', [$heure_debut, $heure_fin])
+                          ->orWhereBetween('heure_fin', [$heure_debut, $heure_fin])
+                          ->orWhere(function($q) use ($heure_debut, $heure_fin) {
+                              $q->where('heure_debut', '<', $heure_debut)
+                                ->where('heure_fin', '>', $heure_fin);
+                          });
+                })
+                ->exists();
+    
+            if ($conflitHoraire) {
+                return response()->json([
+                    'error' => 'Cette classe est déjà occupée à cet horaire.',
+                ], 400);
+            }
+    
+            // Vérifier les conflits pour l'année de la classe
+            $conflitAnneeClasse = Horaire::whereHas('classeProf', function($query) use ($anneeClasseId) {
+                    $query->where('annee_classe_id', $anneeClasseId);
+                })
+                ->where('jour', $jour)
+                ->where('id', '!=', $id) // Exclure l'horaire actuel
+                ->where(function($query) use ($heure_debut, $heure_fin) {
+                    $query->whereBetween('heure_debut', [$heure_debut, $heure_fin])
+                          ->orWhereBetween('heure_fin', [$heure_debut, $heure_fin])
+                          ->orWhere(function($q) use ($heure_debut, $heure_fin) {
+                              $q->where('heure_debut', '<', $heure_debut)
+                                ->where('heure_fin', '>', $heure_fin);
+                          });
+                })
+                ->exists();
+    
+            if ($conflitAnneeClasse) {
+                return response()->json([
+                    'error' => 'Cette classe est déjà occupée à cet horaire dans l\'année concernée.',
+                ], 400);
+            }
+    
+            // Vérifier si le professeur est occupé à cette heure pour toutes les classes
+            $conflitProf = Horaire::whereHas('classeProf', function($query) use ($professeurId) {
+                    $query->whereHas('profMatiere', function($subQuery) use ($professeurId) {
+                        $subQuery->where('professeur_id', $professeurId);
+                    });
+                })
+                ->where('jour', $jour)
+                ->where('id', '!=', $id) // Exclure l'horaire actuel
+                ->where(function($query) use ($heure_debut, $heure_fin) {
+                    $query->whereBetween('heure_debut', [$heure_debut, $heure_fin])
+                          ->orWhereBetween('heure_fin', [$heure_debut, $heure_fin])
+                          ->orWhere(function($q) use ($heure_debut, $heure_fin) {
+                              $q->where('heure_debut', '<', $heure_debut)
+                                ->where('heure_fin', '>', $heure_fin);
+                          });
+                })
+                ->exists();
+    
+            if ($conflitProf) {
+                return response()->json([
+                    'error' => 'Ce professeur est déjà occupé à cet horaire dans une autre classe.',
+                ], 400);
+            }
+    
+            // Si pas de conflit, on peut mettre à jour l'horaire
+            $horaire->update($request->validated());
+    
+            // Envoyer une notification au professeur concernant la modification
+            $contenuNotification = "L'horaire a été modifié pour la classe " . $classeProf->anneeClasse->classe->nom . " le " . $jour . " de " . $heure_debut . " à " . $heure_fin;
+            $this->sendNotification($classeProf->profMatiere->professeur->user, $contenuNotification);
+    
             return response()->json([
-                'error' => 'Classe professeur non trouvé.',
-            ], 404);
-        }
-
-        // Récupérer l'ID du professeur
-        $professeurId = $classeProf->profMatiere->professeur->id;
-
-        // Vérifier les conflits d'horaires pour cette classe
-        $conflitHoraire = Horaire::where('classe_prof_id', $classe_prof_id)
-            ->where('jour', $jour)
-            ->where('id', '!=', $id) // Exclure l'horaire actuel
-            ->where(function($query) use ($heure_debut, $heure_fin) {
-                $query->whereBetween('heure_debut', [$heure_debut, $heure_fin])
-                      ->orWhereBetween('heure_fin', [$heure_debut, $heure_fin])
-                      ->orWhere(function($q) use ($heure_debut, $heure_fin) {
-                          $q->where('heure_debut', '<', $heure_debut)
-                            ->where('heure_fin', '>', $heure_fin);
-                      });
-            })
-            ->exists();
-
-        if ($conflitHoraire) {
+                'message' => 'Horaire modifié avec succès',
+                'données' => $horaire,
+                'status' => 200
+            ]);
+    
+        } catch (\Exception $e) {
             return response()->json([
-                'error' => 'Cette classe est déjà occupée à cet horaire.',
-            ], 400);
+                'message' => 'Erreur lors de la modification de l\'horaire',
+                'error' => $e->getMessage(),
+                'status' => 500
+            ], 500);
         }
-
-        // Vérifier si le professeur est occupé à cette heure pour toutes les classes
-        $conflitProf = Horaire::whereHas('classeProf', function($query) use ($professeurId) {
-                $query->whereHas('profMatiere', function($subQuery) use ($professeurId) {
-                    $subQuery->where('professeur_id', $professeurId);
-                });
-            })
-            ->where('jour', $jour)
-            ->where('id', '!=', $id) // Exclure l'horaire actuel
-            ->where(function($query) use ($heure_debut, $heure_fin) {
-                $query->whereBetween('heure_debut', [$heure_debut, $heure_fin])
-                      ->orWhereBetween('heure_fin', [$heure_debut, $heure_fin])
-                      ->orWhere(function($q) use ($heure_debut, $heure_fin) {
-                          $q->where('heure_debut', '<', $heure_debut)
-                            ->where('heure_fin', '>', $heure_fin);
-                      });
-            })
-            ->exists();
-
-        if ($conflitProf) {
-            return response()->json([
-                'error' => 'Ce professeur est déjà occupé à cet horaire dans une autre classe.',
-            ], 400);
-        }
-
-        // Si pas de conflit, on peut mettre à jour l'horaire
-        $horaire->update($request->validated());
-
-        return response()->json([
-            'message' => 'Horaire modifié avec succès',
-            'données' => $horaire,
-            'status' => 200
-        ]);
-    } catch (\Exception $e) {
-        return response()->json([
-            'message' => 'Erreur lors de la modification de l\'horaire',
-            'error' => $e->getMessage(),
-            'status' => 500
-        ], 500);
     }
-}
+    
 
     
 

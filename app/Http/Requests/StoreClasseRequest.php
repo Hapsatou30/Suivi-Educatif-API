@@ -18,7 +18,7 @@ class StoreClasseRequest extends FormRequest
         return [
             'nom' => 'required|string|unique:classes,nom|max:255',
             'niveau' => 'required|string|max:255',
-            'capacite' => 'required|integer|min:1',
+            'capacite' => 'required|integer|min:1|max:30',
         ];
     }
 

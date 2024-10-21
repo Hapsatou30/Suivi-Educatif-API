@@ -278,14 +278,22 @@ public function nombreElevesParParent($parent_id)
         
         
         $anneeClasseId = $classeEleve->anneeClasse->id;
+        $classe = $classeEleve->anneeClasse->classe;
+        $anneeScolaire = $classeEleve->anneeClasse->annee;
     
         return response()->json([
             'message' => 'Détails de l\'élève',
             'données' => [
                 'classeEleve_id' => $classeEleve->id,
                 'anneeClasse_id' => $anneeClasseId,  
+                'anneeScolaire' => $anneeScolaire->annee_debut . ' - '. $anneeScolaire->annee_fin,
                 'prenom' => $eleve->prenom,
                 'nom' => $eleve->nom,
+                'sexe' => $eleve->genre,
+                'matricule' => $eleve->matricule,
+                'dateNaissance' => $eleve->date_naissance,
+                'classe' => $classe->nom,
+                'niveau' => $classe->niveau
             ],
             'status' => 200
         ]);

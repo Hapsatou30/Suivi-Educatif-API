@@ -27,10 +27,14 @@ class DatabaseSeeder extends Seeder
             AnneeScolaireSeeder::class,      // Seeder pour les années scolaires
             ClasseSeeder::class,             // Seeder pour les classes
             AnneeClasseSeeder::class,        // Seeder pour lier les classes et les années scolaires
-            ClasseProfSeeder::class,         // Seeder pour lier les professeurs aux classes qu'ils gèrent
             ClasseEleveSeeder::class,        // Seeder pour lier les élèves aux classes
-            EvaluationsSeeder::class,        // Seeder pour les évaluations (devoirs, examens.)
+            ClasseProfSeeder::class,         // Seeder pour lier les professeurs aux classes qu'ils gèrent
+            // EvaluationsSeeder::class,        // Seeder pour les évaluations (devoirs, examens.)
             CahierTexteSeeder::class,        // Seeder pour les cahiers de textes (programme scolaire)
+            BulletinSeeder::class,           // Seeder pour les bulletins de notes et commentaires
+            // NoteSeeder::class,               // Seeder pour les notes des élèves pour les matières enseignées
+            // HoraireSeeder::class,            // Seeder pour les horaires
+            PresenceSeeder::class,           // Seeder pour les absences
           
            
         ]);

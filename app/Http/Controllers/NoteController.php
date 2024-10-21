@@ -55,7 +55,7 @@ class NoteController extends Controller
                 ],
                 'note' => $note->notes,
                 'appreciation' => $note->commentaire,
-                'evaluation' => $note->evaluation->type_evaluation,
+                'evaluation' => $note->evaluation->nom,
                 'evaluation_id' => $note->evaluation->id,
                 'bulletin_id' =>[
                     'id' => $bulletin->id,
@@ -318,5 +318,6 @@ class NoteController extends Controller
             'status' => 200
         ]);
     }
+    
     
 }
