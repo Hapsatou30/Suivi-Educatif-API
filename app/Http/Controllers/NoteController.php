@@ -324,7 +324,6 @@ class NoteController extends Controller
         })
         ->get();
     
-        // Vérifier si des notes existent
         if ($notes->isEmpty()) {
             return response()->json([
                 'message' => 'Aucune note trouvée pour cette classe.',
@@ -332,70 +331,55 @@ class NoteController extends Controller
             ]);
         }
     
-        // Grouper les notes par matière et par élève, en calculant la moyenne des devoirs
         $result = [];
         foreach ($notes as $note) {
             $matiere = $note->evaluation->classeProf->profMatiere->matiere;
             $eleve = $note->bulletin->classeEleve->eleve;
     
-            // Si la matière n'existe pas encore dans le tableau, l'initialiser
             if (!isset($result[$matiere->nom])) {
                 $result[$matiere->nom] = [
                     'eleves' => []
                 ];
             }
     
-            // Si l'élève n'existe pas encore pour cette matière, l'initialiser
             if (!isset($result[$matiere->nom]['eleves'][$eleve->matricule])) {
                 $result[$matiere->nom]['eleves'][$eleve->matricule] = [
                     'nom' => $eleve->nom,
                     'prenom' => $eleve->prenom,
                     'matricule' => $eleve->matricule,
                     'notes' => [
-                        'devoirs' => [],  // Stocke les notes des devoirs pour calculer la moyenne
-                        'examens' => []   // Stocke les notes des examens et autres évaluations
+                        'devoirs' => [],
+                        'examens' => []
                     ]
                 ];
             }
     
-            // Vérifier le type d'évaluation (devoir ou autre)
             if (stripos($note->evaluation->nom, 'devoir') !== false) {
-                // Ajouter la note à la liste des devoirs pour cet élève et cette matière
                 $result[$matiere->nom]['eleves'][$eleve->matricule]['notes']['devoirs'][] = $note->notes;
             } else {
-                // Ajouter la note à la liste des autres évaluations (examens, etc.)
                 $result[$matiere->nom]['eleves'][$eleve->matricule]['notes']['examens'][] = $note->notes;
             }
         }
     
-        // Calculer la moyenne des devoirs et la moyenne globale pour chaque élève
-        foreach ($result as $matiere => &$data) {
-            foreach ($data['eleves'] as &$eleve) {
-                // Calculer la moyenne des devoirs si des devoirs sont présents
-                if (!empty($eleve['notes']['devoirs'])) {
-                    $moyenneDevoirs = array_sum($eleve['notes']['devoirs']) / count($eleve['notes']['devoirs']);
+        foreach ($result as $matiere => $data) {
+            foreach ($data['eleves'] as $key => $eleve) {
+                $moyenneDevoirs = !empty($eleve['notes']['devoirs']) ? array_sum($eleve['notes']['devoirs']) / count($eleve['notes']['devoirs']) : null;
+                $moyenneExamens = !empty($eleve['notes']['examens']) ? array_sum($eleve['notes']['examens']) / count($eleve['notes']['examens']) : null;
+    
+                // Vérification pour éviter la référence erronée
+                if ($moyenneDevoirs !== null && $moyenneExamens !== null) {
+                    $moyenneGlobale = round(($moyenneDevoirs + $moyenneExamens) / 2, 2);
+                    $result[$matiere]['eleves'][$key]['notes']['moyenne_globale'] = $moyenneGlobale;
                 } else {
-                    $moyenneDevoirs = null; // Pas de devoirs
+                    $result[$matiere]['eleves'][$key]['notes']['moyenne_globale'] = null;
                 }
     
-                // Prendre la première note d'examen (s'il y en a)
-                $noteExamen = !empty($eleve['notes']['examens']) ? $eleve['notes']['examens'][0] : null;
-    
-                // Si la moyenne des devoirs et la note d'examen sont présentes, calculer la moyenne globale
-                if ($moyenneDevoirs !== null && $noteExamen !== null) {
-                    $moyenneGlobale = round(($moyenneDevoirs + $noteExamen) / 2, 2); // Arrondir à 2 décimales
-                    $eleve['notes']['moyenne_globale'] = $moyenneGlobale;
-                } else {
-                    $eleve['notes']['moyenne_globale'] = null; // Pas assez de données pour calculer la moyenne
-                }
-    
-                // Retirer les devoirs individuels et les examens, ne garder que la moyenne globale
-                unset($eleve['notes']['devoirs']);
-                unset($eleve['notes']['examens']);
+                // Suppression des devoirs et examens après calcul
+                unset($result[$matiere]['eleves'][$key]['notes']['devoirs']);
+                unset($result[$matiere]['eleves'][$key]['notes']['examens']);
             }
         }
     
-        // Transformer la liste des élèves en un tableau (au lieu d'utiliser les matricules comme clés)
         foreach ($result as $matiere => $data) {
             $result[$matiere]['eleves'] = array_values($data['eleves']);
         }
@@ -406,6 +390,7 @@ class NoteController extends Controller
             'status' => 200
         ]);
     }
+    
     
     
     
