@@ -345,6 +345,7 @@ public function getEleveDetails()
             'niveau' => $classeEleve->anneeClasse->classe->niveau,
             'anneeScolaire' => $classeEleve->anneeClasse->annee->annee_debut . ' - ' . $classeEleve->anneeClasse->annee->annee_fin,
             'classeEleve_id' => $classeEleve->id,
+            'anneeClasse_id' => $classeEleve->annee_classe_id,
         ],
         'status' => 200
     ]);
