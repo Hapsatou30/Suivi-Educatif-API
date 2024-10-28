@@ -12,6 +12,11 @@ use App\Http\Requests\UpdateEleveRequest;
 use App\Mail\EleveCreated;
 use App\Mail\ParentCreated;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+
 
 
 class EleveController extends Controller
@@ -313,4 +318,70 @@ class EleveController extends Controller
             'status' => 200
         ]);
     }
+
+   
+public function modifierEleve(Request $request)
+{
+    // Récupérer l'utilisateur actuellement connecté
+    $userAuthId = Auth::id(); // ou Auth::user()->id
+
+    // Récupérer l'élève associé à l'utilisateur connecté
+    $eleve = Eleve::where('user_id', $userAuthId)->first();
+
+    if (!$eleve) {
+        return response()->json([
+            'message' => 'Élève non trouvé pour cet utilisateur',
+            'status' => 404
+        ]);
+    }
+
+    // Récupérer l'utilisateur associé à cet élève
+    $user = User::find($userAuthId);
+
+    if (!$user) {
+        return response()->json([
+            'message' => 'Utilisateur non trouvé',
+            'status' => 404
+        ]);
+    }
+
+    Log::info('Données envoyées pour la mise à jour:', $request->all());
+
+    // Mettre à jour les données de l'élève
+    $eleve->nom = $request->input('nom', $eleve->nom);
+    $eleve->prenom = $request->input('prenom', $eleve->prenom);
+    $eleve->date_naissance = $request->input('date_naissance', $eleve->date_naissance);
+    $eleve->genre = $request->input('genre', $eleve->genre);
+
+    // Vérifier si une nouvelle image a été uploadée
+    if ($request->hasFile('photo')) {
+        // Supprimer l'ancienne photo
+        if ($eleve->photo) {
+            Storage::disk('public')->delete($eleve->photo);
+        }
+
+        // Stocker la nouvelle photo
+        $photoPath = $request->file('photo')->store('photos', 'public');
+        $eleve->photo = $photoPath; // Stocke le chemin relatif de l'image
+    }
+
+    // Mettre à jour les données de l'utilisateur
+    if ($request->has('email')) {
+        $user->email = $request->input('email');
+    }
+
+    if ($request->has('password')) {
+        $user->password = bcrypt($request->input('password'));
+    }
+
+    // Sauvegarder les modifications
+    $eleve->save();
+    $user->save();
+
+    return response()->json([
+        'message' => 'Élève et utilisateur modifiés avec succès',
+        'données' => $eleve,
+        'status' => 200
+    ]);
+}
 }

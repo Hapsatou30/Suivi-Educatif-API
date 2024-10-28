@@ -26,5 +26,4 @@ class Matiere extends Model
      {
          return $this->hasMany(ProfMatiere::class);
      }
-    
 }

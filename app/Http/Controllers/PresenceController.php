@@ -6,6 +6,7 @@ use App\Models\Eleve;
 use App\Models\Presence;
 use App\Models\ClasseEleve;
 use Illuminate\Http\Request;
+use App\Models\AnneeScolaire;
 use App\Traits\NotificationTrait;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -20,9 +21,23 @@ class PresenceController extends Controller
      */
     public function index($classProfId)
     {
+        // Récupérer l'année scolaire en cours (où 'etat' = 'En_cours')
+        $anneeScolaireEnCours = AnneeScolaire::where('etat', 'En_cours')->first();
+
+        if (!$anneeScolaireEnCours) {
+            return response()->json([
+                'message' => 'Aucune année scolaire en cours.',
+                'status' => 404
+            ]);
+        }
+
         // Récupérer les absences pour la classe avec les informations des élèves, du professeur et de la matière
         $absences = Presence::where('classe_prof_id', $classProfId)
             ->where('status', 'absent')
+            ->whereHas('classeProf.anneeClasse', function ($query) use ($anneeScolaireEnCours) {
+                // Filtrer par l'année scolaire en cours
+                $query->where('annee_id', $anneeScolaireEnCours->id);
+            })
             ->with([
                 'classeEleve.eleve',
                 'classeProf.profMatiere.professeur',
@@ -39,12 +54,25 @@ class PresenceController extends Controller
     }
 
 
-
     public function getAbsences($classeEleveId)
     {
+        // Récupérer l'année scolaire en cours (où 'etat' = 'En_cours')
+        $anneeScolaireEnCours = AnneeScolaire::where('etat', 'En_cours')->first();
+
+        if (!$anneeScolaireEnCours) {
+            return response()->json([
+                'message' => 'Aucune année scolaire en cours.',
+                'status' => 404
+            ]);
+        }
+
         // Récupérer les absences de l'élève spécifié
         $absences = Presence::where('classe_eleve_id', $classeEleveId)
             ->where('status', 'absent')
+            ->whereHas('classeProf.anneeClasse', function ($query) use ($anneeScolaireEnCours) {
+                // Filtrer par l'année scolaire en cours
+                $query->where('annee_id', $anneeScolaireEnCours->id);
+            })
             ->with([
                 'classeProf.profMatiere.professeur',
                 'classeProf.profMatiere.matiere'
@@ -53,11 +81,13 @@ class PresenceController extends Controller
 
         // Structurer la réponse en JSON
         return response()->json([
-            'message' => 'Liste des absences par eleve',
+            'message' => 'Liste des absences par élève',
             'données' => $absences,
             'status' => 200
         ]);
     }
+
+
     public function store(StorePresenceRequest $request)
     {
         // Récupérer les données validées sans date_absence
@@ -107,8 +137,20 @@ class PresenceController extends Controller
             'status' => 400
         ]);
     }
+
+
     public function getAbsencesSemaine()
     {
+        // Récupérer l'année scolaire en cours (où 'etat' = 'En_cours')
+        $anneeScolaireEnCours = AnneeScolaire::where('etat', 'En_cours')->first();
+
+        if (!$anneeScolaireEnCours) {
+            return response()->json([
+                'message' => 'Aucune année scolaire en cours.',
+                'status' => 404
+            ]);
+        }
+
         // Déterminer les dates de début et de fin de la semaine courante
         $debutSemaine = now()->startOfWeek(); // Début de la semaine (lundi)
         $finSemaine = now()->endOfWeek(); // Fin de la semaine (dimanche)
@@ -116,6 +158,15 @@ class PresenceController extends Controller
         // Récupérer les absences de la semaine courante avec les informations des élèves, du professeur et de la matière
         $absences = Presence::where('status', 'absent')
             ->whereBetween('date_absence', [$debutSemaine, $finSemaine]) // Filtrer par date dans la semaine courante
+            ->whereHas('classeProf.anneeClasse', function ($query) use ($anneeScolaireEnCours) {
+                // Filtrer par l'année scolaire en cours
+                $query->where('annee_id', $anneeScolaireEnCours->id);
+            })
+            ->with([
+                'classeEleve.eleve',
+                'classeProf.profMatiere.professeur',
+                'classeProf.profMatiere.matiere'
+            ])
             ->get();
 
         // Retourner la liste des absences de la semaine courante
@@ -143,13 +194,6 @@ class PresenceController extends Controller
     //     }
     // }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Presence $presence)
-    {
-        //
-    }
 
     /**
      * Update the specified resource in storage.
@@ -167,36 +211,36 @@ class PresenceController extends Controller
                 'status' => 404
             ]);
         }
-    
+
         // Mettre à jour les données de l'absence
         $absence->motif = $request->input('motif', $absence->motif);
-    
+
         // Vérifier si un nouveau fichier de justification a été uploadé
         if ($request->hasFile('justification')) {
             // Supprimer l'ancien fichier
             if ($absence->justification) {
                 Storage::disk('public')->delete($absence->justification);
             }
-    
+
             // Stocker la nouvelle justification
             $justificationPath = $request->file('justification')->store('justifications', 'public');
             $absence->justification = $justificationPath; // Stocke le chemin relatif de l'image
-    
+
             // Sauvegarder les modifications
             $absence->save();
-    
+
             // Envoyer une notification au professeur associé
             if ($absence->classeProf && $absence->classeEleve) {
                 // Récupérer le professeur via la relation `profMatiere`
                 $prof = $absence->classeProf->profMatiere->professeur;
                 $userProf = $prof->user;
-    
+
                 // Récupérer le nom de l'élève
-                $eleve = $absence->classeEleve->eleve; 
-    
+                $eleve = $absence->classeEleve->eleve;
+
                 // Envoyer la notification avec le nom de l'élève
                 $this->sendNotification($userProf, "Un parent a soumis une justification pour l'absence de l'élève : " . $eleve->nom);
-    
+
                 // Retourner une réponse JSON
                 return response()->json([
                     'message' => 'Absence mise à jour avec succès et notification envoyée au professeur.',
@@ -205,10 +249,10 @@ class PresenceController extends Controller
                 ]);
             }
         }
-    
+
         // Sauvegarder les modifications si aucune justification n'a été fournie
         $absence->save();
-    
+
         // Retourner une réponse JSON
         return response()->json([
             'message' => 'Absence mise à jour avec succès.',
@@ -216,7 +260,7 @@ class PresenceController extends Controller
             'status' => 200
         ]);
     }
-    
+
 
     /**
      * Remove the specified resource from storage.
@@ -248,9 +292,23 @@ class PresenceController extends Controller
 
     public function getAbsencesParAnneeClasse($anneeClasseId)
     {
+        // Récupérer l'année scolaire en cours (où 'etat' = 'En_cours')
+        $anneeScolaireEnCours = AnneeScolaire::where('etat', 'En_cours')->first();
+
+        if (!$anneeScolaireEnCours) {
+            return response()->json([
+                'message' => 'Aucune année scolaire en cours.',
+                'status' => 404
+            ]);
+        }
+
         // Récupérer les absences pour l'année de classe spécifiée
-        $absences = Presence::whereHas('classeProf', function ($query) use ($anneeClasseId) {
-            $query->where('annee_classe_id', $anneeClasseId);
+        $absences = Presence::whereHas('classeProf', function ($query) use ($anneeClasseId, $anneeScolaireEnCours) {
+            $query->where('annee_classe_id', $anneeClasseId)
+                ->whereHas('anneeClasse', function ($q) use ($anneeScolaireEnCours) {
+                    // Filtrer par l'année scolaire en cours
+                    $q->where('annee_id', $anneeScolaireEnCours->id);
+                });
         })
             ->where('status', 'absent')
             ->with([
@@ -267,9 +325,20 @@ class PresenceController extends Controller
             'status' => 200
         ]);
     }
+
     //liste des absences pour les élèves par parent
     public function getAbsencesParParent($parentId)
     {
+        // Récupérer l'année scolaire en cours (où 'etat' = 'En_cours')
+        $anneeScolaireEnCours = AnneeScolaire::where('etat', 'En_cours')->first();
+
+        if (!$anneeScolaireEnCours) {
+            return response()->json([
+                'message' => 'Aucune année scolaire en cours.',
+                'status' => 404
+            ]);
+        }
+
         // Récupérer tous les élèves du parent spécifié
         $eleves = Eleve::where('parent_id', $parentId)->pluck('id');
 
@@ -278,6 +347,10 @@ class PresenceController extends Controller
             $query->whereIn('eleve_id', $eleves);
         })
             ->where('status', 'absent')
+            ->whereHas('classeProf.anneeClasse', function ($query) use ($anneeScolaireEnCours) {
+                // Filtrer par l'année scolaire en cours
+                $query->where('annee_id', $anneeScolaireEnCours->id);
+            })
             ->with([
                 'classeEleve.eleve',
                 'classeProf.profMatiere.professeur',

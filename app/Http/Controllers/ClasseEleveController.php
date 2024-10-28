@@ -131,16 +131,17 @@ public function elevesParParent($parent_id)
     // Préparer la liste des élèves avec leurs informations
     $eleves = $parent->eleves->map(function ($eleve) {
         return [
-            
             'nom' => $eleve->nom,
             'prenom' => $eleve->prenom,
             'photo' => $eleve->photo,
-            'annee_classe' => $eleve->anneeClasses->map(function ($anneeClasse) {
+            'annee_classe' => $eleve->anneeClasses->filter(function ($anneeClasse) {
+                // Filtrer uniquement les années avec l'état "En_cours"
+                return $anneeClasse->annee->etat === 'En_cours';
+            })->map(function ($anneeClasse) {
                 return [
                     'annee' => $anneeClasse->annee->annee_debut . ' - ' . $anneeClasse->annee->annee_fin,
                     'classe' => $anneeClasse->classe->nom,
-                    'classeEleve_id' => $anneeClasse->pivot->id, 
-                    
+                    'classeEleve_id' => $anneeClasse->pivot->id,
                 ];
             })
         ];
@@ -340,6 +341,8 @@ public function getEleveDetails()
             'prenom' => $eleve->prenom,
             'nom' => $eleve->nom,
             'matricule' => $eleve->matricule,
+            'sexe' => $eleve->genre,
+            'dateNaissance' => $eleve->date_naissance,
             'photo' => $eleve->photo,
             'classe' => $classeEleve->anneeClasse->classe->nom,
             'niveau' => $classeEleve->anneeClasse->classe->niveau,
@@ -363,10 +366,62 @@ public function getEleveDetails()
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateClasseEleveRequest $request, ClasseEleve $classeEleve)
-    {
-        //
+   /**
+ * Mettre à jour l'année de classe d'un élève
+ */
+public function update(UpdateClasseEleveRequest $request, $id)
+{
+    // Récupérer l'entrée de ClasseEleve à mettre à jour
+    $classeEleve = ClasseEleve::find($id);
+
+    // Vérifier si l'entrée existe
+    if (!$classeEleve) {
+        return response()->json([
+            'message' => 'Classe Élève non trouvée.',
+            'status' => 404
+        ], 404);
     }
+
+    // Récupérer les données validées
+    $validated = $request->validated();
+
+    // Vérifier si la nouvelle année de classe est "En_cours"
+    $anneeClasse = AnneeClasse::find($validated['annee_classe_id']);
+    if ($anneeClasse->annee->etat !== 'En_cours') {
+        return response()->json([
+            'message' => 'L\'année scolaire doit être en cours pour changer la classe de l\'élève.',
+            'status' => 400
+        ], 400);
+    }
+
+    // Mettre à jour l'année de classe
+    $classeEleve->annee_classe_id = $validated['annee_classe_id'];
+    $classeEleve->save();
+
+    // Récupérer l'élève et la nouvelle classe pour envoyer des notifications
+    $eleve = $classeEleve->eleve;
+    $nouvelleClasse = $anneeClasse->classe->nom;
+
+    // Envoyer une notification à l'élève
+    if ($eleve && $eleve->user) {
+        $contenuNotification = "Vous avez été attribué à la nouvelle classe : " . $nouvelleClasse;
+        $this->sendNotification($eleve->user, $contenuNotification);
+    }
+
+    // Envoyer une notification au parent
+    if ($eleve && $eleve->parent && $eleve->parent->user) {
+        $contenuNotificationParent = "Votre enfant " . $eleve->prenom . " a été attribué à la nouvelle classe : " . $nouvelleClasse;
+        $this->sendNotification($eleve->parent->user, $contenuNotificationParent);
+    }
+
+    // Retourner une réponse JSON avec les détails de la mise à jour
+    return response()->json([
+        'message' => 'Année de classe mise à jour avec succès.',
+        'data' => $classeEleve,
+        'status' => 200
+    ]);
+}
+
 
     /**
      * Remove the specified resource from storage.

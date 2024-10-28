@@ -6,6 +6,7 @@ use App\Models\Note;
 use App\Models\Eleve;
 use App\Models\Bulletin;
 use App\Models\ClasseEleve;
+use App\Models\AnneeScolaire;
 use App\Traits\NotificationTrait;
 use App\Http\Requests\StoreNoteRequest;
 use App\Http\Requests\UpdateNoteRequest;
@@ -28,7 +29,7 @@ class NoteController extends Controller
                 $query->where('classe_prof_id', $classe_prof_id);
             })
             ->get();
-
+    
         // Vérifier si des notes existent
         if ($notes->isEmpty()) {
             return response()->json([
@@ -36,19 +37,25 @@ class NoteController extends Controller
                 'status' => 404
             ]);
         }
-
-        // Préparer la réponse avec la liste des notes pour la classe du professeur
+    
+        // Préparer la réponse avec les notes groupées par période
         $result = [];
+    
         foreach ($notes as $note) {
             // Récupérer les informations sur la matière et le professeur
             $matiere = $note->evaluation->classeProf->profMatiere->matiere;
             $professeur = $note->evaluation->classeProf->profMatiere->professeur;
-
             $eleve = $note->bulletin->classeEleve->eleve;
             $bulletin = $note->bulletin;
-            $classeEleve = $note->bulletin->classeEleve;
-
-            $result[] = [
+    
+            // Initialiser la clé de la période si elle n'existe pas encore dans $result
+            $periode = $bulletin->periode;
+            if (!isset($result[$periode])) {
+                $result[$periode] = [];
+            }
+    
+            // Ajouter les informations de la note dans la période correspondante
+            $result[$periode][] = [
                 'id' => $note->id,
                 'matiere' => $matiere->nom,
                 'professeur' => [
@@ -57,32 +64,29 @@ class NoteController extends Controller
                 ],
                 'note' => $note->notes,
                 'appreciation' => $note->commentaire,
-                'evaluation' => $note->evaluation->nom,
+                'evaluation' => $note->evaluation->type_evaluation,
                 'evaluation_id' => $note->evaluation->id,
                 'bulletin_id' => [
                     'id' => $bulletin->id,
                     'periode' => $bulletin->periode,
                     'classe_eleve_id' => $bulletin->classe_eleve_id,
-
                 ],
                 'eleve' => [
                     'photo' => $eleve->photo,
-                    'nom' =>  $eleve->nom,
-                    'prenom' =>  $eleve->prenom,
-                    'matricule' =>  $eleve->matricule,
+                    'nom' => $eleve->nom,
+                    'prenom' => $eleve->prenom,
+                    'matricule' => $eleve->matricule,
                 ],
-                'classeEleve' => [
-                    'id' => $classeEleve->id,
-                ]
             ];
         }
-
+    
         return response()->json([
             'message' => 'Liste des notes pour la classe du professeur spécifiée',
-            'données' => $result,
+            'données' => $result, // Les notes sont maintenant groupées par période
             'status' => 200
         ]);
     }
+    
 
     //note pour un eleve 
     public function noteEleve($classeEleve_id)
@@ -265,29 +269,41 @@ class NoteController extends Controller
 
     public function notesParParent($parent_id)
     {
+        // Récupérer l'année scolaire en cours
+        $anneeScolaireEnCours = AnneeScolaire::where('etat', 'En_cours')->first();
+    
+        if (!$anneeScolaireEnCours) {
+            return response()->json([
+                'message' => 'Aucune année scolaire en cours.',
+                'status' => 404
+            ]);
+        }
+    
         // Récupérer les élèves du parent
         $eleves = Eleve::where('parent_id', $parent_id)
-            ->with('classeEleves.bulletins.notes.evaluation.classeProf.profMatiere.matiere')
+            ->with(['classeEleves.bulletins.notes.evaluation.classeProf.profMatiere.matiere', 'classeEleves.bulletins.notes.evaluation.classeProf.anneeClasse' => function ($query) use ($anneeScolaireEnCours) {
+                // Filtrer par année scolaire en cours
+                $query->whereHas('classeEleves.bulletins.notes.evaluation.classeProf.anneeClasse.annee', function ($q) use ($anneeScolaireEnCours) {
+                    $q->where('annee_id', $anneeScolaireEnCours->id);
+                });
+            }])
             ->get();
-
-        // Vérifier si des élèves existent pour ce parent
+    
         if ($eleves->isEmpty()) {
             return response()->json([
                 'message' => 'Aucun élève trouvé pour ce parent.',
                 'status' => 404
             ]);
         }
-
+    
         // Préparer la réponse avec la liste des notes pour chaque élève du parent
         $result = [];
         foreach ($eleves as $eleve) {
             foreach ($eleve->classeEleves as $classeEleve) {
-                // Parcourir chaque bulletin de la classe de l'élève
                 foreach ($classeEleve->bulletins as $bulletin) {
-                    // Parcourir les notes de chaque bulletin
                     foreach ($bulletin->notes as $note) {
                         $matiere = $note->evaluation->classeProf->profMatiere->matiere;
-
+    
                         $result[] = [
                             'eleve' => [
                                 'nom' => $eleve->nom,
@@ -306,25 +322,37 @@ class NoteController extends Controller
                 }
             }
         }
-
+    
         return response()->json([
             'message' => 'Liste des notes pour les enfants du parent spécifié',
             'données' => $result,
             'status' => 200
         ]);
     }
+    
 
     public function notesParAnneeClasse($anneeClasse_id)
     {
+        // Récupérer l'année scolaire en cours (où 'etat' = 'En_cours')
+        $anneeScolaireEnCours = AnneeScolaire::where('etat', 'En_cours')->first();
+    
+        if (!$anneeScolaireEnCours) {
+            return response()->json([
+                'message' => 'Aucune année scolaire en cours.',
+                'status' => 404
+            ]);
+        }
+    
         // Récupérer toutes les notes pour une classe donnée d'une année spécifique,
-        // en chargeant les relations nécessaires pour les évaluations,  matières et élèves
+        // en chargeant les relations nécessaires pour les évaluations, matières et élèves
         $notes = Note::with([
             'evaluation.classeProf.profMatiere.matiere',
             'bulletin.classeEleve.eleve'
         ])
-        ->whereHas('bulletin.classeEleve.anneeClasse', function ($query) use ($anneeClasse_id) {
-            // Filtrer les notes en fonction de l'ID de l'année classe
-            $query->where('annee_classe_id', $anneeClasse_id);
+        ->whereHas('bulletin.classeEleve.anneeClasse', function ($query) use ($anneeClasse_id, $anneeScolaireEnCours) {
+            // Filtrer les notes en fonction de l'ID de l'année classe et l'année scolaire en cours
+            $query->where('annee_classe_id', $anneeClasse_id)
+                  ->where('annee_id', $anneeScolaireEnCours->id);
         })
         ->get();
     
@@ -418,6 +446,7 @@ class NoteController extends Controller
             'status' => 200
         ]);
     }
+    
     
 
 }

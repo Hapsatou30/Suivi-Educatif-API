@@ -194,7 +194,6 @@ Route::middleware(['auth', 'role:professeur|admin'])->group(function () {
 
   
     //role parent et eleve
-    Route::middleware(['auth', 'role:parent|eleve'])->group(function () {
 
         //liste des eleves regroupes par parent
     Route::get('parents/{parent_id}/eleves', [ClasseEleveController::class, 'elevesParParent']);
@@ -225,7 +224,7 @@ Route::middleware(['auth', 'role:professeur|admin'])->group(function () {
       //ajouter une justification
       Route::post('absences/{absence}', [PresenceController::class,'update']);
 
-    });
+ 
 
 
     //route pour les matières
@@ -262,7 +261,7 @@ Route::middleware(['auth', 'role:professeur|admin'])->group(function () {
        
     //route pour les classes-professeurs
     // Route::apiResource('classes-professeurs', ClasseProfController::class);
-    Route::get('classes-professeurs/{anneeClasseId}', [ClasseProfController::class,'showProfMatiereClasse']);
+    Route::get('classes-professeurs/{anneeClasseId}', [ClasseProfController::class,'listeClasseProfsParAnneeClasse']);
     Route::get('classes-professeurs', [ClasseProfController::class,'index']);
     
 
@@ -352,7 +351,7 @@ Route::get('bulletins/classe-eleve/{classeEleveId}', [BulletinController::class,
 Route::get('bulletins/annee-classe/{anneeClasseId}', [BulletinController::class, 'getBulletinsParAnneeClasse']);   
 
 Route::get('notes/annee-classe/{anneeClasse_id}', [NoteController::class, 'notesParAnneeClasse']);
-
+ Route::post('modifierEleve', [EleveController::class, 'modifierEleve']);
 });
 
 

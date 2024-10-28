@@ -58,21 +58,33 @@ public function nombreClassesParProf($professeurId)
         ]);
     }
 
-    // Récupérer le nombre d'années de classe pour le professeur
+    // Récupérer l'année scolaire en cours (où 'etat' = 'En_cours')
+    $anneeScolaireEnCours = AnneeScolaire::where('etat', 'En_cours')->first();
+
+    if (!$anneeScolaireEnCours) {
+        return response()->json([
+            'message' => 'Aucune année scolaire en cours.',
+            'status' => 404
+        ]);
+    }
+
+    // Récupérer le nombre de classes pour le professeur pour l'année scolaire en cours
     $nombreClasses = ClasseProf::whereHas('profMatiere', function ($query) use ($professeurId) {
         // Filtrer par le professeur
         $query->where('professeur_id', $professeurId);
     })
-    ->with('anneeClasse') 
-    ->get()
-    ->pluck('anneeClasse.id') // Récupérer les IDs des années de classe
-    ->count(); // Compter le nombre d'années de classe
+    ->whereHas('anneeClasse', function ($query) use ($anneeScolaireEnCours) {
+        // Filtrer par l'année scolaire en cours
+        $query->where('annee_id', $anneeScolaireEnCours->id);
+    })
+    ->count(); // Compter le nombre de classes
 
     return response()->json([
         'données' => $nombreClasses,
         'status' => 200
     ]);
 }
+
 
 public function listeClassesParProf($professeurId)
 {
@@ -86,17 +98,31 @@ public function listeClassesParProf($professeurId)
         ]);
     }
 
-    // Récupérer la liste des classes pour le professeur
+    // Récupérer l'année scolaire en cours (où 'etat' = 'En_cours')
+    $anneeScolaireEnCours = AnneeScolaire::where('etat', 'En_cours')->first();
+
+    if (!$anneeScolaireEnCours) {
+        return response()->json([
+            'message' => 'Aucune année scolaire en cours.',
+            'status' => 404
+        ]);
+    }
+
+    // Récupérer la liste des classes pour le professeur pour l'année scolaire en cours
     $classeProf = ClasseProf::whereHas('profMatiere', function ($query) use ($professeurId) {
         // Filtrer par le professeur
         $query->where('professeur_id', $professeurId);
+    })
+    ->whereHas('anneeClasse', function ($query) use ($anneeScolaireEnCours) {
+        // Filtrer par l'année scolaire en cours
+        $query->where('annee_id', $anneeScolaireEnCours->id);
     })
     ->with(['anneeClasse.classe', 'profMatiere.matiere']) // Charger les relations nécessaires
     ->get()
     ->map(function ($classeProf) {
         return [
             'classeProf_id' => $classeProf->id,
-            'annee_classe_id' => $classeProf->annee_classe_id,
+            'annee_classe_id' => $classeProf->anneeClasse->id, // Assurez-vous d'accéder à la bonne propriété
             'nom_classe' => $classeProf->anneeClasse->classe->nom, 
             'capacite' => $classeProf->anneeClasse->classe->capacite, 
             'nom_matiere' => $classeProf->profMatiere->matiere->nom 
@@ -108,6 +134,7 @@ public function listeClassesParProf($professeurId)
         'status' => 200
     ]);
 }
+
 
 
 
@@ -186,61 +213,47 @@ public function store(StoreClasseProfRequest $request)
     ]);
 }
 
+public function listeClasseProfsParAnneeClasse($anneeClasseId)
+{
+    // Vérifier si l'annéeClasse existe
+    $anneeClasse = AnneeClasse::find($anneeClasseId);
+
+    if (!$anneeClasse) {
+        return response()->json([
+            'message' => 'Année classe non trouvée.',
+            'status' => 404
+        ]);
+    }
+
+    // Récupérer les ClasseProfs pour l'année de classe donnée avec les relations nécessaires
+    $classeProfs = ClasseProf::where('annee_classe_id', $anneeClasseId)
+        ->with(['profMatiere.professeur', 'profMatiere.matiere'])
+        ->get()
+        ->map(function ($classeProf) {
+            return [
+                'id_classeProf' => $classeProf->id, 
+                'profMat_id' => $classeProf->profMatiere->id,
+                'prenom_prof' => $classeProf->profMatiere->professeur->prenom, // Prénom du professeur
+                'nom_prof' => $classeProf->profMatiere->professeur->nom, // Nom du professeur
+                'matiere' => $classeProf->profMatiere->matiere->nom ,
+                'coefficient' => $classeProf->profMatiere->matiere->coefficient
+            ];
+        });
+
+    // Retourner la réponse sous forme de JSON
+    return response()->json([
+        'success' => true,
+        'data' => $classeProfs
+    ], 200);
+}
 
 
 
     /**
      * Display the specified resource.
      */
-    public function showProfMatiereClasse($anneeClasseId)
-{
-    // Récupérer les informations de l'année de classe avec les professeurs et matières associés
-    $anneeClasse = AnneeClasse::with(['profMatieres.professeur', 'profMatieres.matiere', 'profMatieres.classeProfs'])
-                               ->find($anneeClasseId);
-
-    // Vérifier si l'année de classe existe
-    if (!$anneeClasse) {
-        return response()->json(['error' => 'Année de classe non trouvée'], 404);
-    }
-
-    // Préparer la réponse avec les professeurs et matières associées
-    $classes_matieres = [];
-    $id_profMat_unique = []; // Tableau pour suivre les ID déjà ajoutés
-
-    foreach ($anneeClasse->profMatieres as $profMatiere) {
-        // Si cet id_profMat n'a pas encore été ajouté
-        if (!in_array($profMatiere->id, $id_profMat_unique)) {
-            // Ajouter l'ID du profMatiere dans le tableau pour vérifier les doublons
-            $id_profMat_unique[] = $profMatiere->id;
-
-            // Ajouter les détails dans la réponse
-            $classes_matieres[] = [
-                'id_profMat' => $profMatiere->id,
-                'nom_professeur' => $profMatiere->professeur->nom,
-                'prenom_professeur' => $profMatiere->professeur->prenom,
-                'matiere' => $profMatiere->matiere->nom,
-                'coefficient' => $profMatiere->matiere->coefficient,
-                'classeProfs' => $profMatiere->classeProfs->map(function ($classeProf) {
-                    return [
-                        'id_classeProf' => $classeProf->id,
-                    ];
-                }),
-                'annee' => $anneeClasse->annee->annee_debut . ' - ' . $anneeClasse->annee->annee_fin,
-            ];
-        }
-    }
-
-    // Construire la réponse finale
-    $response = [
-        'annee_classe' => [
-            'nom_classe' => $anneeClasse->classe->nom,
-            'annee' => $anneeClasse->annee->annee_debut . ' - ' . $anneeClasse->annee->annee_fin,
-        ],
-        'classes_matieres' => $classes_matieres,
-    ];
-
-    return response()->json($response);
-}
+   
+    
 
     
     /**

@@ -4,10 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Horaire;
 use App\Models\ClasseProf;
+use App\Models\AnneeScolaire;
+use App\Traits\NotificationTrait;
 use Illuminate\Support\Facades\Log;
 use App\Http\Requests\StoreHoraireRequest;
 use App\Http\Requests\UpdateHoraireRequest;
-use App\Traits\NotificationTrait;
 
 class HoraireController extends Controller
 {
@@ -62,43 +63,64 @@ class HoraireController extends Controller
    
     //horaires pour un prof
     public function horaireProf($professeurId)
-{
-    // Récupérer les horaires en fonction du professeur via la relation prof_matiere
-    $horaires = Horaire::whereHas('classeProf.profMatiere', function ($query) use ($professeurId) {
-        $query->where('professeur_id', $professeurId); 
-    })
-    ->with(['classeProf', 'classeProf.profMatiere', 'classeProf.profMatiere.professeur' , 'classeProf.profMatiere.matiere', 'classeProf.anneeClasse.classe']) // Charger les relations nécessaires
-    ->get(); 
-
-    // Vérifier s'il y a des horaires pour ce professeur
-    if ($horaires->isEmpty()) {
+    {
+        // Récupérer l'année scolaire en cours (état = 'En_cours')
+        $anneeScolaireEnCours = AnneeScolaire::where('etat', 'En_cours')->first();
+    
+        if (!$anneeScolaireEnCours) {
+            return response()->json([
+                'message' => 'Aucune année scolaire en cours.',
+                'status' => 404
+            ]);
+        }
+    
+        // Récupérer les horaires en fonction du professeur et de l'année scolaire en cours
+        $horaires = Horaire::whereHas('classeProf.profMatiere', function ($query) use ($professeurId) {
+            $query->where('professeur_id', $professeurId); 
+        })
+        ->whereHas('classeProf.anneeClasse', function ($query) use ($anneeScolaireEnCours) {
+            // Filtrer par l'année scolaire en cours
+            $query->where('annee_id', $anneeScolaireEnCours->id);
+        })
+        ->with([
+            'classeProf', 
+            'classeProf.profMatiere', 
+            'classeProf.profMatiere.professeur', 
+            'classeProf.profMatiere.matiere', 
+            'classeProf.anneeClasse.classe'
+        ]) // Charger les relations nécessaires
+        ->get(); 
+    
+        // Vérifier s'il y a des horaires pour ce professeur
+        if ($horaires->isEmpty()) {
+            return response()->json([
+                'message' => 'Aucun horaire trouvé pour ce professeur.',
+                'status' => 404
+            ]);
+        }
+    
+        // Formater les données pour inclure les noms de classe et de matière
+        $horairesFormates = $horaires->map(function ($horaire) {
+            return [
+                'id' => $horaire->id,
+                'jour' => $horaire->jour,
+                'heure_debut' => $horaire->heure_debut,
+                'heure_fin' => $horaire->heure_fin,
+                'classe' => $horaire->classeProf->anneeClasse->classe->nom, 
+                'nom_prof' => $horaire->classeProf->profMatiere->professeur->nom,
+                'prenom_prof' => $horaire->classeProf->profMatiere->professeur->prenom,
+                'nom_matiere' => $horaire->classeProf->profMatiere->matiere->nom,
+                'classe_prof_id' => $horaire->classeProf->id, 
+            ];
+        });
+    
         return response()->json([
-            'message' => 'Aucun horaire trouvé pour ce professeur.',
-            'status' => 404
+            'message' => 'Liste des horaires pour le professeur',
+            'données' => $horairesFormates,
+            'status' => 200
         ]);
     }
-
-    // Formater les données pour inclure les noms de classe et de matière
-    $horairesFormates = $horaires->map(function ($horaire) {
-        return [
-            'id' => $horaire->id,
-            'jour' => $horaire->jour,
-            'heure_debut' => $horaire->heure_debut,
-            'heure_fin' => $horaire->heure_fin,
-            'classe' => $horaire->classeProf->anneeClasse->classe->nom, 
-            'nom_prof' => $horaire->classeProf->profMatiere->professeur->nom,
-            'prenom_prof' => $horaire->classeProf->profMatiere->professeur->prenom,
-            'nom_matiere' => $horaire->classeProf->profMatiere->matiere->nom,
-            'classe_prof_id' => $horaire->classeProf->id, 
-        ];
-    });
-
-    return response()->json([
-        'message' => 'Liste des horaires pour le professeur',
-        'données' => $horairesFormates,
-        'status' => 200
-    ]);
-}
+    
 
     
 
