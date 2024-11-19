@@ -26,6 +26,24 @@ namespace App\Http\Controllers\Annotations ;
  *
 
  * @OA\GET(
+ *     path="/api/professeur/{id}/matieres",
+ *     summary="Liste matiere d'un prof",
+ *     description="",
+ *         security={
+ *    {       "BearerAuth": {}}
+ *         },
+ * @OA\Response(response="200", description="OK"),
+ * @OA\Response(response="404", description="Not Found"),
+ * @OA\Response(response="500", description="Internal Server Error"),
+ *     @OA\Parameter(in="path", name="id", required=false, @OA\Schema(type="string")
+ * ),
+ *     @OA\Parameter(in="header", name="User-Agent", required=false, @OA\Schema(type="string")
+ * ),
+ *     tags={"Matières"},
+*),
+
+
+ * @OA\GET(
  *     path="/api/professeur/{id}/nombre-matieres",
  *     summary="Nombre de matiere pour un prof",
  *     description="",

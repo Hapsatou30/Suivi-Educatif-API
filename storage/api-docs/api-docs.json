@@ -23,7 +23,418 @@
         "multipart/form-data"
     ],
     "paths": {
-        "/api/eleves/{eleveId}/notes": {
+        "/api/bulletins/annee-classe/{anneeClasseId}": {
+            "get": {
+                "summary": "liste des bulletins pour une classe",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Bulletins"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "anneeClasseId",
+                        "type": "string"
+                    },
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/bulletins/classe-eleve/{classeEleveId}": {
+            "get": {
+                "summary": "liste des bulletins pour un eleve",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Bulletins"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "classeEleveId",
+                        "type": "string"
+                    },
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/bulletins": {
+            "get": {
+                "summary": "la liste de tout les bulletins",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Bulletins"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/creer-bulletins": {
+            "post": {
+                "summary": "Créer des bulletins pour chaque eleve",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Bulletins"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/user/notifications": {
+            "get": {
+                "summary": "Liste des notifications de l'utilisateur connecté",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Notifications"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/notes/annee-classe/ {anneeClasse_id}": {
+            "get": {
+                "summary": "Liste des notes par année classe",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Les Notes"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "anneeClasse_id",
+                        "type": "string"
+                    },
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/notes/{note}": {
+            "put": {
+                "summary": "Modifier une note",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Les Notes"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "note",
+                        "type": "string"
+                    },
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "notes": {
+                                        "type": "integer"
+                                    }
+                                }
+                            },
+                            "example": {
+                                "notes": 15
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/parents/{parentId}/notes": {
+            "get": {
+                "summary": "liste des notes des eleves d'un parent",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Les Notes"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "parentId",
+                        "type": "string"
+                    },
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/eleves/{classeEleve_id}/notes": {
             "get": {
                 "summary": "Les notes pour un eleve",
                 "description": "",
@@ -62,7 +473,7 @@
                 "parameters": [
                     {
                         "in": "path",
-                        "name": "eleveId",
+                        "name": "classeEleve_id",
                         "type": "string"
                     },
                     {
@@ -73,9 +484,9 @@
                 ]
             }
         },
-        "/api/notes/matiere/{classProfId}": {
+        "/api/notes/classe/{classe_prof_id}": {
             "get": {
-                "summary": "liste des notes par matiere",
+                "summary": "liste des notes par classProf",
                 "description": "",
                 "responses": {
                     "200": {
@@ -112,7 +523,7 @@
                 "parameters": [
                     {
                         "in": "path",
-                        "name": "classProfId",
+                        "name": "classe_prof_id",
                         "type": "string"
                     },
                     {
@@ -190,20 +601,253 @@
                                     "evaluation_id": {
                                         "type": "integer"
                                     },
-                                    "eleve_id": {
+                                    "bulletin_id": {
                                         "type": "integer"
+                                    },
+                                    "periode": {
+                                        "type": "string"
                                     }
                                 }
                             },
                             "example": {
-                                "notes": 16,
-                                "commentaire": "Bien joué !",
-                                "evaluation_id": 150,
-                                "eleve_id": 1
+                                "notes": 15,
+                                "commentaire": "Bien fait, continuez comme ça!",
+                                "evaluation_id": 59,
+                                "bulletin_id": 19,
+                                "periode": "1_semestre"
                             }
                         }
                     }
                 }
+            }
+        },
+        "/api/absences/toutes": {
+            "get": {
+                "summary": "liste de tous les absences",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Absences"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/absences/{absence}": {
+            "post": {
+                "summary": "ajouter une justification",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Absences"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "absence",
+                        "type": "string"
+                    },
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "justification": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "motif": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "example": {
+                                "justification": {
+                                    "type": "string",
+                                    "format": "binary"
+                                },
+                                "motif": "Malade"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/parents/{parentId}/absences": {
+            "get": {
+                "summary": "liste des absences pour un parent spécifier",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Absences"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "parentId",
+                        "type": "string"
+                    },
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/absences/annee-classe/{anneeClasseId}": {
+            "get": {
+                "summary": "liste des absences par annee classe",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Absences"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "anneeClasseId",
+                        "type": "string"
+                    },
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
             }
         },
         "/api/presences": {
@@ -299,7 +943,7 @@
         },
         "/api/classe-eleve/{classeEleveId}/absences": {
             "get": {
-                "summary": "Liste des absences par classe",
+                "summary": "Liste des absences par eleve",
                 "description": "",
                 "responses": {
                     "200": {
@@ -339,6 +983,267 @@
                         "name": "classeEleveId",
                         "type": "string"
                     },
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/absences/{classeEleveId}": {
+            "get": {
+                "summary": "Liste des absences par classe prof",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Absences"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "classeEleveId",
+                        "type": "string"
+                    },
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/classes-eleves/{classes_elefe}": {
+            "put": {
+                "summary": "modifier la classe d'un eleve",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Classe_Eleve"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "classes_elefe",
+                        "type": "string"
+                    },
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "annee_classe_id": {
+                                        "type": "integer"
+                                    },
+                                    "eleve_id": {
+                                        "type": "integer"
+                                    }
+                                }
+                            },
+                            "example": {
+                                "annee_classe_id": 5,
+                                "eleve_id": 5
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/eleve": {
+            "get": {
+                "summary": "Infos de l'élève connecté",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Classe_Eleve"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/eleve/{classeEleve}": {
+            "get": {
+                "summary": "détails par eleve",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Classe_Eleve"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "classeEleve",
+                        "type": "string"
+                    },
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/classeEleve": {
+            "get": {
+                "summary": "liste des éléves qui ont une classe",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Classe_Eleve"
+                ],
+                "parameters": [
                     {
                         "in": "header",
                         "name": "User-Agent",
@@ -520,7 +1425,9 @@
                         }
                     }
                 }
-            },
+            }
+        },
+        "/api/classes-eleves/{anneeClasseId}": {
             "get": {
                 "summary": "Liste des eleves par classe",
                 "description": "",
@@ -555,6 +1462,56 @@
                 },
                 "tags": [
                     "Classe_Eleve"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "anneeClasseId",
+                        "type": "string"
+                    },
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/listeleves": {
+            "get": {
+                "summary": "liste Eleves",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Eleve"
                 ],
                 "parameters": [
                     {
@@ -1270,16 +2227,216 @@
                             },
                             "example": {
                                 "jour": "Lundi",
-                                "heure_debut": "08:00",
+                                "heure_debut": "10:00",
                                 "heure_fin": "10:00",
-                                "classe_prof_id": 53
+                                "classe_prof_id": 3
                             }
                         }
                     }
                 }
             }
         },
-        "/api/eleves/{eleveId}/evaluations": {
+        "/api/evaluations/eleves/{parentId}": {
+            "get": {
+                "summary": "liste de evaluation par parent",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Evaluations"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "parentId",
+                        "type": "string"
+                    },
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/evaluations/anneeClasse/{anneeClasseId}": {
+            "get": {
+                "summary": "liste des evaluations par annee classe",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Evaluations"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "anneeClasseId",
+                        "type": "string"
+                    },
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/evaluations/classe/{classeProfId}": {
+            "get": {
+                "summary": "liste des evaluations par classe prof",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Evaluations"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "classeProfId",
+                        "type": "string"
+                    },
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/evaluations/professeur/{professeurId}": {
+            "get": {
+                "summary": "liste des evaluations d'un prof",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Evaluations"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "professeurId",
+                        "type": "string"
+                    },
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/eleves/{classeEleveId}/evaluations": {
             "get": {
                 "summary": "Liste des evaluations pour un eleve",
                 "description": "",
@@ -1318,7 +2475,7 @@
                 "parameters": [
                     {
                         "in": "path",
-                        "name": "eleveId",
+                        "name": "classeEleveId",
                         "type": "string"
                     },
                     {
@@ -1520,7 +2677,7 @@
         },
         "/api/evaluations": {
             "get": {
-                "summary": "Liste des evaluations pour une anne_classe",
+                "summary": "Liste des evaluations",
                 "description": "",
                 "responses": {
                     "200": {
@@ -1794,7 +2951,7 @@
         },
         "/api/cahiers-texte/classe/{anneeClasseId}": {
             "get": {
-                "summary": "Cahier de texte par Classe ",
+                "summary": "Afficher les contenu du cahier de texte",
                 "description": "",
                 "responses": {
                     "200": {
@@ -1843,49 +3000,6 @@
             }
         },
         "/api/cahiers_texte": {
-            "get": {
-                "summary": "Afficher les contenu du cahier de texte",
-                "description": "",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "content": {
-                            "application/json": {
-                                "schema": {},
-                                "example": ""
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "content": {
-                            "application/json": {
-                                "schema": {},
-                                "example": ""
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "content": {
-                            "application/json": {
-                                "schema": {},
-                                "example": ""
-                            }
-                        }
-                    }
-                },
-                "tags": [
-                    "Cahier de texte"
-                ],
-                "parameters": [
-                    {
-                        "in": "header",
-                        "name": "User-Agent",
-                        "type": "string"
-                    }
-                ]
-            },
             "post": {
                 "summary": "ecrire dans le cahier de texte",
                 "description": "",
@@ -1970,6 +3084,56 @@
                         }
                     }
                 }
+            }
+        },
+        "/api/professeur/{id}/liste_classes": {
+            "get": {
+                "summary": "Liste des classes pour un prof ",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Classe_Prof"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "type": "string"
+                    },
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
             }
         },
         "/api/professeurs/{professeurId}/classes": {
@@ -2090,17 +3254,18 @@
                                 }
                             },
                             "example": {
-                                "annee_classe_id": 17,
+                                "annee_classe_id": 9,
                                 "prof_mat_ids": [
-                                    1,
-                                    2,
-                                    3
+                                    17,
+                                    18
                                 ]
                             }
                         }
                     }
                 }
-            },
+            }
+        },
+        "/api/classes-professeurs/{anneeClasseId}": {
             "get": {
                 "summary": "Liste  des prof avec leurs matieres et leurs classes",
                 "description": "",
@@ -2137,6 +3302,61 @@
                     "Classe_Prof"
                 ],
                 "parameters": [
+                    {
+                        "in": "path",
+                        "name": "anneeClasseId",
+                        "type": "string"
+                    },
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/annee-classes/{anneeClasse}": {
+            "get": {
+                "summary": "Details d'une année classe ",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Annéé_Classe"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "anneeClasse",
+                        "type": "string"
+                    },
                     {
                         "in": "header",
                         "name": "User-Agent",
@@ -2892,16 +4112,12 @@
                                     },
                                     "annee_fin": {
                                         "type": "string"
-                                    },
-                                    "etat": {
-                                        "type": "string"
                                     }
                                 }
                             },
                             "example": {
-                                "annee_debut": "2025",
-                                "annee_fin": "2026",
-                                "etat": "En_cours"
+                                "annee_debut": "2024",
+                                "annee_fin": "2024"
                             }
                         }
                     }
@@ -3064,10 +4280,10 @@
                                 }
                             },
                             "example": {
-                                "professeur_id": 7,
+                                "professeur_id": 5,
                                 "matiere_ids": [
-                                    13,
-                                    14
+                                    6,
+                                    12
                                 ]
                             }
                         }
@@ -3221,54 +4437,6 @@
                     }
                 ]
             },
-            "put": {
-                "summary": "Modifier les informations d'un professeur",
-                "description": "",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "content": {
-                            "application/json": {
-                                "schema": {},
-                                "example": ""
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "content": {
-                            "application/json": {
-                                "schema": {},
-                                "example": ""
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "content": {
-                            "application/json": {
-                                "schema": {},
-                                "example": ""
-                            }
-                        }
-                    }
-                },
-                "tags": [
-                    "Professeurs"
-                ],
-                "parameters": [
-                    {
-                        "in": "path",
-                        "name": "professeur",
-                        "type": "string"
-                    },
-                    {
-                        "in": "header",
-                        "name": "User-Agent",
-                        "type": "string"
-                    }
-                ]
-            },
             "get": {
                 "summary": "Details d'un professeur",
                 "description": "",
@@ -3316,6 +4484,90 @@
                         "type": "string"
                     }
                 ]
+            }
+        },
+        "/api/professeur/{professeur}": {
+            "post": {
+                "summary": "Modifier les informations d'un professeur",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Professeurs"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "professeur",
+                        "type": "string"
+                    },
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "nom": {
+                                        "type": "string"
+                                    },
+                                    "photo": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                }
+                            },
+                            "example": {
+                                "nom": "Lo",
+                                "photo": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            }
+                        }
+                    }
+                }
             }
         },
         "/api/professeurs": {
@@ -3441,6 +4693,56 @@
                     "Professeurs"
                 ],
                 "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/professeur/{id}/matieres": {
+            "get": {
+                "summary": "Liste matiere d'un prof",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Matières"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "type": "string"
+                    },
                     {
                         "in": "header",
                         "name": "User-Agent",
@@ -3776,6 +5078,51 @@
                 ]
             }
         },
+        "/api/profile": {
+            "get": {
+                "summary": "profile",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Authentification"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
         "/api/refresh": {
             "get": {
                 "summary": "rafraichir le token",
@@ -3933,7 +5280,7 @@
                                 }
                             },
                             "example": {
-                                "email": "thiamhapstou@gmail.com",
+                                "email": "eleve@gmail.com",
                                 "password": "password123"
                             }
                         }

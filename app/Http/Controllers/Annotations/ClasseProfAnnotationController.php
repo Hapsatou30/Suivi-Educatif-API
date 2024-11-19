@@ -26,6 +26,24 @@ namespace App\Http\Controllers\Annotations ;
  *
 
  * @OA\GET(
+ *     path="/api/professeur/{id}/liste_classes",
+ *     summary="Liste des classes pour un prof ",
+ *     description="",
+ *         security={
+ *    {       "BearerAuth": {}}
+ *         },
+ * @OA\Response(response="200", description="OK"),
+ * @OA\Response(response="404", description="Not Found"),
+ * @OA\Response(response="500", description="Internal Server Error"),
+ *     @OA\Parameter(in="path", name="id", required=false, @OA\Schema(type="string")
+ * ),
+ *     @OA\Parameter(in="header", name="User-Agent", required=false, @OA\Schema(type="string")
+ * ),
+ *     tags={"Classe_Prof"},
+*),
+
+
+ * @OA\GET(
  *     path="/api/professeurs/{professeurId}/classes",
  *     summary="Nombre de classe pour un prof",
  *     description="",
@@ -74,7 +92,7 @@ namespace App\Http\Controllers\Annotations ;
 
 
  * @OA\GET(
- *     path="/api/classes-professeurs",
+ *     path="/api/classes-professeurs/{anneeClasseId}",
  *     summary="Liste  des prof avec leurs matieres et leurs classes",
  *     description="",
  *         security={
@@ -83,6 +101,8 @@ namespace App\Http\Controllers\Annotations ;
  * @OA\Response(response="200", description="OK"),
  * @OA\Response(response="404", description="Not Found"),
  * @OA\Response(response="500", description="Internal Server Error"),
+ *     @OA\Parameter(in="path", name="anneeClasseId", required=false, @OA\Schema(type="string")
+ * ),
  *     @OA\Parameter(in="header", name="User-Agent", required=false, @OA\Schema(type="string")
  * ),
  *     tags={"Classe_Prof"},

@@ -80,7 +80,7 @@ namespace App\Http\Controllers\Annotations ;
 
  * @OA\GET(
  *     path="/api/cahiers-texte/classe/{anneeClasseId}",
- *     summary="Cahier de texte par Classe ",
+ *     summary="Afficher les contenu du cahier de texte",
  *     description="",
  *         security={
  *    {       "BearerAuth": {}}
@@ -90,22 +90,6 @@ namespace App\Http\Controllers\Annotations ;
  * @OA\Response(response="500", description="Internal Server Error"),
  *     @OA\Parameter(in="path", name="anneeClasseId", required=false, @OA\Schema(type="string")
  * ),
- *     @OA\Parameter(in="header", name="User-Agent", required=false, @OA\Schema(type="string")
- * ),
- *     tags={"Cahier de texte"},
-*),
-
-
- * @OA\GET(
- *     path="/api/cahiers_texte",
- *     summary="Afficher les contenu du cahier de texte",
- *     description="",
- *         security={
- *    {       "BearerAuth": {}}
- *         },
- * @OA\Response(response="200", description="OK"),
- * @OA\Response(response="404", description="Not Found"),
- * @OA\Response(response="500", description="Internal Server Error"),
  *     @OA\Parameter(in="header", name="User-Agent", required=false, @OA\Schema(type="string")
  * ),
  *     tags={"Cahier de texte"},

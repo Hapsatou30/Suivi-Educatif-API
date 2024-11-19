@@ -26,7 +26,79 @@ namespace App\Http\Controllers\Annotations ;
  *
 
  * @OA\GET(
- *     path="/api/eleves/{eleveId}/evaluations",
+ *     path="/api/evaluations/eleves/{parentId}",
+ *     summary="liste de evaluation par parent",
+ *     description="",
+ *         security={
+ *    {       "BearerAuth": {}}
+ *         },
+ * @OA\Response(response="200", description="OK"),
+ * @OA\Response(response="404", description="Not Found"),
+ * @OA\Response(response="500", description="Internal Server Error"),
+ *     @OA\Parameter(in="path", name="parentId", required=false, @OA\Schema(type="string")
+ * ),
+ *     @OA\Parameter(in="header", name="User-Agent", required=false, @OA\Schema(type="string")
+ * ),
+ *     tags={"Evaluations"},
+*),
+
+
+ * @OA\GET(
+ *     path="/api/evaluations/anneeClasse/{anneeClasseId}",
+ *     summary="liste des evaluations par annee classe",
+ *     description="",
+ *         security={
+ *    {       "BearerAuth": {}}
+ *         },
+ * @OA\Response(response="200", description="OK"),
+ * @OA\Response(response="404", description="Not Found"),
+ * @OA\Response(response="500", description="Internal Server Error"),
+ *     @OA\Parameter(in="path", name="anneeClasseId", required=false, @OA\Schema(type="string")
+ * ),
+ *     @OA\Parameter(in="header", name="User-Agent", required=false, @OA\Schema(type="string")
+ * ),
+ *     tags={"Evaluations"},
+*),
+
+
+ * @OA\GET(
+ *     path="/api/evaluations/classe/{classeProfId}",
+ *     summary="liste des evaluations par classe prof",
+ *     description="",
+ *         security={
+ *    {       "BearerAuth": {}}
+ *         },
+ * @OA\Response(response="200", description="OK"),
+ * @OA\Response(response="404", description="Not Found"),
+ * @OA\Response(response="500", description="Internal Server Error"),
+ *     @OA\Parameter(in="path", name="classeProfId", required=false, @OA\Schema(type="string")
+ * ),
+ *     @OA\Parameter(in="header", name="User-Agent", required=false, @OA\Schema(type="string")
+ * ),
+ *     tags={"Evaluations"},
+*),
+
+
+ * @OA\GET(
+ *     path="/api/evaluations/professeur/{professeurId}",
+ *     summary="liste des evaluations d'un prof",
+ *     description="",
+ *         security={
+ *    {       "BearerAuth": {}}
+ *         },
+ * @OA\Response(response="200", description="OK"),
+ * @OA\Response(response="404", description="Not Found"),
+ * @OA\Response(response="500", description="Internal Server Error"),
+ *     @OA\Parameter(in="path", name="professeurId", required=false, @OA\Schema(type="string")
+ * ),
+ *     @OA\Parameter(in="header", name="User-Agent", required=false, @OA\Schema(type="string")
+ * ),
+ *     tags={"Evaluations"},
+*),
+
+
+ * @OA\GET(
+ *     path="/api/eleves/{classeEleveId}/evaluations",
  *     summary="Liste des evaluations pour un eleve",
  *     description="",
  *         security={
@@ -35,7 +107,7 @@ namespace App\Http\Controllers\Annotations ;
  * @OA\Response(response="200", description="OK"),
  * @OA\Response(response="404", description="Not Found"),
  * @OA\Response(response="500", description="Internal Server Error"),
- *     @OA\Parameter(in="path", name="eleveId", required=false, @OA\Schema(type="string")
+ *     @OA\Parameter(in="path", name="classeEleveId", required=false, @OA\Schema(type="string")
  * ),
  *     @OA\Parameter(in="header", name="User-Agent", required=false, @OA\Schema(type="string")
  * ),
@@ -115,7 +187,7 @@ namespace App\Http\Controllers\Annotations ;
 
  * @OA\GET(
  *     path="/api/evaluations",
- *     summary="Liste des evaluations pour une anne_classe",
+ *     summary="Liste des evaluations",
  *     description="",
  *         security={
  *    {       "BearerAuth": {}}

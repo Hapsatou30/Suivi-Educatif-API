@@ -114,7 +114,6 @@ namespace App\Http\Controllers\Annotations ;
  *                 properties={
  *                     @OA\Property(property="annee_debut", type="string"),
  *                     @OA\Property(property="annee_fin", type="string"),
- *                     @OA\Property(property="etat", type="string"),
  *                 },
  *             ),
  *         ),

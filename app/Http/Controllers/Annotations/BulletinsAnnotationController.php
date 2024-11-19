@@ -26,8 +26,8 @@ namespace App\Http\Controllers\Annotations ;
  *
 
  * @OA\GET(
- *     path="/api/profile",
- *     summary="profile",
+ *     path="/api/bulletins/annee-classe/{anneeClasseId}",
+ *     summary="liste des bulletins pour une classe",
  *     description="",
  *         security={
  *    {       "BearerAuth": {}}
@@ -35,15 +35,17 @@ namespace App\Http\Controllers\Annotations ;
  * @OA\Response(response="200", description="OK"),
  * @OA\Response(response="404", description="Not Found"),
  * @OA\Response(response="500", description="Internal Server Error"),
+ *     @OA\Parameter(in="path", name="anneeClasseId", required=false, @OA\Schema(type="string")
+ * ),
  *     @OA\Parameter(in="header", name="User-Agent", required=false, @OA\Schema(type="string")
  * ),
- *     tags={"Authentification"},
+ *     tags={"Bulletins"},
 *),
 
 
  * @OA\GET(
- *     path="/api/refresh",
- *     summary="rafraichir le token",
+ *     path="/api/bulletins/classe-eleve/{classeEleveId}",
+ *     summary="liste des bulletins pour un eleve",
  *     description="",
  *         security={
  *    {       "BearerAuth": {}}
@@ -51,15 +53,17 @@ namespace App\Http\Controllers\Annotations ;
  * @OA\Response(response="200", description="OK"),
  * @OA\Response(response="404", description="Not Found"),
  * @OA\Response(response="500", description="Internal Server Error"),
+ *     @OA\Parameter(in="path", name="classeEleveId", required=false, @OA\Schema(type="string")
+ * ),
  *     @OA\Parameter(in="header", name="User-Agent", required=false, @OA\Schema(type="string")
  * ),
- *     tags={"Authentification"},
+ *     tags={"Bulletins"},
 *),
 
 
  * @OA\GET(
- *     path="/api/logout",
- *     summary="Déconnexion",
+ *     path="/api/bulletins",
+ *     summary="la liste de tout les bulletins",
  *     description="",
  *         security={
  *    {       "BearerAuth": {}}
@@ -69,13 +73,13 @@ namespace App\Http\Controllers\Annotations ;
  * @OA\Response(response="500", description="Internal Server Error"),
  *     @OA\Parameter(in="header", name="User-Agent", required=false, @OA\Schema(type="string")
  * ),
- *     tags={"Authentification"},
+ *     tags={"Bulletins"},
 *),
 
 
  * @OA\POST(
- *     path="/api/login",
- *     summary="Connexion ",
+ *     path="/api/creer-bulletins",
+ *     summary="Créer des bulletins pour chaque eleve",
  *     description="",
  *         security={
  *    {       "BearerAuth": {}}
@@ -86,23 +90,10 @@ namespace App\Http\Controllers\Annotations ;
  * @OA\Response(response="403", description="Forbidden"),
  *     @OA\Parameter(in="header", name="User-Agent", required=false, @OA\Schema(type="string")
  * ),
- *     @OA\RequestBody(
- *         required=true,
- *         @OA\MediaType(
- *             mediaType="multipart/form-data",
- *             @OA\Schema(
- *                 type="object",
- *                 properties={
- *                     @OA\Property(property="email", type="string"),
- *                     @OA\Property(property="password", type="string"),
- *                 },
- *             ),
- *         ),
- *     ),
- *     tags={"Authentification"},
+ *     tags={"Bulletins"},
 *),
 
 
 */
 
- class AuthentificationAnnotationController {}
+ class BulletinsAnnotationController {}
